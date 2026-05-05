@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GoodForUs | Donor Dashboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <!-- PDF receipt libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+  <link rel="stylesheet" href="donor-dashboard.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-badge">GFU</div>
+        <div>
+          <h1>GoodForUs</h1>
+          <p>Donor Dashboard</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" data-view="overview">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>Overview</span>
+        </button>
+        <button class="nav-btn" data-view="donations">
+          <i class="fa-solid fa-hand-holding-heart"></i>
+          <span>Donations</span>
+        </button>
+        <button class="nav-btn" data-view="campaigns">
+          <i class="fa-solid fa-bullseye"></i>
+          <span>Campaigns</span>
+        </button>
+        <button class="nav-btn" data-view="recurring">
+          <i class="fa-solid fa-arrows-rotate"></i>
+          <span>Recurring Gifts</span>
+        </button>
+        <button class="nav-btn" data-view="receipts">
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+          <span>Receipts</span>
+        </button>
+        <button class="nav-btn" data-view="payment-methods">
+          <i class="fa-regular fa-credit-card"></i>
+          <span>Payment Methods</span>
+        </button>
+        <button class="nav-btn" data-view="profile">
+          <i class="fa-regular fa-user"></i>
+          <span>Profile</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-card">
+        <h3>Secure Giving</h3>
+        <p>
+          Track donations, manage recurring gifts, download receipts, and keep your donor information up to date.
+        </p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <div>
+            <div class="eyebrow">Supporter Center</div>
+            <h2 id="pageTitle">Overview</h2>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="globalSearch" placeholder="Search donations or campaigns..." />
+          </div>
+
+          <button class="btn-secondary" id="exportSummaryBtn">
+            <i class="fa-solid fa-download"></i>
+            Export Summary
+          </button>
+
+          <div class="avatar" id="avatarInitials">DS</div>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="view active" id="view-overview">
+          <div class="hero-card">
+            <div class="hero-copy">
+              <div class="hero-kicker">Welcome back</div>
+              <h3 id="welcomeName">Donor</h3>
+              <p id="welcomeText">
+                Thank you for supporting causes that matter. Here is a live view of your impact, giving history, and account preferences.
+              </p>
+            </div>
+            <div class="hero-actions">
+              <a class="btn-primary" href="index.html">
+                <i class="fa-solid fa-plus"></i>
+                Make a Donation
+              </a>
+              <button class="btn-secondary" id="downloadLatestReceiptBtn">
+                <i class="fa-solid fa-file-arrow-down"></i>
+                Latest Receipt
+              </button>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Lifetime Giving</div>
+              <div class="stat-value" id="statLifetime">$0</div>
+              <div class="stat-sub">Total across all campaigns</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-label">This Year</div>
+              <div class="stat-value" id="statYear">$0</div>
+              <div class="stat-sub">Giving in current year</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-label">Active Recurring</div>
+              <div class="stat-value" id="statRecurring">0</div>
+              <div class="stat-sub">Managed from your dashboard</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-label">Receipts Available</div>
+              <div class="stat-value" id="statReceipts">0</div>
+              <div class="stat-sub">Instant download access</div>
+            </div>
+          </div>
+
+          <div class="content-grid two-col">
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Recent Donations</h3>
+                <button class="mini-link" data-jump="donations">View All</button>
+              </div>
+              <div id="recentDonationsList" class="stack-list"></div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Giving by Campaign</h3>
+              </div>
+              <div id="campaignImpactList" class="stack-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="view" id="view-donations">
+          <div class="panel">
+            <div class="panel-head wrap">
+              <h3>Donation History</h3>
+              <div class="filters">
+                <input type="month" id="filterMonth" />
+                <select id="filterStatus">
+                  <option value="all">All Statuses</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Refunded">Refunded</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Campaign</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                    <th>Receipt</th>
+                  </tr>
+                </thead>
+                <tbody id="donationsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="view" id="view-campaigns">
+          <div class="cards-grid" id="campaignCards"></div>
+        </div>
+
+        <div class="view" id="view-recurring">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Recurring Gifts</h3>
+            </div>
+            <div id="recurringList" class="stack-list"></div>
+          </div>
+        </div>
+
+        <div class="view" id="view-receipts">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Receipts</h3>
+            </div>
+            <div id="receiptsList" class="stack-list"></div>
+          </div>
+        </div>
+
+        <div class="view" id="view-payment-methods">
+          <div class="content-grid two-col">
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Saved Payment Methods</h3>
+              </div>
+              <div id="paymentMethodsList" class="stack-list"></div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Add Payment Method</h3>
+              </div>
+
+              <div class="payment-tabs">
+                <button class="pay-tab active" data-pay-tab="card">Card</button>
+                <button class="pay-tab" data-pay-tab="ach">Bank / ACH</button>
+                <button class="pay-tab" data-pay-tab="paypal">PayPal</button>
+              </div>
+
+              <div class="pay-pane active" id="pay-pane-card">
+                <form id="addCardForm" class="form-grid">
+                  <div class="field full">
+                    <label for="cardBillingName">Name on Card</label>
+                    <input id="cardBillingName" type="text" placeholder="Cedric Savery">
+                  </div>
+
+                  <div class="field full">
+                    <label for="cardNumber">Card Number</label>
+                    <input id="cardNumber" type="text" maxlength="19" placeholder="4242 4242 4242 4242">
+                  </div>
+
+                  <div class="field">
+                    <label for="cardExp">Expiration</label>
+                    <input id="cardExp" type="text" maxlength="5" placeholder="08/28">
+                  </div>
+
+                  <div class="field">
+                    <label for="cardBrand">Card Brand</label>
+                    <select id="cardBrand">
+                      <option value="Visa">Visa</option>
+                      <option value="Mastercard">Mastercard</option>
+                      <option value="American Express">American Express</option>
+                      <option value="Discover">Discover</option>
+                    </select>
+                  </div>
+
+                  <div class="field full">
+                    <label class="check-row slim">
+                      <input type="checkbox" id="cardMakeDefault">
+                      <span>Make this my default payment method</span>
+                    </label>
+                  </div>
+
+                  <div class="actions full">
+                    <button type="submit" class="btn-primary">
+                      <i class="fa-solid fa-credit-card"></i>
+                      Add Card
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <div class="pay-pane" id="pay-pane-ach">
+                <form id="addBankForm" class="form-grid">
+                  <div class="field full">
+                    <label for="bankAccountName">Account Holder Name</label>
+                    <input id="bankAccountName" type="text" placeholder="Cedric Savery">
+                  </div>
+
+                  <div class="field">
+                    <label for="bankName">Bank Name</label>
+                    <input id="bankName" type="text" placeholder="Chase Bank">
+                  </div>
+
+                  <div class="field">
+                    <label for="accountType">Account Type</label>
+                    <select id="accountType">
+                      <option value="Checking">Checking</option>
+                      <option value="Savings">Savings</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="routingNumber">Routing Number</label>
+                    <input id="routingNumber" type="text" maxlength="9" placeholder="021000021">
+                  </div>
+
+                  <div class="field">
+                    <label for="accountNumber">Account Number</label>
+                    <input id="accountNumber" type="text" maxlength="17" placeholder="123456789012">
+                  </div>
+
+                  <div class="field full">
+                    <label class="check-row slim">
+                      <input type="checkbox" id="bankMakeDefault">
+                      <span>Make this my default payment method</span>
+                    </label>
+                  </div>
+
+                  <div class="actions full">
+                    <button type="submit" class="btn-primary">
+                      <i class="fa-solid fa-building-columns"></i>
+                      Link Bank Account
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <div class="pay-pane" id="pay-pane-paypal">
+                <form id="addPaypalForm" class="form-grid">
+                  <div class="field full">
+                    <label for="paypalEmail">PayPal Email</label>
+                    <input id="paypalEmail" type="email" placeholder="yourpaypal@email.com">
+                  </div>
+
+                  <div class="field full">
+                    <label class="check-row slim">
+                      <input type="checkbox" id="paypalMakeDefault">
+                      <span>Make PayPal my default payment method</span>
+                    </label>
+                  </div>
+
+                  <div class="actions full">
+                    <button type="submit" class="btn-primary">
+                      <i class="fa-brands fa-paypal"></i>
+                      Connect PayPal
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="view" id="view-profile">
+          <div class="content-grid two-col">
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Profile Information</h3>
+              </div>
+
+              <form id="profileForm" class="form-grid">
+                <div class="field">
+                  <label for="profileName">Full Name</label>
+                  <input id="profileName" type="text" />
+                </div>
+
+                <div class="field">
+                  <label for="profileEmail">Email Address</label>
+                  <input id="profileEmail" type="email" />
+                </div>
+
+                <div class="field">
+                  <label for="profilePhone">Phone</label>
+                  <input id="profilePhone" type="text" />
+                </div>
+
+                <div class="field">
+                  <label for="profileAddress">Address</label>
+                  <input id="profileAddress" type="text" />
+                </div>
+
+                <div class="field full">
+                  <label for="profileNotes">Donor Notes</label>
+                  <textarea id="profileNotes" rows="4"></textarea>
+                </div>
+
+                <div class="actions full">
+                  <button type="submit" class="btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    Save Profile
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Communication Preferences</h3>
+              </div>
+
+              <form id="preferencesForm" class="prefs-list">
+                <label class="check-row">
+                  <input type="checkbox" id="prefEmailReceipts" />
+                  <span>Email me donation receipts</span>
+                </label>
+
+                <label class="check-row">
+                  <input type="checkbox" id="prefCampaignUpdates" />
+                  <span>Send campaign impact updates</span>
+                </label>
+
+                <label class="check-row">
+                  <input type="checkbox" id="prefRecurringReminders" />
+                  <span>Remind me before recurring charges</span>
+                </label>
+
+                <label class="check-row">
+                  <input type="checkbox" id="prefSmsAlerts" />
+                  <span>Send SMS payment alerts</span>
+                </label>
+
+                <div class="actions">
+                  <button type="submit" class="btn-primary">
+                    <i class="fa-solid fa-sliders"></i>
+                    Save Preferences
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="donor-dashboard.js"></script>
+</body>
+</html>

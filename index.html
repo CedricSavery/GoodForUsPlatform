@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoodForUs | Enterprise Fundraising Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root { 
+            --accent: #00b964; 
+            --enterprise: #2271b1; 
+            --dark: #1e293b;
+        }
+        body { font-family: 'Inter', sans-serif; color: var(--dark); scroll-behavior: smooth; }
+        .hero-gradient { background: radial-gradient(circle at top right, #f0fdf4, #ffffff); }
+        .tool-card { transition: all 0.3s ease; border: 1px solid #e2e8f0; height: 100%; display: flex; flex-direction: column; }
+        .tool-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.05); border-color: var(--accent); }
+        .feature-tag { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; }
+        
+        .logo-container img { display: block; max-height: 45px; width: auto; }
+
+        #demo-modal {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        #demo-modal.active { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <div id="demo-modal" class="fixed inset-0 z-[100] flex items-start justify-center pt-10 px-6 bg-slate-900/40 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-xl rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100">
+            <div class="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <div>
+                    <h3 class="text-xl font-900 text-slate-900">Request a Demo</h3>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">Join the Future of Philanthropy</p>
+                </div>
+                <button onclick="toggleDemo(false)" class="w-10 h-10 rounded-full hover:bg-slate-200 flex items-center justify-center transition">
+                    <i class="fas fa-times text-slate-400"></i>
+                </button>
+            </div>
+            
+            <form id="demo-form" class="p-8 space-y-4" onsubmit="handleDemoSubmit(event)">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Full Name</label>
+                        <input type="text" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Email Address</label>
+                        <input type="email" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500 outline-none text-sm">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Business Name</label>
+                        <input type="text" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Industry / Entity Type</label>
+                        <select required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500 outline-none text-sm appearance-none">
+                            <option value="">Select Type...</option>
+                            <option>501(c)(3) Non-Profit</option>
+                            <option>Religious Organization</option>
+                            <option>Educational Institution</option>
+                            <option>Healthcare Foundation</option>
+                            <option>Social Enterprise</option>
+                            <option>Corporate CSR</option>
+                            <option>Fintech / Partner</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Company Size</label>
+                    <select required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500 outline-none text-sm">
+                        <option>1-10 Employees</option>
+                        <option>11-50 Employees</option>
+                        <option>51-200 Employees</option>
+                        <option>201-500 Employees</option>
+                        <option>500+ Employees</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-black uppercase text-slate-400 mb-1 block">Brief Description of Needs</label>
+                    <textarea required rows="3" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500 outline-none text-sm resize-none" placeholder="How can GoodForUs help you?"></textarea>
+                </div>
+
+                <button type="submit" class="w-full py-4 bg-emerald-500 text-white font-black rounded-2xl shadow-xl shadow-emerald-100 hover:bg-emerald-600 transition uppercase tracking-widest text-xs mt-4">
+                    Submit Request
+                </button>
+            </form>
+
+            <div id="demo-success" class="hidden p-12 text-center">
+                <div class="w-20 h-20 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-check text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-900 text-slate-900 mb-4">Request Received!</h3>
+                <p class="text-slate-500 leading-relaxed">
+                    Thank you for your interest in GoodForUs. We are thrilled at the prospect of working together. A dedicated Sales Representative will contact you shortly to schedule your personalized tour of our suite.
+                </p>
+                <button onclick="toggleDemo(false)" class="mt-8 text-sm font-bold text-emerald-500 hover:text-emerald-600">Close Window</button>
+            </div>
+        </div>
+    </div>
+
+    <nav class="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3 logo-container">
+                <img src="LogoJf.png" alt="GoodForUs" onerror="this.style.display='none'; document.getElementById('logo-text-icon').classList.remove('hidden');">
+                <div id="logo-text-icon" class="hidden w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <i class="fas fa-leaf text-xl"></i>
+                </div>
+                <span class="text-2xl font-900 tracking-tighter text-slate-900">GoodForUs</span>
+            </div>
+            <div class="hidden md:flex items-center gap-8 font-bold text-sm text-slate-600">
+                <a href="#suite" class="hover:text-emerald-500 transition">Our Suite</a>
+                <a href="#enterprise" class="hover:text-emerald-500 transition">Enterprise</a>
+                <button onclick="toggleDemo(true)" class="px-6 py-2.5 bg-slate-900 text-white rounded-full hover:shadow-lg transition">Request Demo</button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pt-32 pb-20 px-6 hero-gradient overflow-hidden">
+        <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+            <div class="relative z-10">
+                <span class="px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full feature-tag">SolutionsAe Proprietary Fintech</span>
+                <h1 class="mt-6 text-6xl font-900 leading-[1.05] text-slate-900">
+                    Fundraising logic that <span class="text-emerald-500">scales impact.</span>
+                </h1>
+                <p class="mt-8 text-xl text-slate-500 leading-relaxed max-w-lg">
+                    A unified suite of high-converting builders for Peer-to-Peer, Crowdfunding, and Enterprise Giving Portals.
+                </p>
+                <div class="mt-10 flex flex-wrap gap-4">
+                    <button class="px-8 py-4 bg-emerald-500 text-white font-black rounded-2xl shadow-xl shadow-emerald-200 hover:scale-105 transition uppercase tracking-widest text-xs">Start Building</button>
+                    <button onclick="toggleDemo(true)" class="px-8 py-4 bg-white text-slate-900 font-bold rounded-2xl border border-slate-200 hover:bg-slate-50 transition">View Live Examples</button>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="bg-white p-4 rounded-[2.5rem] shadow-2xl border border-slate-100 rotate-2 hover:rotate-0 transition-transform duration-500">
+                    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1000" class="rounded-[2rem]" alt="Platform Dashboard">
+                </div>
+                <div class="absolute -bottom-10 -left-10 bg-white p-6 rounded-2xl shadow-2xl border border-slate-50 flex items-center gap-4 animate-bounce">
+                    <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center">
+                        <i class="fas fa-crown text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="feature-tag text-slate-400">Latest Top Donor</p>
+                        <p class="font-900 text-slate-900" id="live-top-donor">Impact Fund</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="suite" class="py-24 px-6 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center max-w-2xl mx-auto mb-20">
+                <h2 class="text-4xl font-900 text-slate-900">One Platform. Every Way to Give.</h2>
+                <p class="text-slate-500 mt-4 text-lg">Powerful builders designed with our proprietary fundraising logic.</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="tool-card p-8 rounded-[2rem] bg-slate-50">
+                    <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-users text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-900 mb-3 text-slate-900">P2P Pro</h3>
+                    <p class="text-slate-500 text-xs mb-6 flex-grow">Team leaderboards and personal fundraising pages with automated badges.</p>
+                    <a href="https://goodforus.w3spaces.com/P2PBuilder.html" class="text-emerald-600 font-900 text-[10px] uppercase tracking-widest flex items-center gap-2 group">
+                        Explore <i class="fas fa-arrow-right group-hover:translate-x-1 transition"></i>
+                    </a>
+                </div>
+
+                <div class="tool-card p-8 rounded-[2rem] bg-slate-50">
+                    <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-bolt text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-900 mb-3 text-slate-900">Crowdfund</h3>
+                    <p class="text-slate-500 text-xs mb-6 flex-grow">Live donation sync, real-time chat, and rich media storytelling.</p>
+                    <a href="https://goodforus.w3spaces.com/crowdfundbuilder.html" class="text-blue-600 font-900 text-[10px] uppercase tracking-widest flex items-center gap-2 group">
+                        Live Demo <i class="fas fa-arrow-right group-hover:translate-x-1 transition"></i>
+                    </a>
+                </div>
+
+                <div class="tool-card p-8 rounded-[2rem] bg-slate-50 border-emerald-200 border-2 shadow-xl shadow-emerald-50">
+                    <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-layer-group text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-900 mb-3 text-slate-900">Multi-step</h3>
+                    <p class="text-slate-500 text-xs mb-6 flex-grow">Advanced step-by-step form logic with interactive category selections.</p>
+                    <a href="https://goodforus.w3spaces.com/stepformbuilder.html" class="text-amber-600 font-900 text-[10px] uppercase tracking-widest flex items-center gap-2 group">
+                        View Logic <i class="fas fa-arrow-right group-hover:translate-x-1 transition"></i>
+                    </a>
+                </div>
+
+                <div class="tool-card p-8 rounded-[2rem] bg-slate-900 text-white">
+                    <div class="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-building text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-900 mb-3">Enterprise</h3>
+                    <p class="text-slate-400 text-xs mb-6 flex-grow">Contractual recurring gift logic and instant PDF tax receipts.</p>
+                    <a href="https://goodforus.w3spaces.com/fundraisingpage.html" class="text-emerald-400 font-900 text-[10px] uppercase tracking-widest flex items-center gap-2 group">
+                        Solutions <i class="fas fa-arrow-right group-hover:translate-x-1 transition"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="enterprise" class="py-24 px-6 bg-slate-50 border-t border-slate-100">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-16">
+            <div class="flex-1">
+                <h2 class="text-4xl font-900 text-slate-900 leading-tight">Advanced Campaign <br>Management Tools</h2>
+                <p class="mt-6 text-slate-500 text-lg">Our Suite goes beyond standard forms, offering proprietary features for professional nonprofits.</p>
+                <div class="mt-10 grid sm:grid-cols-2 gap-6 text-left">
+                    <div class="flex gap-4">
+                        <i class="fas fa-file-pdf text-emerald-500 text-xl"></i>
+                        <div>
+                            <h4 class="font-bold text-slate-900">Auto-PDF Receipts</h4>
+                            <p class="text-sm text-slate-500">Automated tax-compliant receipts generated instantly after every gift.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <i class="fas fa-calendar-alt text-emerald-500 text-xl"></i>
+                        <div>
+                            <h4 class="font-bold text-slate-900">Recurring Logic</h4>
+                            <p class="text-sm text-slate-500">Advanced monthly, quarterly, and annual frequency agreements.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex-1 bg-white p-8 rounded-3xl shadow-xl border border-slate-100 min-h-[450px] flex flex-col">
+                <div id="payment-demo-content" class="space-y-6 flex-grow">
+                    <div id="demo-step-1">
+                        <div class="h-2 w-1/3 bg-emerald-500 rounded-full mb-6"></div>
+                        <h3 class="text-xl font-900 text-left mb-6">Choose Amount</h3>
+                        <div class="grid grid-cols-3 gap-3 mb-8">
+                            <button onclick="selectDemoAmt(50, this)" class="amt-btn p-4 border-2 border-emerald-500 rounded-xl text-center font-black text-emerald-600 bg-emerald-50">$50</button>
+                            <button onclick="selectDemoAmt(100, this)" class="amt-btn p-4 border-2 border-slate-100 rounded-xl text-center font-black text-slate-400 hover:border-emerald-500 transition cursor-pointer">$100</button>
+                            <button onclick="selectDemoAmt(500, this)" class="amt-btn p-4 border-2 border-slate-100 rounded-xl text-center font-black text-slate-400 hover:border-emerald-500 transition cursor-pointer">$500</button>
+                        </div>
+                        <button onclick="showDemoCard()" class="w-full py-4 bg-emerald-500 text-white font-900 rounded-xl uppercase tracking-widest shadow-lg">Complete Donation</button>
+                    </div>
+
+                    <div id="demo-step-2" class="hidden">
+                        <button onclick="resetDemo()" class="text-xs font-bold text-slate-400 mb-4 hover:text-slate-600 uppercase"><i class="fas fa-arrow-left mr-1"></i> Back</button>
+                        <h3 class="text-xl font-900 text-left mb-6">Payment Details</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-[10px] font-black text-slate-400 uppercase mb-1 block">Cardholder Name</label>
+                                <input type="text" id="demo-card-name" placeholder="Enter your name" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-emerald-500">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black text-slate-400 uppercase mb-1 block">Card Number</label>
+                                <input type="text" disabled value="4242 4242 4242 4242" class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-sm font-mono text-slate-500">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase mb-1 block">Expiry</label>
+                                    <input type="text" disabled value="08/2030" class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-sm font-mono text-slate-500">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase mb-1 block">CVV</label>
+                                    <input type="text" disabled value="813" class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-sm font-mono text-slate-500">
+                                </div>
+                            </div>
+                            <button onclick="processDemoDonation()" class="w-full py-4 bg-emerald-500 text-white font-900 rounded-xl uppercase tracking-widest shadow-lg mt-4">Confirm $ <span id="v-demo-total">50</span></button>
+                        </div>
+                    </div>
+
+                    <div id="demo-step-3" class="hidden text-center py-10">
+                        <div class="w-16 h-16 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-heart text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-900 mb-2">Thank You!</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed mb-8">Your sample donation was processed successfully. Your receipt is downloading now.</p>
+                        <button onclick="resetDemo()" class="text-xs font-black uppercase text-emerald-500 border-2 border-emerald-500 px-6 py-3 rounded-xl hover:bg-emerald-50 transition">Done</button>
+                    </div>
+                </div>
+                <p class="text-center text-[10px] font-bold text-slate-400 uppercase mt-auto pt-6 border-t border-slate-50">Secured by GoodForUs Fintech</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-slate-900 py-16 px-6 text-white text-left">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-12 border-b border-white/10 pb-12">
+                <div>
+                    <div class="flex items-center gap-3 mb-6 logo-container">
+                        <img src="LogoJf.png" alt="GoodForUs" class="h-8 w-auto" onerror="this.style.display='none';">
+                        <span class="text-xl font-900 tracking-tighter">GoodForUs</span>
+                    </div>
+                    <p class="max-w-xs text-slate-400 text-sm leading-relaxed">Modernizing the way the world gives through proprietary fundraising technology.</p>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-12 text-sm">
+                    <div class="flex flex-col gap-3 text-left">
+                        <p class="font-black uppercase tracking-widest text-[10px] text-emerald-500">Builders</p>
+                        <a href="https://goodforus.w3spaces.com/P2PBuilder.html" class="hover:text-emerald-400 transition">P2P Pro</a>
+                        <a href="https://goodforus.w3spaces.com/crowdfundbuilder.html" class="hover:text-emerald-400 transition">Crowdfund</a>
+                        <a href="https://goodforus.w3spaces.com/stepformbuilder.html" class="hover:text-emerald-400 transition">Multi-step</a>
+                        <a href="https://goodforus.w3spaces.com/fundraisingpage.html" class="hover:text-emerald-400 transition">Enterprise</a>
+                    </div>
+                    <div class="flex flex-col gap-3 text-left">
+                        <p class="font-black uppercase tracking-widest text-[10px] text-emerald-500">Legal</p>
+                        <a href="#" class="hover:text-emerald-400 transition">Privacy</a>
+                        <a href="#" class="hover:text-emerald-400 transition">Terms</a>
+                        <a href="#" class="hover:text-emerald-400 transition">Security</a>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-12 text-center text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em]">
+                &copy; 2026 SolutionsAe | Developed by Cedric Savery
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let selectedAmt = 50;
+
+        function toggleDemo(show) {
+            const modal = document.getElementById('demo-modal');
+            if(show) {
+                modal.classList.add('active');
+                document.getElementById('demo-form').classList.remove('hidden');
+                document.getElementById('demo-success').classList.add('hidden');
+            } else {
+                modal.classList.remove('active');
+            }
+        }
+
+        function handleDemoSubmit(e) {
+            e.preventDefault();
+            document.getElementById('demo-form').classList.add('hidden');
+            document.getElementById('demo-success').classList.remove('hidden');
+        }
+
+        function selectDemoAmt(amt, btn) {
+            selectedAmt = amt;
+            document.querySelectorAll('.amt-btn').forEach(b => {
+                b.classList.remove('border-emerald-500', 'bg-emerald-50', 'text-emerald-600');
+                b.classList.add('border-slate-100', 'text-slate-400');
+            });
+            btn.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-600');
+            btn.classList.remove('border-slate-100', 'text-slate-400');
+        }
+
+        function showDemoCard() {
+            document.getElementById('v-demo-total').innerText = selectedAmt;
+            document.getElementById('demo-step-1').classList.add('hidden');
+            document.getElementById('demo-step-2').classList.remove('hidden');
+        }
+
+        function resetDemo() {
+            document.getElementById('demo-step-2').classList.add('hidden');
+            document.getElementById('demo-step-3').classList.add('hidden');
+            document.getElementById('demo-step-1').classList.remove('hidden');
+        }
+
+        function processDemoDonation() {
+            const donorName = document.getElementById('demo-card-name').value || "Kind Donor";
+            document.getElementById('demo-step-2').classList.add('hidden');
+            document.getElementById('demo-step-3').classList.remove('hidden');
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const receiptId = 'GIVE-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(28);
+            doc.text("GIVEBACK", 20, 30);
+            
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "normal");
+            doc.text("Supporting God's Work Together", 20, 40);
+            
+            doc.setFont("helvetica", "bold");
+            doc.text(`DONOR: ${donorName.toUpperCase()}`, 20, 55);
+            doc.text(`PAYMENT METHOD: Card ending in 4242`, 20, 62);
+
+            doc.setTextColor(200, 200, 200);
+            doc.setFontSize(40);
+            doc.text("SAMPLE RECEIPT", 45, 120, { angle: 45 });
+            doc.setTextColor(0, 0, 0);
+
+            doc.autoTable({
+                startY: 75,
+                head: [['Category', 'Amount']],
+                body: [
+                    ['General Campaign Fund', `$${selectedAmt}.00`],
+                    ['Annual Commitment Total', `$${selectedAmt}.00`]
+                ],
+                theme: 'plain',
+                styles: { cellPadding: 4, fontSize: 10 },
+                headStyles: { fontStyle: 'bold', borderBottom: { width: 1, color: [200, 200, 200] } }
+            });
+
+            const finalY = doc.lastAutoTable.finalY || 150;
+            
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "bold");
+            doc.text(`RECEIPT ID: ${receiptId}`, 20, finalY + 20);
+            doc.text(`DATE: ${new Date().toLocaleDateString()}`, 20, finalY + 27);
+            doc.text(`STATUS: PAID`, 20, finalY + 34);
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(9);
+            const policyText = "Refund Policy: All donations to GIVEBACK are non-refundable and will be used to support our mission.";
+            doc.text(doc.splitTextToSize(policyText, 170), 20, finalY + 45);
+
+            const agreementText = `FRIENDLY CONTRACTUAL AGREEMENT: By confirming this donation, you are entering into a friendly contractual agreement with GIVEBACK. We thank you for this commitment!`;
+            doc.text(doc.splitTextToSize(agreementText, 170), 20, finalY + 55);
+
+            doc.save(`Receipt_${receiptId}.pdf`);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const topDonors = ['Impact Fund', 'Anonymous Donor', 'Global Giving Inc', 'Sarah J.'];
+            let i = 0;
+            setInterval(() => {
+                const badge = document.getElementById('live-top-donor');
+                if(!badge) return;
+                badge.style.opacity = '0';
+                setTimeout(() => {
+                    badge.innerText = topDonors[i % topDonors.length];
+                    badge.style.opacity = '1';
+                    i++;
+                }, 400);
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

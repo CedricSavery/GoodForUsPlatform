@@ -1,0 +1,1789 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GoodForUs Admin Control Center — Wired Prototype</title>
+  <style>
+    :root{
+      --bg:#eef3f9;
+      --surface:#ffffff;
+      --surface-2:#f8fbff;
+      --sidebar:#0f172a;
+      --sidebar-2:#13203a;
+      --line:#e6edf5;
+      --text:#0f172a;
+      --muted:#6b7280;
+      --brand:#00b964;
+      --brand-2:#12d27a;
+      --blue:#2563eb;
+      --amber:#f59e0b;
+      --red:#ef4444;
+      --green:#16a34a;
+      --purple:#7c3aed;
+      --shadow:0 16px 42px rgba(15,23,42,.10);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{
+      font-family:Inter,Segoe UI,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      display:flex;
+      overflow:hidden;
+    }
+    button,input,select,textarea{font:inherit}
+    .sidebar{
+      width:290px;background:linear-gradient(180deg,var(--sidebar) 0%, var(--sidebar-2) 100%);color:#fff;
+      display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,.06)
+    }
+    .brand{
+      padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:14px
+    }
+    .brand-badge{
+      width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,var(--brand),var(--brand-2));
+      display:grid;place-items:center;font-weight:900;box-shadow:0 10px 24px rgba(0,185,100,.25)
+    }
+    .brand h1{margin:0;font-size:18px;line-height:1.05;font-weight:900;letter-spacing:-.02em}
+    .brand small{display:block;color:#bcc7da;font-size:11px;text-transform:uppercase;letter-spacing:.14em;margin-top:4px}
+    .side-scroll{padding:14px;overflow:auto}
+    .nav-label{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:#92a4c7;font-weight:900;padding:10px 12px}
+    .nav-btn{
+      width:100%;display:flex;align-items:center;gap:12px;border:none;background:transparent;color:#dce6f8;
+      padding:12px 14px;border-radius:14px;font-weight:700;text-align:left;cursor:pointer;transition:.2s;margin-bottom:4px
+    }
+    .nav-btn:hover,.nav-btn.active{background:rgba(255,255,255,.08);color:#fff}
+    .dot{width:10px;height:10px;border-radius:999px;background:currentColor;opacity:.75}
+    .side-card{
+      margin-top:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px
+    }
+    .side-card h3{margin:0 0 8px;font-size:13px}
+    .side-card p{margin:0;color:#c2d3ec;font-size:12px;line-height:1.55}
+    .main{flex:1;display:flex;flex-direction:column;min-width:0}
+    .topbar{
+      height:78px;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);
+      display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:16px;border-bottom:1px solid var(--line)
+    }
+    .search{
+      flex:1;max-width:620px;height:48px;border-radius:16px;background:#f8fafc;border:1px solid #d9e3ef;
+      display:flex;align-items:center;padding:0 14px
+    }
+    .search input{width:100%;border:none;background:transparent;outline:none}
+    .top-actions{display:flex;gap:10px;align-items:center}
+    .btn,.btn-secondary,.btn-soft,.btn-danger,.mini-btn{
+      border:none;border-radius:14px;padding:0 16px;height:44px;font-weight:800;cursor:pointer;transition:.2s
+    }
+    .btn{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;box-shadow:0 10px 24px rgba(0,185,100,.22)}
+    .btn-secondary{background:#fff;border:1px solid #dbe5f0;color:#17304f}
+    .btn-soft{background:#eef4ff;color:#22406e}
+    .btn-danger{background:#fff1f2;border:1px solid #fecdd3;color:#b42318}
+    .mini-btn{height:32px;border-radius:10px;padding:0 12px;font-size:12px}
+    .avatar{
+      width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#0ea5e9,#2563eb);color:#fff;display:grid;place-items:center;font-weight:900
+    }
+    .content{flex:1;overflow:auto;padding:24px}
+    .page{display:none}
+    .page.active{display:block}
+    .page-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}
+    .page-head h2{margin:0;font-size:30px;letter-spacing:-.03em}
+    .page-head p{margin:8px 0 0;color:#64748b}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap}
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:16px}
+    .card{
+      background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)
+    }
+    .card.pad{padding:18px}
+    .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#64748b;font-weight:900}
+    .value{font-size:30px;font-weight:900;letter-spacing:-.04em;margin-top:10px}
+    .delta{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:800}
+    .delta.up{background:#ecfdf3;color:#067647}
+    .delta.warn{background:#fff7ed;color:#b45309}
+    .delta.bad{background:#fef2f2;color:#b91c1c}
+    .delta.info{background:#eff6ff;color:#1d4ed8}
+    .grid-2{display:grid;grid-template-columns:1.35fr 1fr;gap:16px;margin-bottom:16px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:16px}
+    .section-title{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:14px}
+    .section-title h3{margin:0;font-size:18px}
+    .muted{color:var(--muted)}
+    .table-wrap{overflow:auto;border:1px solid #edf2f7;border-radius:18px}
+    table{width:100%;border-collapse:collapse;background:#fff}
+    th,td{padding:14px;border-bottom:1px solid #eef2f7;text-align:left;vertical-align:top;font-size:13px}
+    th{background:#f8fbff;color:#52627a;font-size:11px;text-transform:uppercase;letter-spacing:.12em}
+    tr:hover td{background:#fcfdff}
+    .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+    .filters input,.filters select,.form-grid input,.form-grid select,.form-grid textarea,.drawer textarea,.drawer input,.drawer select{
+      height:42px;padding:0 12px;border-radius:12px;border:1px solid #dbe5f0;background:#fff;min-width:150px;outline:none
+    }
+    .form-grid textarea,.drawer textarea{height:98px;padding:12px;resize:vertical}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;font-size:11px;font-weight:900;
+      letter-spacing:.08em;text-transform:uppercase
+    }
+    .pill.live{background:#ecfdf3;color:#067647}
+    .pill.draft{background:#eff6ff;color:#1d4ed8}
+    .pill.review{background:#fffbeb;color:#b45309}
+    .pill.pause{background:#f1f5f9;color:#475569}
+    .pill.danger{background:#fef2f2;color:#b91c1c}
+    .pill.success{background:#ecfdf3;color:#067647}
+    .pill.purple{background:#f5f3ff;color:#6d28d9}
+    .row-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .mini-btn.soft{background:#eef4ff;color:#22406e}
+    .mini-btn.green{background:#ecfdf3;color:#067647}
+    .mini-btn.gold{background:#fffbeb;color:#b45309}
+    .mini-btn.red{background:#fef2f2;color:#b91c1c}
+    .activity-list,.mini-list,.alert-list{display:flex;flex-direction:column;gap:12px}
+    .activity-item,.mini-item,.alert-item{
+      display:flex;justify-content:space-between;gap:12px;align-items:flex-start;
+      padding:14px;border:1px solid #eef2f7;background:#fbfdff;border-radius:16px
+    }
+    .activity-item strong,.mini-item strong,.alert-item strong{display:block;font-size:14px}
+    .activity-item small,.mini-item small,.alert-item small{color:#64748b;line-height:1.5}
+    .chart{
+      height:280px;border-radius:18px;border:1px solid #edf2f7;background:
+      linear-gradient(180deg,rgba(37,99,235,.08),rgba(37,99,235,0) 60%),
+      repeating-linear-gradient(180deg,#f8fafc 0,#f8fafc 45px,#eef2f7 45px,#eef2f7 46px);
+      position:relative;overflow:hidden
+    }
+    .bars{position:absolute;inset:18px;display:flex;gap:12px;align-items:flex-end}
+    .bar{flex:1;border-radius:12px 12px 4px 4px;background:linear-gradient(180deg,#60a5fa,#2563eb);position:relative}
+    .bar.alt{background:linear-gradient(180deg,#34d399,#00b964)}
+    .bar span{position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:#64748b}
+    .builder-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+    .builder-card{padding:18px;border-radius:22px;border:1px solid #e8eef7;background:linear-gradient(180deg,#fff,#f8fbff);box-shadow:var(--shadow)}
+    .builder-thumb{
+      height:160px;border-radius:18px;border:1px solid #e8edf5;background:
+      radial-gradient(circle at top right, rgba(0,185,100,.18), transparent 30%),
+      linear-gradient(135deg,#0f172a,#1e293b 55%,#24415d);
+      margin-bottom:16px;position:relative;overflow:hidden
+    }
+    .builder-thumb::after{
+      content:"";position:absolute;inset:18px;border-radius:14px;border:1px solid rgba(255,255,255,.12);
+      background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.02))
+    }
+    .tags{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+    .tag{padding:6px 10px;border-radius:999px;background:#eef4ff;color:#22406e;font-size:11px;font-weight:800}
+    .two-col{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+    .three-col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+    .subtle{padding:14px;border-radius:16px;background:#f8fafc;border:1px solid #edf2f7}
+    .drawer-overlay,.modal-overlay{
+      position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:stretch;justify-content:flex-end;z-index:60
+    }
+    .drawer-overlay.show,.modal-overlay.show{display:flex}
+    .drawer{
+      width:min(520px,100%);height:100%;background:#fff;border-left:1px solid var(--line);box-shadow:-18px 0 50px rgba(15,23,42,.18);
+      padding:22px;overflow:auto
+    }
+    .drawer h3,.modal h3{margin:0 0 8px;font-size:24px;letter-spacing:-.03em}
+    .drawer p,.modal p{margin:0 0 18px;color:#64748b}
+    .drawer-head,.modal-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    .x-btn{width:42px;height:42px;border:none;border-radius:14px;background:#f1f5f9;cursor:pointer;font-weight:900}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .field{display:flex;flex-direction:column;gap:8px}
+    .field label{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#64748b}
+    .field.full{grid-column:1/-1}
+    .modal-overlay{justify-content:center;align-items:center;padding:20px}
+    .modal{
+      width:min(860px,100%);max-height:92vh;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:24px;
+      box-shadow:0 22px 54px rgba(15,23,42,.20);padding:22px
+    }
+    .notice{padding:14px 16px;border-radius:16px;background:#eff6ff;border:1px solid #dbeafe;color:#1d4ed8;font-size:13px;font-weight:700}
+    .code-like{
+      background:#0f172a;color:#dbeafe;padding:18px;border-radius:18px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.7;overflow:auto
+    }
+    .empty{
+      padding:28px;border:1px dashed #dbe5f0;border-radius:18px;text-align:center;color:#64748b;background:#fbfdff
+    }
+    .danger-zone{padding:16px;border-radius:18px;background:#fff1f2;border:1px solid #fecdd3}
+    .sticky-actions{position:sticky;bottom:0;background:#fff;padding-top:16px;margin-top:16px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
+    .hidden{display:none!important}
+    @media (max-width:1400px){
+      .kpi-grid,.builder-grid,.grid-3,.three-col{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .grid-2,.two-col{grid-template-columns:1fr}
+    }
+    @media (max-width:1024px){
+      body{display:block;overflow:auto}
+      .sidebar{width:100%;height:auto}
+      .main{min-height:100vh}
+      .kpi-grid,.builder-grid,.grid-3,.three-col{grid-template-columns:1fr}
+      .topbar{flex-wrap:wrap;height:auto;padding:14px}
+      .search{max-width:none;width:100%}
+      .page-head{flex-direction:column}
+      .form-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-badge">GFU</div>
+      <div>
+        <h1>Admin Control<br>Center</h1>
+        <small>Wired Prototype</small>
+      </div>
+    </div>
+    <div class="side-scroll">
+      <div class="nav-label">Overview</div>
+      <button class="nav-btn active" data-page="home"><span class="dot"></span>Home</button>
+      <button class="nav-btn" data-page="analytics"><span class="dot"></span>Analytics</button>
+      <button class="nav-btn" data-page="finance"><span class="dot"></span>Finance</button>
+      <button class="nav-btn" data-page="risk"><span class="dot"></span>Risk & Compliance</button>
+
+      <div class="nav-label">Operations</div>
+      <button class="nav-btn" data-page="campaigns"><span class="dot"></span>Campaigns</button>
+      <button class="nav-btn" data-page="builders"><span class="dot"></span>Builders</button>
+      <button class="nav-btn" data-page="donors"><span class="dot"></span>Donors</button>
+      <button class="nav-btn" data-page="users"><span class="dot"></span>Users & Teams</button>
+      <button class="nav-btn" data-page="payouts"><span class="dot"></span>Payouts</button>
+
+      <div class="nav-label">Configuration</div>
+      <button class="nav-btn" data-page="settings"><span class="dot"></span>Settings</button>
+      <button class="nav-btn" data-page="audit"><span class="dot"></span>Audit Log</button>
+
+      <div class="side-card">
+        <h3>What is wired</h3>
+        <p>Campaign CRUD, donor CRUD, user CRUD, bank add/default/inactive, payout scheduling, risk case actions, settings save, local analytics, and persistent localStorage state.</p>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="search"><input id="globalSearch" type="text" placeholder="Search campaigns, donors, users, cases, payouts..." /></div>
+      <div class="top-actions">
+        <button class="btn-soft" id="alertCountBtn">0 Open Alerts</button>
+        <button class="btn-secondary" id="resetDemoBtn">Reset Demo</button>
+        <button class="btn" id="quickNewCampaignBtn">+ New Campaign</button>
+        <div class="avatar">CS</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <section class="page active" id="page-home">
+        <div class="page-head">
+          <div>
+            <h2>Organization Home</h2>
+            <p>Executive view of performance, donors, finances, payouts, fraud holds, suspicious activity, and campaign operations.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn-secondary" id="homeInviteUserBtn">Invite User</button>
+            <button class="btn-secondary" id="homeSchedulePayoutBtn">Schedule Payout</button>
+            <button class="btn" id="homeLaunchCampaignBtn">Launch New Campaign</button>
+          </div>
+        </div>
+
+        <div class="kpi-grid" id="homeKpis"></div>
+
+        <div class="grid-2">
+          <div class="card pad">
+            <div class="section-title">
+              <h3>Revenue Trend</h3>
+              <span class="pill live">Computed from live data</span>
+            </div>
+            <div class="chart"><div class="bars" id="revenueBars"></div></div>
+          </div>
+          <div class="card pad">
+            <div class="section-title">
+              <h3>Open Operational Alerts</h3>
+              <button class="mini-btn soft" data-page-link="risk">Open Queue</button>
+            </div>
+            <div class="alert-list" id="homeAlerts"></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card pad">
+            <div class="section-title">
+              <h3>Recent Activity</h3>
+              <button class="mini-btn soft" data-page-link="audit">Open Audit</button>
+            </div>
+            <div class="activity-list" id="homeActivity"></div>
+          </div>
+          <div class="card pad">
+            <div class="section-title">
+              <h3>Top Campaigns</h3>
+              <button class="mini-btn green" data-page-link="campaigns">View Campaigns</button>
+            </div>
+            <div class="mini-list" id="homeTopCampaigns"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-campaigns">
+        <div class="page-head">
+          <div>
+            <h2>Campaigns</h2>
+            <p>Create, edit, duplicate, publish, pause, suspend, archive, and inspect finances and risk by campaign.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn-secondary" id="duplicateSelectedCampaignBtn">Duplicate Selected</button>
+            <button class="btn-secondary" id="exportCampaignsBtn">Export JSON</button>
+            <button class="btn" id="newCampaignBtn">+ Create Campaign</button>
+          </div>
+        </div>
+
+        <div class="card pad">
+          <div class="filters">
+            <input id="campaignSearch" placeholder="Search campaigns" />
+            <select id="campaignStatusFilter">
+              <option value="">All Statuses</option>
+              <option>Draft</option>
+              <option>In Review</option>
+              <option>Live</option>
+              <option>Paused</option>
+              <option>Suspended</option>
+              <option>Archived</option>
+            </select>
+            <select id="campaignBuilderFilter">
+              <option value="">All Builders</option>
+              <option>Crowdfund</option>
+              <option>Fundraising Page</option>
+              <option>P2P</option>
+              <option>Step Form</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Campaign</th>
+                  <th>Builder</th>
+                  <th>Status</th>
+                  <th>Owner</th>
+                  <th>Goal</th>
+                  <th>Raised</th>
+                  <th>Held</th>
+                  <th>Donors</th>
+                  <th>Risk</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="campaignTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-builders">
+        <div class="page-head">
+          <div>
+            <h2>Builders</h2>
+            <p>Launch one of the four campaign builders. Each creates a campaign record and stays governed by the organization dashboard.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn-secondary" id="builderRegistryBtn">Builder Registry</button>
+            <button class="btn" id="startFromBuilderBtn">Start New Build</button>
+          </div>
+        </div>
+
+        <div class="builder-grid" id="builderCards"></div>
+
+        <div class="card pad" style="margin-top:16px">
+          <div class="notice">This prototype keeps the four builder types distinct while unifying analytics, finance, risk, audit logs, and payout controls in one admin layer.</div>
+        </div>
+      </section>
+
+      <section class="page" id="page-donors">
+        <div class="page-head">
+          <div>
+            <h2>Donors</h2>
+            <p>Manage donor profiles, giving history, watchlist status, recurring behavior, and risk notes.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn-secondary" id="exportDonorsBtn">Export JSON</button>
+            <button class="btn" id="newDonorBtn">+ Add Donor</button>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card pad">
+            <div class="filters">
+              <input id="donorSearch" placeholder="Search donors" />
+              <select id="donorRiskFilter">
+                <option value="">All Risks</option>
+                <option>Low</option>
+                <option>Review</option>
+                <option>High</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Donor</th>
+                    <th>Total Given</th>
+                    <th>Campaigns</th>
+                    <th>Recurring</th>
+                    <th>Region</th>
+                    <th>Risk</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="donorTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card pad">
+            <div class="section-title">
+              <h3>Selected Donor Profile</h3>
+              <button class="mini-btn soft" id="clearSelectedDonorBtn">Clear</button>
+            </div>
+            <div id="selectedDonorPanel" class="empty">Select a donor to view profile details.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-users">
+        <div class="page-head">
+          <div>
+            <h2>Users & Teams</h2>
+            <p>Invite and manage organization users, P2P team leads, supporters, and role-based permissions.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn-secondary" id="exportUsersBtn">Export JSON</button>
+            <button class="btn" id="newUserBtn">+ Invite User</button>
+          </div>
+        </div>
+
+        <div class="card pad">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>MFA</th>
+                  <th>Campaigns</th>
+                  <th>Flags</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="userTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-analytics">
+        <div class="page-head">
+          <div>
+            <h2>Analytics</h2>
+            <p>Organization-wide KPIs, builder mix, recurring donor count, and campaign funnel style summaries.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn-secondary" id="analyticsRefreshBtn">Refresh</button>
+            <button class="btn" id="analyticsExportBtn">Export Snapshot</button>
+          </div>
+        </div>
+
+        <div class="kpi-grid" id="analyticsKpis"></div>
+
+        <div class="grid-2">
+          <div class="card pad">
+            <div class="section-title"><h3>Builder Mix</h3><button class="mini-btn soft">Auto</button></div>
+            <div class="mini-list" id="builderMixList"></div>
+          </div>
+          <div class="card pad">
+            <div class="section-title"><h3>Funnel Snapshot</h3><button class="mini-btn soft">Computed</button></div>
+            <div class="mini-list" id="funnelList"></div>
+          </div>
+        </div>
+
+        <div class="card pad">
+          <div class="section-title"><h3>Campaign Performance</h3><button class="mini-btn soft" data-page-link="campaigns">Go To Campaigns</button></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Campaign</th>
+                  <th>Raised</th>
+                  <th>Goal %</th>
+                  <th>Donors</th>
+                  <th>Conversion</th>
+                  <th>Recurring</th>
+                </tr>
+              </thead>
+              <tbody id="analyticsCampaignTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-finance">
+        <div class="page-head">
+          <div>
+            <h2>Finance</h2>
+            <p>Gross, net, fees, reserve holds, settlements, refunds, and payout readiness across the organization.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn-secondary" id="financeExportBtn">Export Finance JSON</button>
+            <button class="btn" id="financeOpenLedgerBtn">Open Ledger</button>
+          </div>
+        </div>
+
+        <div class="grid-3" id="financeCards"></div>
+
+        <div class="two-col">
+          <div class="card pad">
+            <div class="section-title"><h3>Finance Ledger</h3><button class="mini-btn soft">Latest</button></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Reference</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="ledgerTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card pad">
+            <div class="section-title"><h3>Controls</h3><button class="mini-btn gold" data-page-link="settings">Policy</button></div>
+            <div class="mini-list" id="financeControls"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-payouts">
+        <div class="page-head">
+          <div>
+            <h2>Payouts</h2>
+            <p>Schedule disbursements, set the default bank, mark banks inactive, and release eligible funds.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn-secondary" id="addBankBtn">Add Bank</button>
+            <button class="btn-secondary" id="viewApprovalQueueBtn">Approval Queue</button>
+            <button class="btn" id="schedulePayoutBtn">Schedule Payout</button>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card pad">
+            <div class="section-title"><h3>Upcoming Payouts</h3><button class="mini-btn soft">Forecast</button></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Batch</th>
+                    <th>Date</th>
+                    <th>Eligible</th>
+                    <th>Held Excluded</th>
+                    <th>Bank</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="payoutTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card pad">
+            <div class="section-title"><h3>Bank Accounts</h3><button class="mini-btn green" id="bankAddMiniBtn">Add</button></div>
+            <div class="mini-list" id="bankList"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-risk">
+        <div class="page-head">
+          <div>
+            <h2>Risk & Compliance</h2>
+            <p>Review suspicious campaigns, donors, transactions, payout holds, and compliance case workflows.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn-secondary" id="seedRiskCaseBtn">Add Demo Case</button>
+            <button class="btn" id="newRiskCaseBtn">New Risk Case</button>
+          </div>
+        </div>
+
+        <div class="grid-3" id="riskCards"></div>
+
+        <div class="two-col">
+          <div class="card pad">
+            <div class="section-title"><h3>Case Queue</h3><button class="mini-btn soft">Live</button></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Case ID</th>
+                    <th>Subject</th>
+                    <th>Reason</th>
+                    <th>Owner</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="riskTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card pad">
+            <div class="section-title"><h3>Detection Coverage</h3><button class="mini-btn soft">Rules</button></div>
+            <div class="mini-list" id="riskCoverageList"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-settings">
+        <div class="page-head">
+          <div>
+            <h2>Settings</h2>
+            <p>Organization profile, support contacts, payout schedule, fraud hold policy, and bank handling settings.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn-secondary" id="resetSettingsBtn">Reset Form</button>
+            <button class="btn" id="saveSettingsBtn">Save Settings</button>
+          </div>
+        </div>
+
+        <div class="card pad">
+          <div class="form-grid">
+            <div class="field"><label>Organization Name</label><input id="settingsOrgName"></div>
+            <div class="field"><label>Website</label><input id="settingsWebsite"></div>
+            <div class="field"><label>Email</label><input id="settingsEmail"></div>
+            <div class="field"><label>Phone</label><input id="settingsPhone"></div>
+            <div class="field"><label>Address</label><input id="settingsAddress"></div>
+            <div class="field"><label>Default Payout Schedule</label>
+              <select id="settingsPayoutSchedule">
+                <option>Daily</option><option>Weekly</option><option>Biweekly</option><option>Monthly</option><option>Manual</option>
+              </select>
+            </div>
+            <div class="field"><label>Default Bank</label><select id="settingsDefaultBank"></select></div>
+            <div class="field"><label>Fraud Hold Policy</label>
+              <select id="settingsFraudHoldPolicy">
+                <option>Hold suspicious funds automatically</option>
+                <option>Manual review only</option>
+              </select>
+            </div>
+            <div class="field full"><label>Receipt Footer / Support Note</label><textarea id="settingsReceiptFooter"></textarea></div>
+            <div class="field full"><label>Bank Handling Rule</label><textarea id="settingsBankRule"></textarea></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-audit">
+        <div class="page-head">
+          <div>
+            <h2>Audit Log</h2>
+            <p>Immutable history for campaign lifecycle changes, users, payouts, risk cases, and settings updates.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn-secondary" id="auditExportBtn">Export Log JSON</button>
+            <button class="btn" id="auditRefreshBtn">Refresh</button>
+          </div>
+        </div>
+
+        <div class="card pad">
+          <div class="code-like" id="auditLogBlock"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="drawer-overlay" id="detailDrawerOverlay">
+    <div class="drawer" id="detailDrawer">
+      <div class="drawer-head">
+        <div>
+          <h3 id="drawerTitle">Detail</h3>
+          <p id="drawerSubtitle">View and manage selected record details.</p>
+        </div>
+        <button class="x-btn" id="closeDrawerBtn">✕</button>
+      </div>
+      <div id="drawerContent"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="entityModalOverlay">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h3 id="entityModalTitle">Create</h3>
+          <p id="entityModalSubtitle">Fill out the fields below.</p>
+        </div>
+        <button class="x-btn" id="closeEntityModalBtn">✕</button>
+      </div>
+      <form id="entityForm">
+        <div class="form-grid" id="entityFormFields"></div>
+        <div class="sticky-actions">
+          <button type="button" class="btn-secondary" id="cancelEntityModalBtn">Cancel</button>
+          <button type="submit" class="btn" id="saveEntityModalBtn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const STORAGE_KEY = 'gfu_admin_control_center_v1';
+
+  const DEFAULTS = {
+    settings: {
+      orgName: 'GoodForUs Community Relief',
+      website: 'https://goodforus.example.org',
+      email: 'support@goodforus.example.org',
+      phone: '+1 (555) 404-4401',
+      address: '100 Main Street, Springfield, OH 45502',
+      payoutSchedule: 'Weekly',
+      fraudHoldPolicy: 'Hold suspicious funds automatically',
+      receiptFooter: 'Thank you for supporting this organization. Funds may be held pending risk review or settlement policy.',
+      bankRule: 'Add and verify new bank accounts. Allow setting default. Do not delete banks with historical payout activity; mark them inactive instead.'
+    },
+    campaigns: [
+      {id:'CF-10029',name:'Building Futures Scholarship Fund',builder:'Crowdfund',status:'Live',owner:'Cedric Savery',goal:500000,raised:344820,held:8440,donors:1842,risk:'Low',conversion:6.7,recurring:340,description:'Goal-driven scholarship campaign with live media support.',createdBy:'Cedric Savery'},
+      {id:'P2P-22811',name:'Walkathon Team Fundraiser',builder:'P2P',status:'In Review',owner:'Grace Team',goal:200000,raised:154101,held:11300,donors:723,risk:'Review',conversion:5.2,recurring:120,description:'Peer-to-peer campaign with team leads and supporters.',createdBy:'Grace Team'},
+      {id:'FP-33201',name:'Community Winter Shelter',builder:'Fundraising Page',status:'Paused',owner:'Ops Admin',goal:80000,raised:56940,held:22744,donors:414,risk:'High',conversion:4.1,recurring:44,description:'General fundraising page with branded content modules.',createdBy:'Ops Admin'},
+      {id:'SF-77110',name:'Monthly Kingdom Giving',builder:'Step Form',status:'Live',owner:'Finance Team',goal:150000,raised:122030,held:2300,donors:927,risk:'Low',conversion:7.4,recurring:511,description:'Multi-step recurring donation form.',createdBy:'Finance Team'}
+    ],
+    donors: [
+      {id:'DON-101',name:'Angela D. Carter',email:'angela@example.org',phone:'+1 (555) 019-1101',totalGiven:8640,campaignsSupported:4,recurring:'Monthly',region:'Ohio, US',risk:'Low',notes:'Strong repeat donor.',watchlist:false},
+      {id:'DON-102',name:'Marcus Hall',email:'m.hall@example.org',phone:'+1 (555) 019-2299',totalGiven:18200,campaignsSupported:2,recurring:'None',region:'Georgia, US',risk:'Review',notes:'Velocity and device overlap review.',watchlist:true},
+      {id:'DON-103',name:'Anonymous / masked donor',email:'masked@receipt.local',phone:'N/A',totalGiven:2100,campaignsSupported:1,recurring:'None',region:'Unknown',risk:'High',notes:'Limited identity information.',watchlist:true}
+    ],
+    users: [
+      {id:'USR-001',name:'Cedric Savery',email:'owner@sample.org',role:'Organization Owner',status:'Active',mfa:'Enabled',campaigns:12,flags:0},
+      {id:'USR-002',name:'Finance Ops',email:'finance@sample.org',role:'Finance Admin',status:'Active',mfa:'Enabled',campaigns:999,flags:0},
+      {id:'USR-003',name:'Janelle Moss',email:'janelle@sample.org',role:'P2P Team Lead',status:'Pending',mfa:'Invited',campaigns:1,flags:1}
+    ],
+    banks: [
+      {id:'BNK-8741',label:'Community Bank •••• 8741',status:'Verified',isDefault:true,isActive:true},
+      {id:'BNK-2204',label:'First State •••• 2204',status:'Verified',isDefault:false,isActive:true},
+      {id:'BNK-4110',label:'Legacy Trust •••• 4110',status:'Verified',isDefault:false,isActive:false}
+    ],
+    payouts: [
+      {id:'PYO-20420',date:'2026-04-03',eligible:92440,heldExcluded:8200,bankId:'BNK-8741',status:'Approval Needed'},
+      {id:'PYO-20427',date:'2026-04-10',eligible:104990,heldExcluded:11100,bankId:'BNK-8741',status:'Scheduled'}
+    ],
+    riskCases: [
+      {id:'RC-11094',subject:'Youth Housing Rescue Fund',reason:'Payout destination changed after traffic spike',owner:'Compliance Admin',status:'Investigating',severity:'High',fundsHeld:7400},
+      {id:'RC-11095',subject:'Marcus Hall',reason:'Velocity + device overlap across donor profiles',owner:'Unassigned',status:'New',severity:'High',fundsHeld:1200},
+      {id:'RC-11096',subject:'Payout Batch PYO-20420',reason:'Manual release requested above threshold',owner:'Finance Admin',status:'Pending',severity:'Review',fundsHeld:3300}
+    ],
+    ledger: [
+      {date:'2026-04-01',type:'Settlement',ref:'SET-20494',amount:52880,status:'Completed'},
+      {date:'2026-04-01',type:'Reserve Hold',ref:'HLD-88214',amount:7400,status:'Held'},
+      {date:'2026-03-31',type:'Payout Batch',ref:'PYO-19284',amount:104220,status:'Sent'},
+      {date:'2026-03-31',type:'Refund',ref:'RFD-10338',amount:920,status:'Processed'}
+    ],
+    audit: [
+      {ts:'2026-04-01T09:18:02Z',user:'cedric.savery',action:'campaign.publish',entity:'campaign:CF-10029'},
+      {ts:'2026-04-01T09:04:11Z',user:'finance.admin',action:'bank.set_default',entity:'bank:BNK-8741'},
+      {ts:'2026-04-01T08:58:44Z',user:'system',action:'risk.case_open',entity:'case:RC-11095'},
+      {ts:'2026-04-01T08:57:02Z',user:'ops.admin',action:'campaign.pause',entity:'campaign:FP-33201'},
+      {ts:'2026-04-01T08:50:25Z',user:'system',action:'transaction.hold',entity:'txn:TX-991827'},
+      {ts:'2026-04-01T08:33:09Z',user:'teamlead',action:'user.invite',entity:'user:USR-80188'}
+    ]
+  };
+
+  const BUILDERS = [
+    {name:'Crowdfund',desc:'Goal-driven public campaigns with live media, donor walls, and milestone energy.',tags:['Live Media','Manual Donor Records','Receipts']},
+    {name:'Fundraising Page',desc:'Flexible branded fundraising pages with recurring giving and extra media modules.',tags:['Recurring','Social Sharing','Content Blocks']},
+    {name:'P2P',desc:'Team-driven fundraising with team leads, supporters, and role-based collaboration.',tags:['Team Hierarchy','Sub-Users','Invites']},
+    {name:'Step Form',desc:'Multi-step giving experience with structured intake, category logic, and receipts.',tags:['Multi-Step Flow','Basket Review','Recurring Options']}
+  ];
+
+  let state = loadState();
+  let selectedCampaignId = state.campaigns[0]?.id || null;
+  let selectedDonorId = null;
+
+  const $ = (id) => document.getElementById(id);
+  const fmtMoney = (n) => '$' + Number(n || 0).toLocaleString();
+  const safe = (v) => String(v ?? '').replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
+  const uid = (prefix) => `${prefix}-${Math.floor(Math.random()*90000+10000)}`;
+  const todayISO = () => new Date().toISOString().slice(0,10);
+
+  function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return clone(DEFAULTS);
+      return {...clone(DEFAULTS), ...JSON.parse(raw)};
+    }catch(e){
+      return clone(DEFAULTS);
+    }
+  }
+  function saveState(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+  function addAudit(action, entity, user='current.user'){
+    state.audit.unshift({ts:new Date().toISOString(), user, action, entity});
+    state.audit = state.audit.slice(0, 300);
+    saveState();
+  }
+  function goToPage(page){
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    $(`page-${page}`).classList.add('active');
+  }
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => goToPage(btn.dataset.page)));
+  document.querySelectorAll('[data-page-link]').forEach(btn => btn.addEventListener('click', () => goToPage(btn.dataset.pageLink)));
+
+  function pillClass(value){
+    const v = String(value).toLowerCase();
+    if(['live','active','completed','verified','cleared','default','sent'].some(x => v.includes(x))) return 'live';
+    if(['draft','scheduled','pending','low'].some(x => v.includes(x))) return 'draft';
+    if(['review','approval','investigating'].some(x => v.includes(x))) return 'review';
+    if(['paused','inactive','processed'].some(x => v.includes(x))) return 'pause';
+    if(['high','suspended','held','new'].some(x => v.includes(x))) return 'danger';
+    return 'purple';
+  }
+
+  function getDefaultBank(){
+    return state.banks.find(b => b.isDefault) || state.banks[0] || null;
+  }
+  function getBankLabel(id){
+    const b = state.banks.find(x => x.id === id);
+    return b ? b.label : 'Unknown bank';
+  }
+  function computeMetrics(){
+    const gross = state.campaigns.reduce((a,c)=>a+c.raised,0);
+    const held = state.campaigns.reduce((a,c)=>a+c.held,0);
+    const donors = state.campaigns.reduce((a,c)=>a+c.donors,0);
+    const recurring = state.campaigns.reduce((a,c)=>a+c.recurring,0);
+    const fees = Math.round(gross * 0.082);
+    const net = gross - fees - held;
+    const liveCampaigns = state.campaigns.filter(c => c.status === 'Live').length;
+    const openAlerts = state.riskCases.filter(c => ['New','Investigating','Pending'].includes(c.status)).length;
+    const avgGift = donors ? gross / donors : 0;
+    const avgConversion = state.campaigns.length ? state.campaigns.reduce((a,c)=>a+c.conversion,0) / state.campaigns.length : 0;
+    return {gross,held,donors,recurring,fees,net,liveCampaigns,openAlerts,avgGift,avgConversion};
+  }
+
+  function renderHome(){
+    const m = computeMetrics();
+    $('alertCountBtn').textContent = `${m.openAlerts} Open Alerts`;
+    $('homeKpis').innerHTML = `
+      <div class="card pad"><div class="eyebrow">Gross Raised</div><div class="value">${fmtMoney(m.gross)}</div><div class="delta up">Across all builders</div></div>
+      <div class="card pad"><div class="eyebrow">Available for Payout</div><div class="value">${fmtMoney(m.net)}</div><div class="delta info">${state.settings.payoutSchedule} payout cadence</div></div>
+      <div class="card pad"><div class="eyebrow">Held for Review</div><div class="value">${fmtMoney(m.held)}</div><div class="delta warn">${m.openAlerts} open cases</div></div>
+      <div class="card pad"><div class="eyebrow">Recurring Donors</div><div class="value">${m.recurring.toLocaleString()}</div><div class="delta up">Computed from campaign records</div></div>
+    `;
+
+    const sorted = [...state.campaigns].sort((a,b)=>b.raised-a.raised);
+    $('homeTopCampaigns').innerHTML = sorted.slice(0,4).map(c => `
+      <div class="mini-item">
+        <div>
+          <strong>${safe(c.name)}</strong>
+          <small>${safe(c.builder)} • ${fmtMoney(c.raised)} raised • ${c.donors.toLocaleString()} donors • ${c.conversion}% conversion</small>
+        </div>
+        <span class="pill ${pillClass(c.status)}">${safe(c.status)}</span>
+      </div>
+    `).join('') || `<div class="empty">No campaigns found.</div>`;
+
+    $('homeAlerts').innerHTML = state.riskCases.slice(0,4).map(rc => `
+      <div class="alert-item">
+        <div>
+          <strong>${safe(rc.subject)}</strong>
+          <small>${safe(rc.reason)}</small>
+        </div>
+        <span class="pill ${pillClass(rc.severity === 'High' ? 'High' : rc.status)}">${safe(rc.severity)}</span>
+      </div>
+    `).join('') || `<div class="empty">No open alerts.</div>`;
+
+    $('homeActivity').innerHTML = state.audit.slice(0,6).map(a => `
+      <div class="activity-item">
+        <div>
+          <strong>${safe(a.action)}</strong>
+          <small>${safe(a.entity)} by ${safe(a.user)}</small>
+        </div>
+        <small>${safe(a.ts.replace('T',' ').replace('Z',''))}</small>
+      </div>
+    `).join('');
+
+    const bars = state.campaigns.slice(0,7).map((c,i) => {
+      const h = Math.max(18, Math.min(95, Math.round((c.raised / Math.max(...state.campaigns.map(x=>x.raised),1))*95)));
+      const cls = i % 2 ? 'bar alt' : 'bar';
+      return `<div class="${cls}" style="height:${h}%"><span>${safe(c.name.split(' ')[0])}</span></div>`;
+    }).join('');
+    $('revenueBars').innerHTML = bars;
+  }
+
+  function renderCampaigns(){
+    const q = $('campaignSearch').value.trim().toLowerCase();
+    const sf = $('campaignStatusFilter').value;
+    const bf = $('campaignBuilderFilter').value;
+    const rows = state.campaigns.filter(c => {
+      const passQ = !q || [c.name,c.owner,c.builder,c.status,c.id,c.risk].join(' ').toLowerCase().includes(q);
+      const passS = !sf || c.status === sf;
+      const passB = !bf || c.builder === bf;
+      return passQ && passS && passB;
+    });
+    $('campaignTableBody').innerHTML = rows.map(c => `
+      <tr>
+        <td><strong>${safe(c.name)}</strong><br><span class="muted">${safe(c.id)} • Created by ${safe(c.createdBy || c.owner)}</span></td>
+        <td>${safe(c.builder)}</td>
+        <td><span class="pill ${pillClass(c.status)}">${safe(c.status)}</span></td>
+        <td>${safe(c.owner)}</td>
+        <td>${fmtMoney(c.goal)}</td>
+        <td>${fmtMoney(c.raised)}</td>
+        <td>${fmtMoney(c.held)}</td>
+        <td>${c.donors.toLocaleString()}</td>
+        <td><span class="pill ${pillClass(c.risk)}">${safe(c.risk)}</span></td>
+        <td>
+          <div class="row-actions">
+            <button class="mini-btn soft" data-campaign-view="${c.id}">View</button>
+            <button class="mini-btn green" data-campaign-edit="${c.id}">Edit</button>
+            <button class="mini-btn gold" data-campaign-toggle="${c.id}">${c.status === 'Live' ? 'Pause' : 'Activate'}</button>
+            <button class="mini-btn red" data-campaign-delete="${c.id}">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('') || `<tr><td colspan="10"><div class="empty">No campaigns match the current filters.</div></td></tr>`;
+
+    document.querySelectorAll('[data-campaign-view]').forEach(btn => btn.onclick = () => openCampaignDrawer(btn.dataset.campaignView));
+    document.querySelectorAll('[data-campaign-edit]').forEach(btn => btn.onclick = () => openCampaignModal(btn.dataset.campaignEdit));
+    document.querySelectorAll('[data-campaign-toggle]').forEach(btn => btn.onclick = () => toggleCampaignStatus(btn.dataset.campaignToggle));
+    document.querySelectorAll('[data-campaign-delete]').forEach(btn => btn.onclick = () => deleteCampaign(btn.dataset.campaignDelete));
+  }
+
+  function openCampaignDrawer(id){
+    const c = state.campaigns.find(x => x.id === id);
+    if(!c) return;
+    selectedCampaignId = id;
+    $('drawerTitle').textContent = c.name;
+    $('drawerSubtitle').textContent = `${c.builder} • ${c.status} • Owner: ${c.owner}`;
+    const relatedCases = state.riskCases.filter(rc => rc.subject.includes(c.name) || rc.subject.includes(c.id));
+    $('drawerContent').innerHTML = `
+      <div class="three-col">
+        <div class="subtle"><strong>Goal</strong><br>${fmtMoney(c.goal)}</div>
+        <div class="subtle"><strong>Raised</strong><br>${fmtMoney(c.raised)}</div>
+        <div class="subtle"><strong>Held</strong><br>${fmtMoney(c.held)}</div>
+        <div class="subtle"><strong>Donors</strong><br>${c.donors.toLocaleString()}</div>
+        <div class="subtle"><strong>Conversion</strong><br>${c.conversion}%</div>
+        <div class="subtle"><strong>Recurring</strong><br>${c.recurring}</div>
+      </div>
+      <div style="height:16px"></div>
+      <div class="notice">This drawer is wired to campaign data, payout impact, and any related risk cases stored in the prototype state.</div>
+      <div style="height:16px"></div>
+      <div class="field">
+        <label>Description</label>
+        <textarea id="campaignDrawerDescription">${safe(c.description || '')}</textarea>
+      </div>
+      <div style="height:16px"></div>
+      <div class="two-col">
+        <div class="subtle">
+          <strong>Finance Snapshot</strong><br><br>
+          Gross: ${fmtMoney(c.raised)}<br>
+          Held: ${fmtMoney(c.held)}<br>
+          Estimated fees: ${fmtMoney(Math.round(c.raised * 0.082))}<br>
+          Est. net available: ${fmtMoney(c.raised - Math.round(c.raised * 0.082) - c.held)}
+        </div>
+        <div class="subtle">
+          <strong>Risk Snapshot</strong><br><br>
+          Risk level: ${safe(c.risk)}<br>
+          Status: ${safe(c.status)}<br>
+          Related cases: ${relatedCases.length}<br>
+          Owner: ${safe(c.owner)}
+        </div>
+      </div>
+      <div style="height:16px"></div>
+      <div class="section-title"><h3>Related Risk Cases</h3></div>
+      ${relatedCases.length ? relatedCases.map(rc => `<div class="mini-item"><div><strong>${safe(rc.id)} — ${safe(rc.subject)}</strong><small>${safe(rc.reason)}</small></div><span class="pill ${pillClass(rc.status)}">${safe(rc.status)}</span></div>`).join('') : `<div class="empty">No related cases found.</div>`}
+      <div class="sticky-actions">
+        <button class="btn-secondary" id="drawerDuplicateCampaignBtn">Duplicate</button>
+        <button class="btn-secondary" id="drawerSaveCampaignBtn">Save Notes</button>
+        <button class="btn" id="drawerEditCampaignBtn">Open Edit</button>
+      </div>
+    `;
+    $('detailDrawerOverlay').classList.add('show');
+    $('drawerEditCampaignBtn').onclick = () => openCampaignModal(c.id);
+    $('drawerDuplicateCampaignBtn').onclick = () => duplicateCampaign(c.id);
+    $('drawerSaveCampaignBtn').onclick = () => {
+      c.description = $('campaignDrawerDescription').value.trim();
+      addAudit('campaign.notes_update', `campaign:${c.id}`);
+      saveState();
+      renderAll();
+    };
+  }
+
+  function toggleCampaignStatus(id){
+    const c = state.campaigns.find(x => x.id === id);
+    if(!c) return;
+    if(c.status === 'Live'){ c.status = 'Paused'; addAudit('campaign.pause', `campaign:${id}`); }
+    else { c.status = 'Live'; addAudit('campaign.activate', `campaign:${id}`); }
+    saveState(); renderAll();
+  }
+
+  function deleteCampaign(id){
+    const c = state.campaigns.find(x => x.id === id);
+    if(!c) return;
+    if(!confirm(`Delete campaign "${c.name}"?`)) return;
+    state.campaigns = state.campaigns.filter(x => x.id !== id);
+    addAudit('campaign.delete', `campaign:${id}`);
+    saveState(); renderAll();
+  }
+
+  function duplicateCampaign(id){
+    const c = state.campaigns.find(x => x.id === id);
+    if(!c) return;
+    const copy = {...clone(c), id: uid(c.builder === 'Crowdfund' ? 'CF' : c.builder === 'P2P' ? 'P2P' : c.builder === 'Fundraising Page' ? 'FP' : 'SF'), name: c.name + ' (Copy)', status:'Draft'};
+    state.campaigns.unshift(copy);
+    addAudit('campaign.duplicate', `campaign:${copy.id}`);
+    saveState(); renderAll();
+  }
+
+  function renderBuilders(){
+    $('builderCards').innerHTML = BUILDERS.map(b => `
+      <div class="builder-card">
+        <div class="builder-thumb"></div>
+        <h3 style="margin:0 0 8px">${safe(b.name)} Builder</h3>
+        <div class="muted">${safe(b.desc)}</div>
+        <div class="tags">${b.tags.map(t => `<span class="tag">${safe(t)}</span>`).join('')}</div>
+        <div class="row-actions">
+          <button class="mini-btn green" data-builder-create="${safe(b.name)}">Create Campaign</button>
+          <button class="mini-btn soft" data-builder-registry="${safe(b.name)}">View Pattern</button>
+        </div>
+      </div>
+    `).join('');
+    document.querySelectorAll('[data-builder-create]').forEach(btn => btn.onclick = () => openCampaignModal(null, btn.dataset.builderCreate));
+    document.querySelectorAll('[data-builder-registry]').forEach(btn => btn.onclick = () => {
+      $('drawerTitle').textContent = `${btn.dataset.builderRegistry} Builder`;
+      $('drawerSubtitle').textContent = 'Builder metadata and usage pattern';
+      const meta = BUILDERS.find(x => x.name === btn.dataset.builderRegistry);
+      $('drawerContent').innerHTML = `
+        <div class="notice">This prototype does not embed the original builder code directly. It uses the builder type to create governed campaign records in the admin system.</div>
+        <div style="height:16px"></div>
+        <div class="subtle"><strong>Description</strong><br>${safe(meta.desc)}</div>
+        <div style="height:16px"></div>
+        <div class="subtle"><strong>Enabled tags</strong><br>${meta.tags.map(safe).join(', ')}</div>
+        <div class="sticky-actions"><button class="btn" id="drawerCreateFromRegistryBtn">Create From This Builder</button></div>
+      `;
+      $('detailDrawerOverlay').classList.add('show');
+      $('drawerCreateFromRegistryBtn').onclick = () => openCampaignModal(null, meta.name);
+    });
+  }
+
+  function renderDonors(){
+    const q = $('donorSearch').value.trim().toLowerCase();
+    const rf = $('donorRiskFilter').value;
+    const rows = state.donors.filter(d => {
+      const passQ = !q || [d.name,d.email,d.region,d.id,d.notes].join(' ').toLowerCase().includes(q);
+      const passR = !rf || d.risk === rf;
+      return passQ && passR;
+    });
+    $('donorTableBody').innerHTML = rows.map(d => `
+      <tr>
+        <td><strong>${safe(d.name)}</strong><br><span class="muted">${safe(d.email)}</span></td>
+        <td>${fmtMoney(d.totalGiven)}</td>
+        <td>${d.campaignsSupported}</td>
+        <td>${safe(d.recurring)}</td>
+        <td>${safe(d.region)}</td>
+        <td><span class="pill ${pillClass(d.risk)}">${safe(d.risk)}</span></td>
+        <td>
+          <div class="row-actions">
+            <button class="mini-btn soft" data-donor-view="${d.id}">View</button>
+            <button class="mini-btn green" data-donor-edit="${d.id}">Edit</button>
+            <button class="mini-btn red" data-donor-delete="${d.id}">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('') || `<tr><td colspan="7"><div class="empty">No donors found.</div></td></tr>`;
+
+    document.querySelectorAll('[data-donor-view]').forEach(btn => btn.onclick = () => selectDonor(btn.dataset.donorView));
+    document.querySelectorAll('[data-donor-edit]').forEach(btn => btn.onclick = () => openDonorModal(btn.dataset.donorEdit));
+    document.querySelectorAll('[data-donor-delete]').forEach(btn => btn.onclick = () => deleteDonor(btn.dataset.donorDelete));
+    renderSelectedDonor();
+  }
+
+  function selectDonor(id){ selectedDonorId = id; renderSelectedDonor(); }
+  function renderSelectedDonor(){
+    const panel = $('selectedDonorPanel');
+    const d = state.donors.find(x => x.id === selectedDonorId);
+    if(!d){ panel.className='empty'; panel.textContent='Select a donor to view profile details.'; return; }
+    panel.className = '';
+    panel.innerHTML = `
+      <div class="subtle"><strong>${safe(d.name)}</strong><br><span class="muted">${safe(d.email)} • ${safe(d.phone)}</span></div>
+      <div style="height:12px"></div>
+      <div class="three-col">
+        <div class="subtle"><strong>Lifetime Value</strong><br>${fmtMoney(d.totalGiven)}</div>
+        <div class="subtle"><strong>Campaigns</strong><br>${d.campaignsSupported}</div>
+        <div class="subtle"><strong>Recurring</strong><br>${safe(d.recurring)}</div>
+      </div>
+      <div style="height:12px"></div>
+      <div class="subtle"><strong>Risk</strong><br><span class="pill ${pillClass(d.risk)}">${safe(d.risk)}</span>${d.watchlist ? ` <span class="pill review">Watchlist</span>` : ''}</div>
+      <div style="height:12px"></div>
+      <div class="subtle"><strong>Notes</strong><br>${safe(d.notes || 'No notes')}</div>
+      <div class="sticky-actions">
+        <button class="btn-secondary" id="selectedDonorToggleWatchBtn">${d.watchlist ? 'Remove Watchlist' : 'Add Watchlist'}</button>
+        <button class="btn" id="selectedDonorEditBtn">Edit Donor</button>
+      </div>
+    `;
+    $('selectedDonorToggleWatchBtn').onclick = () => {
+      d.watchlist = !d.watchlist;
+      addAudit(d.watchlist ? 'donor.watchlist_add' : 'donor.watchlist_remove', `donor:${d.id}`);
+      saveState(); renderAll();
+    };
+    $('selectedDonorEditBtn').onclick = () => openDonorModal(d.id);
+  }
+
+  function deleteDonor(id){
+    const d = state.donors.find(x => x.id === id);
+    if(!d) return;
+    if(!confirm(`Delete donor "${d.name}"?`)) return;
+    state.donors = state.donors.filter(x => x.id !== id);
+    if(selectedDonorId === id) selectedDonorId = null;
+    addAudit('donor.delete', `donor:${id}`);
+    saveState(); renderAll();
+  }
+
+  function renderUsers(){
+    $('userTableBody').innerHTML = state.users.map(u => `
+      <tr>
+        <td><strong>${safe(u.name)}</strong><br><span class="muted">${safe(u.email)}</span></td>
+        <td>${safe(u.role)}</td>
+        <td><span class="pill ${pillClass(u.status)}">${safe(u.status)}</span></td>
+        <td>${safe(u.mfa)}</td>
+        <td>${u.campaigns === 999 ? 'All' : u.campaigns}</td>
+        <td>${u.flags}</td>
+        <td>
+          <div class="row-actions">
+            <button class="mini-btn soft" data-user-edit="${u.id}">Edit</button>
+            <button class="mini-btn gold" data-user-toggle="${u.id}">${u.status === 'Active' ? 'Disable' : 'Activate'}</button>
+            <button class="mini-btn red" data-user-delete="${u.id}">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('') || `<tr><td colspan="7"><div class="empty">No users found.</div></td></tr>`;
+    document.querySelectorAll('[data-user-edit]').forEach(btn => btn.onclick = () => openUserModal(btn.dataset.userEdit));
+    document.querySelectorAll('[data-user-toggle]').forEach(btn => btn.onclick = () => toggleUserStatus(btn.dataset.userToggle));
+    document.querySelectorAll('[data-user-delete]').forEach(btn => btn.onclick = () => deleteUser(btn.dataset.userDelete));
+  }
+
+  function toggleUserStatus(id){
+    const u = state.users.find(x => x.id === id);
+    if(!u) return;
+    u.status = u.status === 'Active' ? 'Disabled' : 'Active';
+    addAudit('user.status_toggle', `user:${id}`);
+    saveState(); renderAll();
+  }
+
+  function deleteUser(id){
+    const u = state.users.find(x => x.id === id);
+    if(!u) return;
+    if(!confirm(`Delete user "${u.name}"?`)) return;
+    state.users = state.users.filter(x => x.id !== id);
+    addAudit('user.delete', `user:${id}`);
+    saveState(); renderAll();
+  }
+
+  function renderAnalytics(){
+    const m = computeMetrics();
+    $('analyticsKpis').innerHTML = `
+      <div class="card pad"><div class="eyebrow">Unique Visitors (modeled)</div><div class="value">${(m.donors*18).toLocaleString()}</div><div class="delta up">Based on donor volume</div></div>
+      <div class="card pad"><div class="eyebrow">Conversion Rate</div><div class="value">${m.avgConversion.toFixed(2)}%</div><div class="delta info">Average of active campaigns</div></div>
+      <div class="card pad"><div class="eyebrow">Average Gift</div><div class="value">${fmtMoney(m.avgGift)}</div><div class="delta up">Computed from total gross ÷ donors</div></div>
+      <div class="card pad"><div class="eyebrow">Recurring Donor Count</div><div class="value">${m.recurring.toLocaleString()}</div><div class="delta up">Across builders</div></div>
+    `;
+
+    const builders = ['Crowdfund','Fundraising Page','P2P','Step Form'].map(name => {
+      const list = state.campaigns.filter(c => c.builder === name);
+      return {name, count:list.length, raised:list.reduce((a,c)=>a+c.raised,0)};
+    });
+    $('builderMixList').innerHTML = builders.map(b => `
+      <div class="mini-item"><div><strong>${safe(b.name)}</strong><small>${b.count} campaign(s)</small></div><strong>${fmtMoney(b.raised)}</strong></div>
+    `).join('');
+
+    const visitors = m.donors * 18;
+    const intent = Math.round(visitors * 0.148);
+    const initiated = Math.round(intent * 0.44);
+    const success = m.donors;
+    $('funnelList').innerHTML = `
+      <div class="mini-item"><div><strong>Landing View</strong><small>Modeled sessions</small></div><strong>${visitors.toLocaleString()}</strong></div>
+      <div class="mini-item"><div><strong>Donation Intent</strong><small>Clicked give</small></div><strong>${intent.toLocaleString()}</strong></div>
+      <div class="mini-item"><div><strong>Payment Initiated</strong><small>Started form / checkout</small></div><strong>${initiated.toLocaleString()}</strong></div>
+      <div class="mini-item"><div><strong>Successful Donation</strong><small>Donor records</small></div><strong>${success.toLocaleString()}</strong></div>
+    `;
+
+    $('analyticsCampaignTable').innerHTML = [...state.campaigns].sort((a,b)=>b.raised-a.raised).map(c => `
+      <tr>
+        <td><strong>${safe(c.name)}</strong><br><span class="muted">${safe(c.builder)} • ${safe(c.status)}</span></td>
+        <td>${fmtMoney(c.raised)}</td>
+        <td>${((c.raised / Math.max(c.goal,1))*100).toFixed(1)}%</td>
+        <td>${c.donors.toLocaleString()}</td>
+        <td>${c.conversion}%</td>
+        <td>${c.recurring}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderFinance(){
+    const m = computeMetrics();
+    $('financeCards').innerHTML = `
+      <div class="card pad"><div class="eyebrow">Gross Processed</div><div class="value">${fmtMoney(m.gross)}</div><div class="delta info">All campaigns</div></div>
+      <div class="card pad"><div class="eyebrow">Fees + Adjustments</div><div class="value">${fmtMoney(m.fees)}</div><div class="delta warn">Modeled 8.2%</div></div>
+      <div class="card pad"><div class="eyebrow">Reserve / Held</div><div class="value">${fmtMoney(m.held)}</div><div class="delta bad">Fraud + payout review</div></div>
+    `;
+    $('ledgerTableBody').innerHTML = state.ledger.map(l => `
+      <tr>
+        <td>${safe(l.date)}</td>
+        <td>${safe(l.type)}</td>
+        <td>${safe(l.ref)}</td>
+        <td>${fmtMoney(l.amount)}</td>
+        <td><span class="pill ${pillClass(l.status)}">${safe(l.status)}</span></td>
+      </tr>
+    `).join('');
+    $('financeControls').innerHTML = `
+      <div class="mini-item"><div><strong>Default payout schedule</strong><small>${safe(state.settings.payoutSchedule)} — minus held and reserved funds.</small></div></div>
+      <div class="mini-item"><div><strong>Default bank</strong><small>${safe(getDefaultBank()?.label || 'Not set')}</small></div></div>
+      <div class="mini-item"><div><strong>Fraud hold policy</strong><small>${safe(state.settings.fraudHoldPolicy)}</small></div></div>
+    `;
+  }
+
+  function renderPayouts(){
+    $('payoutTableBody').innerHTML = state.payouts.map(p => `
+      <tr>
+        <td>${safe(p.id)}</td>
+        <td>${safe(p.date)}</td>
+        <td>${fmtMoney(p.eligible)}</td>
+        <td>${fmtMoney(p.heldExcluded)}</td>
+        <td>${safe(getBankLabel(p.bankId))}</td>
+        <td><span class="pill ${pillClass(p.status)}">${safe(p.status)}</span></td>
+        <td>
+          <div class="row-actions">
+            <button class="mini-btn soft" data-payout-view="${p.id}">View</button>
+            <button class="mini-btn green" data-payout-send="${p.id}">Mark Sent</button>
+            <button class="mini-btn red" data-payout-delete="${p.id}">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('') || `<tr><td colspan="7"><div class="empty">No payouts scheduled.</div></td></tr>`;
+
+    document.querySelectorAll('[data-payout-view]').forEach(btn => btn.onclick = () => openPayoutDrawer(btn.dataset.payoutView));
+    document.querySelectorAll('[data-payout-send]').forEach(btn => btn.onclick = () => {
+      const p = state.payouts.find(x => x.id === btn.dataset.payoutSend);
+      if(!p) return;
+      p.status = 'Sent';
+      state.ledger.unshift({date:todayISO(),type:'Payout Batch',ref:p.id,amount:p.eligible,status:'Sent'});
+      addAudit('payout.sent', `payout:${p.id}`);
+      saveState(); renderAll();
+    });
+    document.querySelectorAll('[data-payout-delete]').forEach(btn => btn.onclick = () => {
+      const p = state.payouts.find(x => x.id === btn.dataset.payoutDelete);
+      if(!p) return;
+      if(!confirm(`Delete payout ${p.id}?`)) return;
+      state.payouts = state.payouts.filter(x => x.id !== p.id);
+      addAudit('payout.delete', `payout:${p.id}`);
+      saveState(); renderAll();
+    });
+
+    $('bankList').innerHTML = state.banks.map(b => `
+      <div class="mini-item">
+        <div>
+          <strong>${safe(b.label)}</strong>
+          <small>${safe(b.status)} • ${b.isActive ? 'Active' : 'Inactive'}</small>
+        </div>
+        <div class="row-actions">
+          ${b.isDefault ? `<span class="pill live">Default</span>` : `<button class="mini-btn green" data-bank-default="${b.id}">Set Default</button>`}
+          ${b.isActive ? `<button class="mini-btn red" data-bank-inactive="${b.id}">Mark Inactive</button>` : `<button class="mini-btn soft" data-bank-active="${b.id}">Reactivate</button>`}
+        </div>
+      </div>
+    `).join('') || `<div class="empty">No bank accounts found.</div>`;
+
+    document.querySelectorAll('[data-bank-default]').forEach(btn => btn.onclick = () => setDefaultBank(btn.dataset.bankDefault));
+    document.querySelectorAll('[data-bank-inactive]').forEach(btn => btn.onclick = () => setBankActive(btn.dataset.bankInactive, false));
+    document.querySelectorAll('[data-bank-active]').forEach(btn => btn.onclick = () => setBankActive(btn.dataset.bankActive, true));
+  }
+
+  function setDefaultBank(id){
+    state.banks.forEach(b => b.isDefault = b.id === id);
+    state.settings.defaultBankId = id;
+    addAudit('bank.set_default', `bank:${id}`);
+    saveState(); renderAll(); populateSettingsForm();
+  }
+  function setBankActive(id, active){
+    const b = state.banks.find(x => x.id === id);
+    if(!b) return;
+    b.isActive = active;
+    addAudit(active ? 'bank.reactivate' : 'bank.mark_inactive', `bank:${id}`);
+    saveState(); renderAll();
+  }
+  function openPayoutDrawer(id){
+    const p = state.payouts.find(x => x.id === id);
+    if(!p) return;
+    $('drawerTitle').textContent = `Payout ${p.id}`;
+    $('drawerSubtitle').textContent = `${p.date} • ${p.status}`;
+    $('drawerContent').innerHTML = `
+      <div class="three-col">
+        <div class="subtle"><strong>Eligible</strong><br>${fmtMoney(p.eligible)}</div>
+        <div class="subtle"><strong>Held Excluded</strong><br>${fmtMoney(p.heldExcluded)}</div>
+        <div class="subtle"><strong>Bank</strong><br>${safe(getBankLabel(p.bankId))}</div>
+      </div>
+      <div style="height:16px"></div>
+      <div class="notice">This payout is fully editable in local state. Marking it sent also pushes an entry into the finance ledger.</div>
+      <div class="sticky-actions">
+        <button class="btn-secondary" id="drawerDeletePayoutBtn">Delete</button>
+        <button class="btn" id="drawerSendPayoutBtn">Mark Sent</button>
+      </div>
+    `;
+    $('detailDrawerOverlay').classList.add('show');
+    $('drawerDeletePayoutBtn').onclick = () => {
+      state.payouts = state.payouts.filter(x => x.id !== p.id);
+      addAudit('payout.delete', `payout:${p.id}`);
+      saveState(); renderAll(); closeDrawer();
+    };
+    $('drawerSendPayoutBtn').onclick = () => {
+      p.status = 'Sent';
+      state.ledger.unshift({date:todayISO(),type:'Payout Batch',ref:p.id,amount:p.eligible,status:'Sent'});
+      addAudit('payout.sent', `payout:${p.id}`);
+      saveState(); renderAll(); closeDrawer();
+    };
+  }
+
+  function renderRisk(){
+    const open = state.riskCases.filter(c => ['New','Investigating','Pending'].includes(c.status)).length;
+    const held = state.riskCases.reduce((a,c)=>a+(c.fundsHeld||0),0);
+    const high = state.riskCases.filter(c => c.severity === 'High').length;
+    $('riskCards').innerHTML = `
+      <div class="card pad"><div class="eyebrow">Open Cases</div><div class="value">${open}</div><div class="delta bad">Needs review</div></div>
+      <div class="card pad"><div class="eyebrow">Held Funds</div><div class="value">${fmtMoney(held)}</div><div class="delta warn">Case-linked holds</div></div>
+      <div class="card pad"><div class="eyebrow">High Severity Cases</div><div class="value">${high}</div><div class="delta bad">Priority queue</div></div>
+    `;
+    $('riskTableBody').innerHTML = state.riskCases.map(rc => `
+      <tr>
+        <td>${safe(rc.id)}</td>
+        <td><strong>${safe(rc.subject)}</strong></td>
+        <td>${safe(rc.reason)}</td>
+        <td>${safe(rc.owner)}</td>
+        <td><span class="pill ${pillClass(rc.status)}">${safe(rc.status)}</span></td>
+        <td>
+          <div class="row-actions">
+            <button class="mini-btn soft" data-risk-view="${rc.id}">View</button>
+            <button class="mini-btn green" data-risk-clear="${rc.id}">Clear</button>
+            <button class="mini-btn red" data-risk-delete="${rc.id}">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('') || `<tr><td colspan="6"><div class="empty">No risk cases found.</div></td></tr>`;
+    document.querySelectorAll('[data-risk-view]').forEach(btn => btn.onclick = () => openRiskDrawer(btn.dataset.riskView));
+    document.querySelectorAll('[data-risk-clear]').forEach(btn => btn.onclick = () => {
+      const rc = state.riskCases.find(x => x.id === btn.dataset.riskClear);
+      if(!rc) return;
+      rc.status = 'Cleared';
+      addAudit('risk.case_clear', `case:${rc.id}`);
+      saveState(); renderAll();
+    });
+    document.querySelectorAll('[data-risk-delete]').forEach(btn => btn.onclick = () => {
+      const rc = state.riskCases.find(x => x.id === btn.dataset.riskDelete);
+      if(!rc) return;
+      if(!confirm(`Delete case ${rc.id}?`)) return;
+      state.riskCases = state.riskCases.filter(x => x.id !== rc.id);
+      addAudit('risk.case_delete', `case:${rc.id}`);
+      saveState(); renderAll();
+    });
+    $('riskCoverageList').innerHTML = `
+      <div class="mini-item"><div><strong>Campaign fraud signals</strong><small>Rapid campaign creation, payout mismatch, suspicious edits, repeated media reuse.</small></div></div>
+      <div class="mini-item"><div><strong>Donor / transaction signals</strong><small>Velocity spikes, duplicate card/device/IP, TOR/VPN, geo mismatch, structuring.</small></div></div>
+      <div class="mini-item"><div><strong>Compliance actions</strong><small>Hold funds, suspend campaign, request documents, disable user, escalate review.</small></div></div>
+    `;
+  }
+
+  function openRiskDrawer(id){
+    const rc = state.riskCases.find(x => x.id === id);
+    if(!rc) return;
+    $('drawerTitle').textContent = rc.id;
+    $('drawerSubtitle').textContent = `${rc.subject} • ${rc.status}`;
+    $('drawerContent').innerHTML = `
+      <div class="three-col">
+        <div class="subtle"><strong>Severity</strong><br>${safe(rc.severity)}</div>
+        <div class="subtle"><strong>Owner</strong><br>${safe(rc.owner)}</div>
+        <div class="subtle"><strong>Funds Held</strong><br>${fmtMoney(rc.fundsHeld || 0)}</div>
+      </div>
+      <div style="height:16px"></div>
+      <div class="subtle"><strong>Reason</strong><br>${safe(rc.reason)}</div>
+      <div style="height:16px"></div>
+      <div class="field">
+        <label>Update Reason / Notes</label>
+        <textarea id="riskDrawerReason">${safe(rc.reason)}</textarea>
+      </div>
+      <div class="sticky-actions">
+        <button class="btn-secondary" id="drawerEscalateRiskBtn">Escalate</button>
+        <button class="btn-secondary" id="drawerSaveRiskBtn">Save Notes</button>
+        <button class="btn" id="drawerClearRiskBtn">Clear Case</button>
+      </div>
+    `;
+    $('detailDrawerOverlay').classList.add('show');
+    $('drawerEscalateRiskBtn').onclick = () => {
+      rc.status = 'Escalated';
+      addAudit('risk.case_escalate', `case:${rc.id}`);
+      saveState(); renderAll(); closeDrawer();
+    };
+    $('drawerSaveRiskBtn').onclick = () => {
+      rc.reason = $('riskDrawerReason').value.trim();
+      addAudit('risk.case_update', `case:${rc.id}`);
+      saveState(); renderAll();
+    };
+    $('drawerClearRiskBtn').onclick = () => {
+      rc.status = 'Cleared';
+      addAudit('risk.case_clear', `case:${rc.id}`);
+      saveState(); renderAll(); closeDrawer();
+    };
+  }
+
+  function populateSettingsForm(){
+    $('settingsOrgName').value = state.settings.orgName || '';
+    $('settingsWebsite').value = state.settings.website || '';
+    $('settingsEmail').value = state.settings.email || '';
+    $('settingsPhone').value = state.settings.phone || '';
+    $('settingsAddress').value = state.settings.address || '';
+    $('settingsPayoutSchedule').value = state.settings.payoutSchedule || 'Weekly';
+    $('settingsFraudHoldPolicy').value = state.settings.fraudHoldPolicy || 'Hold suspicious funds automatically';
+    $('settingsReceiptFooter').value = state.settings.receiptFooter || '';
+    $('settingsBankRule').value = state.settings.bankRule || '';
+    $('settingsDefaultBank').innerHTML = state.banks.filter(b => b.isActive).map(b => `<option value="${safe(b.id)}">${safe(b.label)}</option>`).join('');
+    const def = getDefaultBank();
+    if(def) $('settingsDefaultBank').value = def.id;
+  }
+  function renderAudit(){
+    $('auditLogBlock').textContent = state.audit.map(a => `${a.ts}  user=${a.user}  action=${a.action}  entity=${a.entity}`).join('\n');
+  }
+
+  function renderAll(){
+    saveState();
+    renderHome();
+    renderCampaigns();
+    renderBuilders();
+    renderDonors();
+    renderUsers();
+    renderAnalytics();
+    renderFinance();
+    renderPayouts();
+    renderRisk();
+    populateSettingsForm();
+    renderAudit();
+  }
+
+  function closeDrawer(){ $('detailDrawerOverlay').classList.remove('show'); }
+  $('closeDrawerBtn').onclick = closeDrawer;
+  $('detailDrawerOverlay').addEventListener('click', (e) => { if(e.target === $('detailDrawerOverlay')) closeDrawer(); });
+
+  const modalOverlay = $('entityModalOverlay');
+  const entityFields = $('entityFormFields');
+  const entityForm = $('entityForm');
+  let currentFormConfig = null;
+
+  function closeEntityModal(){ modalOverlay.classList.remove('show'); currentFormConfig = null; entityForm.reset(); }
+  $('closeEntityModalBtn').onclick = closeEntityModal;
+  $('cancelEntityModalBtn').onclick = closeEntityModal;
+  modalOverlay.addEventListener('click', (e) => { if(e.target === modalOverlay) closeEntityModal(); });
+
+  function openEntityModal(config){
+    currentFormConfig = config;
+    $('entityModalTitle').textContent = config.title;
+    $('entityModalSubtitle').textContent = config.subtitle || 'Fill out the fields below.';
+    entityFields.innerHTML = config.fields.map(f => {
+      const val = config.values?.[f.name] ?? f.value ?? '';
+      const cls = f.full ? 'field full' : 'field';
+      if(f.type === 'select'){
+        return `<div class="${cls}"><label>${safe(f.label)}</label><select name="${safe(f.name)}">${f.options.map(o => `<option ${String(val)===String(o)?'selected':''}>${safe(o)}</option>`).join('')}</select></div>`;
+      }
+      if(f.type === 'textarea'){
+        return `<div class="${cls}"><label>${safe(f.label)}</label><textarea name="${safe(f.name)}">${safe(val)}</textarea></div>`;
+      }
+      if(f.type === 'number'){
+        return `<div class="${cls}"><label>${safe(f.label)}</label><input type="number" step="${f.step || '1'}" name="${safe(f.name)}" value="${safe(val)}"></div>`;
+      }
+      if(f.type === 'date'){
+        return `<div class="${cls}"><label>${safe(f.label)}</label><input type="date" name="${safe(f.name)}" value="${safe(val)}"></div>`;
+      }
+      return `<div class="${cls}"><label>${safe(f.label)}</label><input type="text" name="${safe(f.name)}" value="${safe(val)}"></div>`;
+    }).join('');
+    modalOverlay.classList.add('show');
+  }
+
+  entityForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if(!currentFormConfig) return;
+    const fd = new FormData(entityForm);
+    const data = Object.fromEntries(fd.entries());
+    currentFormConfig.onSubmit(data);
+    closeEntityModal();
+    renderAll();
+  });
+
+  function openCampaignModal(id=null, presetBuilder=''){
+    const existing = id ? state.campaigns.find(x => x.id === id) : null;
+    openEntityModal({
+      title: existing ? 'Edit Campaign' : 'Create Campaign',
+      subtitle: existing ? `Editing ${existing.name}` : 'Create a new governed campaign record.',
+      values: existing || {builder:presetBuilder || 'Crowdfund', status:'Draft', risk:'Low', owner:'Cedric Savery'},
+      fields: [
+        {label:'Campaign Name',name:'name'},
+        {label:'Builder',name:'builder',type:'select',options:['Crowdfund','Fundraising Page','P2P','Step Form']},
+        {label:'Status',name:'status',type:'select',options:['Draft','In Review','Live','Paused','Suspended','Archived']},
+        {label:'Owner',name:'owner'},
+        {label:'Goal',name:'goal',type:'number'},
+        {label:'Raised',name:'raised',type:'number'},
+        {label:'Held',name:'held',type:'number'},
+        {label:'Donors',name:'donors',type:'number'},
+        {label:'Risk',name:'risk',type:'select',options:['Low','Review','High']},
+        {label:'Conversion %',name:'conversion',type:'number',step:'0.1'},
+        {label:'Recurring Count',name:'recurring',type:'number'},
+        {label:'Description',name:'description',type:'textarea',full:true}
+      ],
+      onSubmit: (data) => {
+        const payload = {
+          id: existing ? existing.id : uid(data.builder === 'Crowdfund' ? 'CF' : data.builder === 'P2P' ? 'P2P' : data.builder === 'Fundraising Page' ? 'FP' : 'SF'),
+          name:data.name.trim(),
+          builder:data.builder,
+          status:data.status,
+          owner:data.owner.trim(),
+          goal:Number(data.goal||0),
+          raised:Number(data.raised||0),
+          held:Number(data.held||0),
+          donors:Number(data.donors||0),
+          risk:data.risk,
+          conversion:Number(data.conversion||0),
+          recurring:Number(data.recurring||0),
+          description:data.description.trim(),
+          createdBy: existing ? existing.createdBy : 'current.user'
+        };
+        if(existing){
+          Object.assign(existing, payload);
+          addAudit('campaign.update', `campaign:${existing.id}`);
+        }else{
+          state.campaigns.unshift(payload);
+          addAudit('campaign.create', `campaign:${payload.id}`);
+        }
+      }
+    });
+  }
+
+  function openDonorModal(id=null){
+    const existing = id ? state.donors.find(x => x.id === id) : null;
+    openEntityModal({
+      title: existing ? 'Edit Donor' : 'Add Donor',
+      subtitle: existing ? `Editing ${existing.name}` : 'Create a donor profile record.',
+      values: existing || {recurring:'None', risk:'Low'},
+      fields: [
+        {label:'Name',name:'name'},
+        {label:'Email',name:'email'},
+        {label:'Phone',name:'phone'},
+        {label:'Total Given',name:'totalGiven',type:'number'},
+        {label:'Campaigns Supported',name:'campaignsSupported',type:'number'},
+        {label:'Recurring',name:'recurring',type:'select',options:['None','Monthly','Quarterly','Yearly']},
+        {label:'Region',name:'region'},
+        {label:'Risk',name:'risk',type:'select',options:['Low','Review','High']},
+        {label:'Notes',name:'notes',type:'textarea',full:true}
+      ],
+      onSubmit: (data) => {
+        const payload = {
+          id: existing ? existing.id : uid('DON'),
+          name:data.name.trim(),
+          email:data.email.trim(),
+          phone:data.phone.trim(),
+          totalGiven:Number(data.totalGiven||0),
+          campaignsSupported:Number(data.campaignsSupported||0),
+          recurring:data.recurring,
+          region:data.region.trim(),
+          risk:data.risk,
+          notes:data.notes.trim(),
+          watchlist: existing ? existing.watchlist : false
+        };
+        if(existing){
+          Object.assign(existing, payload);
+          addAudit('donor.update', `donor:${existing.id}`);
+        }else{
+          state.donors.unshift(payload);
+          addAudit('donor.create', `donor:${payload.id}`);
+        }
+      }
+    });
+  }
+
+  function openUserModal(id=null){
+    const existing = id ? state.users.find(x => x.id === id) : null;
+    openEntityModal({
+      title: existing ? 'Edit User' : 'Invite User',
+      subtitle: existing ? `Editing ${existing.name}` : 'Invite a new organization user.',
+      values: existing || {role:'Campaign Manager',status:'Pending',mfa:'Invited',campaigns:0,flags:0},
+      fields: [
+        {label:'Name',name:'name'},
+        {label:'Email',name:'email'},
+        {label:'Role',name:'role',type:'select',options:['Organization Owner','Super Admin','Campaign Manager','Campaign Editor','Finance Admin','Compliance Admin','P2P Team Lead','Supporter','Read-Only Analyst']},
+        {label:'Status',name:'status',type:'select',options:['Pending','Active','Disabled']},
+        {label:'MFA',name:'mfa',type:'select',options:['Invited','Enabled','Disabled']},
+        {label:'Assigned Campaigns',name:'campaigns',type:'number'},
+        {label:'Flags',name:'flags',type:'number'}
+      ],
+      onSubmit: (data) => {
+        const payload = {
+          id: existing ? existing.id : uid('USR'),
+          name:data.name.trim(),
+          email:data.email.trim(),
+          role:data.role,
+          status:data.status,
+          mfa:data.mfa,
+          campaigns:Number(data.campaigns||0),
+          flags:Number(data.flags||0)
+        };
+        if(existing){
+          Object.assign(existing, payload);
+          addAudit('user.update', `user:${existing.id}`);
+        }else{
+          state.users.unshift(payload);
+          addAudit('user.invite', `user:${payload.id}`);
+        }
+      }
+    });
+  }
+
+  function openBankModal(){
+    openEntityModal({
+      title:'Add Bank Account',
+      subtitle:'Add a new bank and optionally make it the default payout destination.',
+      values:{status:'Verified',isDefault:'No'},
+      fields:[
+        {label:'Label',name:'label'},
+        {label:'Status',name:'status',type:'select',options:['Verified','Pending','Failed']},
+        {label:'Make Default',name:'isDefault',type:'select',options:['No','Yes']}
+      ],
+      onSubmit:(data)=>{
+        const bank = {id:uid('BNK'),label:data.label.trim(),status:data.status,isDefault:data.isDefault==='Yes',isActive:true};
+        if(bank.isDefault) state.banks.forEach(b => b.isDefault=false);
+        state.banks.unshift(bank);
+        if(bank.isDefault) state.settings.defaultBankId = bank.id;
+        addAudit('bank.add', `bank:${bank.id}`);
+      }
+    });
+  }
+
+  function openPayoutModal(){
+    openEntityModal({
+      title:'Schedule Payout',
+      subtitle:'Create a payout batch using an active bank account.',
+      values:{date:todayISO(),status:'Scheduled',bankId:getDefaultBank()?.id || ''},
+      fields:[
+        {label:'Date',name:'date',type:'date'},
+        {label:'Eligible Amount',name:'eligible',type:'number'},
+        {label:'Held Excluded',name:'heldExcluded',type:'number'},
+        {label:'Bank',name:'bankId',type:'select',options:state.banks.filter(b => b.isActive).map(b => b.id)},
+        {label:'Status',name:'status',type:'select',options:['Scheduled','Approval Needed','Sent']}
+      ],
+      onSubmit:(data)=>{
+        const p = {id:uid('PYO'),date:data.date,eligible:Number(data.eligible||0),heldExcluded:Number(data.heldExcluded||0),bankId:data.bankId,status:data.status};
+        state.payouts.unshift(p);
+        addAudit('payout.schedule', `payout:${p.id}`);
+      }
+    });
+  }
+
+  function openRiskCaseModal(){
+    openEntityModal({
+      title:'New Risk Case',
+      subtitle:'Create a suspicious campaign, donor, or payout review case.',
+      values:{owner:'Unassigned',status:'New',severity:'Review',fundsHeld:0},
+      fields:[
+        {label:'Subject',name:'subject'},
+        {label:'Reason',name:'reason',type:'textarea',full:true},
+        {label:'Owner',name:'owner'},
+        {label:'Status',name:'status',type:'select',options:['New','Investigating','Pending','Escalated','Cleared']},
+        {label:'Severity',name:'severity',type:'select',options:['Review','High']},
+        {label:'Funds Held',name:'fundsHeld',type:'number'}
+      ],
+      onSubmit:(data)=>{
+        const rc = {id:uid('RC'),subject:data.subject.trim(),reason:data.reason.trim(),owner:data.owner.trim(),status:data.status,severity:data.severity,fundsHeld:Number(data.fundsHeld||0)};
+        state.riskCases.unshift(rc);
+        addAudit('risk.case_open', `case:${rc.id}`, 'system');
+      }
+    });
+  }
+
+  function exportData(filename, data){
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  $('campaignSearch').addEventListener('input', renderCampaigns);
+  $('campaignStatusFilter').addEventListener('change', renderCampaigns);
+  $('campaignBuilderFilter').addEventListener('change', renderCampaigns);
+  $('donorSearch').addEventListener('input', renderDonors);
+  $('donorRiskFilter').addEventListener('change', renderDonors);
+  $('clearSelectedDonorBtn').onclick = () => { selectedDonorId = null; renderSelectedDonor(); };
+
+  $('quickNewCampaignBtn').onclick = () => openCampaignModal();
+  $('homeLaunchCampaignBtn').onclick = () => openCampaignModal();
+  $('newCampaignBtn').onclick = () => openCampaignModal();
+  $('startFromBuilderBtn').onclick = () => openCampaignModal();
+  $('homeInviteUserBtn').onclick = () => openUserModal();
+  $('newUserBtn').onclick = () => openUserModal();
+  $('newDonorBtn').onclick = () => openDonorModal();
+  $('addBankBtn').onclick = openBankModal;
+  $('bankAddMiniBtn').onclick = openBankModal;
+  $('schedulePayoutBtn').onclick = openPayoutModal;
+  $('homeSchedulePayoutBtn').onclick = openPayoutModal;
+  $('newRiskCaseBtn').onclick = openRiskCaseModal;
+  $('seedRiskCaseBtn').onclick = () => {
+    state.riskCases.unshift({id:uid('RC'),subject:'New suspicious campaign',reason:'Demo seeded case for testing queue behavior.',owner:'Unassigned',status:'New',severity:'Review',fundsHeld:0});
+    addAudit('risk.case_open', 'case:demo', 'system');
+    renderAll();
+  };
+
+  $('duplicateSelectedCampaignBtn').onclick = () => selectedCampaignId ? duplicateCampaign(selectedCampaignId) : alert('Open a campaign first from View.');
+  $('exportCampaignsBtn').onclick = () => exportData('campaigns.json', state.campaigns);
+  $('exportDonorsBtn').onclick = () => exportData('donors.json', state.donors);
+  $('exportUsersBtn').onclick = () => exportData('users.json', state.users);
+  $('analyticsExportBtn').onclick = () => exportData('analytics_snapshot.json', {metrics:computeMetrics(), campaigns:state.campaigns});
+  $('financeExportBtn').onclick = () => exportData('finance.json', {ledger:state.ledger, payouts:state.payouts, banks:state.banks, metrics:computeMetrics()});
+  $('auditExportBtn').onclick = () => exportData('audit.json', state.audit);
+  $('auditRefreshBtn').onclick = renderAudit;
+  $('analyticsRefreshBtn').onclick = renderAnalytics;
+  $('financeOpenLedgerBtn').onclick = () => goToPage('finance');
+  $('builderRegistryBtn').onclick = () => alert('Builder registry is represented by the builder cards and builder metadata drawers in this prototype.');
+  $('viewApprovalQueueBtn').onclick = () => goToPage('payouts');
+  $('resetDemoBtn').onclick = () => {
+    if(!confirm('Reset the demo back to the default dataset?')) return;
+    state = clone(DEFAULTS);
+    selectedCampaignId = state.campaigns[0]?.id || null;
+    selectedDonorId = null;
+    saveState();
+    renderAll();
+  };
+
+  $('saveSettingsBtn').onclick = () => {
+    state.settings.orgName = $('settingsOrgName').value.trim();
+    state.settings.website = $('settingsWebsite').value.trim();
+    state.settings.email = $('settingsEmail').value.trim();
+    state.settings.phone = $('settingsPhone').value.trim();
+    state.settings.address = $('settingsAddress').value.trim();
+    state.settings.payoutSchedule = $('settingsPayoutSchedule').value;
+    state.settings.fraudHoldPolicy = $('settingsFraudHoldPolicy').value;
+    state.settings.receiptFooter = $('settingsReceiptFooter').value.trim();
+    state.settings.bankRule = $('settingsBankRule').value.trim();
+    const bankId = $('settingsDefaultBank').value;
+    if(bankId) setDefaultBank(bankId);
+    addAudit('settings.update', 'settings:organization');
+    saveState();
+    renderAll();
+    alert('Settings saved.');
+  };
+  $('resetSettingsBtn').onclick = populateSettingsForm;
+
+  $('globalSearch').addEventListener('input', () => {
+    const q = $('globalSearch').value.trim().toLowerCase();
+    if(!q) return;
+    const camp = state.campaigns.find(c => [c.name,c.id,c.owner].join(' ').toLowerCase().includes(q));
+    const donor = state.donors.find(d => [d.name,d.email,d.id].join(' ').toLowerCase().includes(q));
+    const user = state.users.find(u => [u.name,u.email,u.id].join(' ').toLowerCase().includes(q));
+    const risk = state.riskCases.find(r => [r.id,r.subject,r.reason].join(' ').toLowerCase().includes(q));
+    if(camp){ goToPage('campaigns'); $('campaignSearch').value = q; renderCampaigns(); return; }
+    if(donor){ goToPage('donors'); $('donorSearch').value = q; renderDonors(); return; }
+    if(user){ goToPage('users'); return; }
+    if(risk){ goToPage('risk'); return; }
+  });
+
+  renderAll();
+})();
+</script>
+</body>
+</html>

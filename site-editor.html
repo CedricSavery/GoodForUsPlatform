@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GoodForUs | Magic Site Editor</title>
+    <link rel="stylesheet" href="//unpkg.com/grapesjs/dist/css/grapes.min.css">
+    <script src="//unpkg.com/grapesjs"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --brand: #00b964; }
+        body, html { height: 100%; margin: 0; background: #f4f7f9; font-family: 'Inter', sans-serif; overflow: hidden; }
+
+        /* Top Bar */
+        .top-bar {
+            height: 65px; background: white; border-bottom: 1px solid #e2e8f0;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 25px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+        }
+
+        /* Bottom Floating Menu */
+        #tool-drawer {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #1e293b; padding: 10px 25px; border-radius: 50px;
+            display: flex; gap: 20px; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 1001;
+        }
+
+        .tool-btn { color: white; cursor: pointer; font-size: 14px; font-weight: 700; border: none; background: none; display: flex; align-items: center; gap: 8px; }
+        .tool-btn:hover { color: var(--brand); }
+
+        /* Hide technical sidebars */
+        .gjs-pn-views-container, .gjs-pn-views, .gjs-pn-commands { display: none !important; }
+        .gjs-cv-canvas { top: 65px !important; height: calc(100% - 65px) !important; width: 100% !important; }
+
+        /* Selection UI */
+        .gjs-highlighter { outline: 3px solid var(--brand) !important; outline-offset: -2px; border-radius: 8px; }
+        .gjs-toolbar { background-color: var(--brand) !important; border-radius: 8px !important; }
+
+        /* Library Popup */
+        #blocks-popup {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; width: 85%; max-width: 1000px; height: 80vh;
+            border-radius: 30px; padding: 40px; box-shadow: 0 30px 100px rgba(0,0,0,0.3);
+            display: none; z-index: 2000; overflow-y: auto;
+        }
+        .block-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .block-preview { 
+            background: #f8fafc; border: 2px solid #f1f5f9; padding: 15px; border-radius: 20px; 
+            text-align: center; cursor: pointer; transition: 0.2s;
+        }
+        .block-preview:hover { border-color: var(--brand); transform: translateY(-3px); }
+
+        /* Edit Popup */
+        #edit-popup {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; width: 400px; padding: 30px; border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2); z-index: 3000; display: none;
+        }
+        .edit-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin: 10px 0; box-sizing: border-box; font-family: inherit; }
+        
+        .cat-label { font-weight: 900; text-transform: uppercase; font-size: 11px; color: #94a3b8; margin-bottom: 15px; display: block; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+    <nav class="top-bar">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <img src="LogoJf.png" style="height:32px" onerror="this.style.display='none'">
+            <span style="font-weight:900;">Visual <span style="color:var(--brand)">Editor</span></span>
+        </div>
+        <button onclick="saveSnapshot()" style="background:var(--brand); color:white; border:none; padding:10px 25px; border-radius:12px; font-weight:800; cursor:pointer;">Save Changes</button>
+    </nav>
+
+    <div id="gjs"></div>
+
+    <div id="tool-drawer">
+        <button class="tool-btn" onclick="openBlocks()"><i class="fa fa-plus-circle"></i> Add Section / Row</button>
+        <div style="width:1px; height:20px; background:#444;"></div>
+        <button class="tool-btn" onclick="editor.UndoManager.undo()"><i class="fa fa-undo"></i> Undo</button>
+    </div>
+
+    <div id="edit-popup">
+        <h3 style="margin-top:0; font-weight:900;">Edit Settings</h3>
+        <div id="edit-fields"></div>
+        <div id="upload-section" style="display:none; margin-top:10px;">
+            <label style="font-size:12px; font-weight:bold;">Upload Image</label>
+            <input type="file" id="file-upload" class="edit-input" accept="image/*" onchange="handleImageUpload(event)">
+        </div>
+        <button onclick="applyChanges()" style="width:100%; background:var(--brand); color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:15px;">Apply</button>
+        <button onclick="closeEdit()" style="width:100%; background:none; border:none; color:#999; font-size:12px; margin-top:10px; cursor:pointer;">Cancel</button>
+    </div>
+
+    <div id="blocks-popup">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+            <h2 style="font-weight:900;">Builder Library</h2>
+            <button onclick="closeBlocks()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+        </div>
+
+        <span class="cat-label">1. Main Sections</span>
+        <div class="block-grid" id="sections-anchor"></div>
+
+        <span class="cat-label">2. Row Layouts (Divisions)</span>
+        <div class="block-grid" id="rows-anchor"></div>
+
+        <span class="cat-label">3. Modules (Add into Rows)</span>
+        <div class="block-grid" id="modules-anchor"></div>
+    </div>
+
+    <script>
+        const editor = grapesjs.init({
+            container: '#gjs',
+            height: '100%',
+            fromElement: false,
+            storageManager: false,
+            panels: { defaults: [] },
+            canvas: {
+                styles: [
+                    'https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap',
+                    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
+                ],
+                scripts: ['https://cdn.tailwindcss.com']
+            }
+        });
+
+        editor.on('component:selected', () => {
+            const selected = editor.getSelected();
+            if (selected) {
+                selected.set('toolbar', [
+                    { attributes: { class: 'fa fa-arrows' }, command: 'tlb-move' },
+                    { attributes: { class: 'fa fa-pencil' }, command: 'open-edit-popup' }, 
+                    { attributes: { class: 'fa fa-plus-square' }, command: 'tlb-clone' },
+                    { attributes: { class: 'fa fa-trash' }, command: 'tlb-delete' }
+                ]);
+            }
+        });
+
+        const library = {
+            sections: [
+                { label: 'Navigation', icon: 'fa-window-maximize', content: `<nav class="p-8 bg-white border-b flex justify-between items-center"><img src="LogoJf.png" class="h-8"><div><a>Link</a></div></nav>` },
+                { label: 'Empty Body', icon: 'fa-square-o', content: `<section class="py-20 px-6 bg-white min-h-[300px]"></section>` },
+                { label: 'Footer', icon: 'fa-dock', content: `<footer class="p-16 bg-slate-900 text-white text-center">© 2026 GoodForUs</footer>` }
+            ],
+            rows: [
+                { label: '100 (Full)', content: `<div class="max-w-7xl mx-auto py-4"><div class="w-full min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div></div>` },
+                { label: '50 / 50', content: `<div class="max-w-7xl mx-auto py-4 flex flex-wrap gap-4"><div class="flex-1 min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div><div class="flex-1 min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div></div>` },
+                { label: '80 / 20', content: `<div class="max-w-7xl mx-auto py-4 flex flex-wrap gap-4"><div style="flex: 0 0 78%;" class="min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div><div style="flex: 1;" class="min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div></div>` },
+                { label: '20 / 80', content: `<div class="max-w-7xl mx-auto py-4 flex flex-wrap gap-4"><div style="flex: 1;" class="min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div><div style="flex: 0 0 78%;" class="min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div></div>` },
+                { label: '70 / 30', content: `<div class="max-w-7xl mx-auto py-4 flex flex-wrap gap-4"><div style="flex: 0 0 68%;" class="min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div><div style="flex: 1;" class="min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div></div>` },
+                { label: '30 / 70', content: `<div class="max-w-7xl mx-auto py-4 flex flex-wrap gap-4"><div style="flex: 1;" class="min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div><div style="flex: 0 0 68%;" class="min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div></div>` },
+                { label: '60 / 40', content: `<div class="max-w-7xl mx-auto py-4 flex flex-wrap gap-4"><div style="flex: 0 0 58%;" class="min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div><div style="flex: 1;" class="min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div></div>` },
+                { label: '40 / 60', content: `<div class="max-w-7xl mx-auto py-4 flex flex-wrap gap-4"><div style="flex: 1;" class="min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div><div style="flex: 0 0 58%;" class="min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div></div>` },
+                { label: '3 Divs', content: `<div class="max-w-7xl mx-auto py-4 flex flex-wrap gap-4"><div class="flex-1 min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div><div class="flex-1 min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div><div class="flex-1 min-h-[80px] border-2 border-dashed border-slate-100 rounded-2xl"></div></div>` },
+                { label: '6 Divs', content: `<div class="max-w-7xl mx-auto py-4 flex flex-wrap gap-2"><div class="flex-1 min-h-[50px] border-2 border-dashed border-slate-100 rounded-xl"></div><div class="flex-1 min-h-[50px] border-2 border-dashed border-slate-100 rounded-xl"></div><div class="flex-1 min-h-[50px] border-2 border-dashed border-slate-100 rounded-xl"></div><div class="flex-1 min-h-[50px] border-2 border-dashed border-slate-100 rounded-xl"></div><div class="flex-1 min-h-[50px] border-2 border-dashed border-slate-100 rounded-xl"></div><div class="flex-1 min-h-[50px] border-2 border-dashed border-slate-100 rounded-xl"></div></div>` }
+            ],
+            modules: [
+                { label: 'Text Box', icon: 'fa-font', content: `<p class="text-slate-600 leading-relaxed">Double click to type your text here.</p>` },
+                { label: 'Main Title', icon: 'fa-heading', content: `<h1 class="text-4xl font-900 text-slate-900">New Heading</h1>` },
+                { label: 'Button', icon: 'fa-mouse-pointer', content: `<button class="px-8 py-3 bg-[#00b964] text-white rounded-xl font-bold uppercase text-[10px]">Action Button</button>` },
+                { label: 'Media / Image', icon: 'fa-image', content: `<img src="LogoJf.png" class="max-w-full rounded-xl">` }
+            ]
+        };
+
+        function fill(cat, anchorId) {
+            const container = document.getElementById(anchorId);
+            library[cat].forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'block-preview';
+                div.innerHTML = `<div style="font-size:24px; margin-bottom:10px;"><i class="fa ${item.icon || 'fa-columns'}"></i></div><div style="font-weight:900; font-size:11px;">${item.label}</div>`;
+                div.onclick = () => { editor.addComponents(item.content); closeBlocks(); };
+                container.appendChild(div);
+            });
+        }
+        fill('sections', 'sections-anchor');
+        fill('rows', 'rows-anchor');
+        fill('modules', 'modules-anchor');
+
+        editor.Commands.add('open-edit-popup', {
+            run() {
+                const selected = editor.getSelected();
+                const fields = document.getElementById('edit-fields');
+                const upload = document.getElementById('upload-section');
+                fields.innerHTML = ''; upload.style.display = 'none';
+                
+                if (selected.is('image')) {
+                    fields.innerHTML = `<label style="font-size:12px; font-weight:bold;">Image URL</label><input type="text" class="edit-input" id="new-val" value="${selected.get('src')}">`;
+                    upload.style.display = 'block';
+                } else if (selected.get('tagName') === 'A' || selected.is('link')) {
+                    fields.innerHTML = `<label style="font-size:12px; font-weight:bold;">Link URL</label><input type="text" class="edit-input" id="new-val" value="${selected.getAttributes().href || ''}">`;
+                } else {
+                    fields.innerHTML = `<p style="font-size:13px; color:#64748b;">Double click the element on the page to edit text directly.</p>`;
+                }
+                document.getElementById('edit-popup').style.display = 'block';
+            }
+        });
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => { if(editor.getSelected()) { editor.getSelected().set('src', ev.target.result); closeEdit(); } };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function applyChanges() {
+            const selected = editor.getSelected();
+            const val = document.getElementById('new-val')?.value;
+            if (selected && val) {
+                if (selected.is('image')) selected.set('src', val);
+                else selected.addAttributes({ href: val });
+            }
+            closeEdit();
+        }
+
+        function openBlocks() { document.getElementById('blocks-popup').style.display = 'block'; }
+        function closeBlocks() { document.getElementById('blocks-popup').style.display = 'none'; }
+        function closeEdit() { document.getElementById('edit-popup').style.display = 'none'; }
+
+        function saveSnapshot() {
+            const data = { html: editor.getHtml(), css: editor.getCss(), components: JSON.stringify(editor.getComponents()), timestamp: new Date() };
+            fetch('/api/page/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) }).then(() => alert("Saved!"));
+        }
+
+        fetch('/index.html').then(res => res.text()).then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            if(doc.getElementById('demo-modal')) doc.getElementById('demo-modal').remove();
+            doc.querySelectorAll('script').forEach(s => s.remove());
+            editor.setComponents(doc.body.innerHTML);
+        });
+    </script>
+</body>
+</html>

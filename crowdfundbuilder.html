@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoodForUs | Crowdfund Pro Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root { --accent: #00b964; }
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; color: #1e293b; overflow: hidden; }
+        .main-grid { display: grid; grid-template-columns: 420px 1fr; height: 100vh; }
+        #editor-sidebar { background: #ffffff; border-right: 1px solid #e2e8f0; padding: 30px; overflow-y: auto; z-index: 10; padding-bottom: 140px; }
+        .config-label { font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; margin-bottom: 8px; display: block; }
+        .field-label { font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px; display: block; }
+        .config-input { width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 10px; margin-bottom: 15px; font-size: 14px; }
+        #preview-viewport { padding: 40px; overflow-y: auto; display: flex; justify-content: center; background: #f8fafc; }
+        .cf-container { background: white; width: 100%; max-width: 1100px; border-radius: 30px; box-shadow: 0 40px 100px -20px rgba(0,0,0,0.08); overflow: hidden; display: flex; flex-direction: column; }
+        .cf-main-row { display: grid; grid-template-columns: 1fr 400px; border-bottom: 1px solid #f1f5f9; min-height: 550px; }
+        .cf-visual { background: #000; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        #v-hero, #v-video-hero, #v-live-player { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; border: none; }
+        .v-logo-badge { position: absolute; top: 20px; left: 20px; width: 60px; height: 60px; background: transparent; border-radius: 50%; padding: 5px; z-index: 10; display: flex; align-items: center; justify-content: center; overflow: hidden;}
+        .v-logo-badge img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .live-indicator { position: absolute; top: 20px; right: 20px; background: #ff0000; color: white; padding: 5px 12px; border-radius: 6px; font-size: 10px; font-weight: 900; z-index: 20; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(255,0,0,0.3); }
+        .cf-stats-panel { width: 400px; padding: 40px; background: #ffffff; border-left: 1px solid #f1f5f9; display: flex; flex-direction: column; position: relative; }
+        .ticker-wrap { background: #1e293b; color: white; border-radius: 12px; padding: 12px; margin-top: auto; overflow: hidden; white-space: nowrap; height: 54px; display: flex; align-items: center; }
+        .ticker-move { display: inline-block; white-space: nowrap; animation: ticker-scroll 30s linear infinite; }
+        .ticker-item { display: inline-flex; align-items: center; padding-right: 60px; font-weight: 700; }
+        .ticker-highlight { color: #facc15; font-weight: 900; }
+        @keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .flip-clock { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+        .flip-card { background: #1e293b; color: white; border-radius: 8px; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; border-bottom: 3px solid #000; }
+        .flip-label { font-size: 8px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-top: 4px; text-align: center; }
+        #v-chat-row { background: #0f172a; border-top: 2px solid #334155; display: flex; flex-direction: column; height: 350px; overflow: hidden; position: relative; }
+        #chat-messages { flex: 1; overflow-y: auto; padding: 20px; font-size: 14px; color: #e2e8f0; display: flex; flex-direction: column; gap: 12px; max-height: calc(350px - 64px); }
+        .chat-input-bar { background: #1e293b; padding: 15px 20px; display: flex; align-items: center; gap: 15px; border-top: 1px solid #334155; flex-shrink: 0; }
+        .admin-badge { background: #ef4444; color: white; font-size: 9px; padding: 2px 6px; border-radius: 4px; margin-right: 5px; font-weight: 900; }
+        .block-btn { opacity: 0; position: absolute; right: 10px; top: 10px; color: #ef4444; cursor: pointer; font-size: 10px; transition: 0.2s; font-weight: 800; }
+        .chat-msg:hover .block-btn { opacity: 1; }
+        .live-lower-third { position: absolute; left: 20px; right: 20px; bottom: 20px; z-index: 30; pointer-events: none; opacity: 0; transform: translateY(130%); transition: transform 0.45s ease, opacity 0.45s ease; }
+        .live-lower-third.show { opacity: 1; transform: translateY(0); }
+        .live-lower-third-card { background: linear-gradient(90deg, rgba(15,23,42,0.96) 0%, rgba(30,41,59,0.96) 65%, rgba(0,185,100,0.92) 100%); border: 1px solid rgba(255,255,255,0.12); border-radius: 18px; box-shadow: 0 22px 55px rgba(0,0,0,0.35); padding: 16px 22px; display: flex; align-items: center; gap: 16px; }
+        .live-lower-third-icon { width: 52px; height: 52px; border-radius: 9999px; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; color: #facc15; font-size: 22px; flex-shrink: 0; }
+        .live-lower-third-copy { min-width: 0; }
+        .live-lower-third-kicker { font-size: 10px; font-weight: 900; letter-spacing: 1.4px; text-transform: uppercase; color: #86efac; margin-bottom: 4px; }
+        .live-lower-third-headline { color: white; font-size: 22px; font-weight: 900; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .live-lower-third-sub { color: rgba(255,255,255,0.82); font-size: 12px; font-weight: 700; margin-top: 3px; }
+        .sticky-bar { position: fixed; bottom: 0; left: 0; width: 420px; background: white; border-top: 1px solid #e2e8f0; padding: 25px 30px; z-index: 100; }
+        #payment-modal, #donor-detail-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-card { background: white; width: 400px; padding: 30px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+        #donor-payment-overlay { display: none; position: absolute; top: 0; right: 0; width: 100%; height: 100%; background: white; z-index: 50; padding: 40px; flex-direction: column; }
+        .payment-option-btn { width: 100%; height: 52px; padding: 0 16px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 14px; font-weight: 700; font-size: 13px; margin-bottom: 8px; transition: 0.2s; text-align: left; background: white; cursor: pointer; }
+        .payment-option-btn:hover { background: #f8fafc; border-color: var(--accent); }
+        .provider-icon-frame { width: 70px; display: flex; justify-content: center; flex-shrink: 0; }
+        .provider-icon { max-height: 24px; max-width: 100%; object-fit: contain; }
+    </style>
+</head>
+<body>
+
+<div class="main-grid">
+    <aside id="editor-sidebar">
+        <div class="flex items-center gap-3 mb-8">
+            <div class="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center text-white"><i class="fas fa-layer-group"></i></div>
+            <h2 class="font-black text-2xl tracking-tighter">Crowdfund Builder</h2>
+        </div>
+        <span class="config-label">1. Brand Identity</span>
+        <button onclick="document.getElementById('in-logo').click()" class="w-full py-2 bg-slate-100 rounded-lg text-[10px] font-black border border-slate-300 mb-3 uppercase">Update Logo</button>
+        <input type="file" id="in-logo" class="hidden" onchange="previewLogo(event)">
+        <span class="config-label">2. Media Content</span>
+        <div class="flex gap-1 mb-4">
+            <button onclick="setMediaMode('image')" id="btn-image" class="flex-1 py-2 bg-slate-800 text-white rounded-lg text-[10px] font-bold">IMAGE</button>
+            <button onclick="setMediaMode('video')" id="btn-video" class="flex-1 py-2 bg-slate-200 text-slate-600 rounded-lg text-[10px] font-bold">VIDEO</button>
+            <button onclick="setMediaMode('live')" id="btn-live" class="flex-1 py-2 bg-slate-200 text-slate-600 rounded-lg text-[10px] font-bold">LIVE</button>
+        </div>
+        <button onclick="document.getElementById('in-hero-file').click()" class="w-full py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black mb-2 uppercase tracking-tight"><i class="fas fa-upload mr-2"></i> Upload Media File</button>
+        <input type="file" id="in-hero-file" class="hidden" accept="image/*,video/*" onchange="previewHeroFile(event)">
+        <input type="text" id="in-hero-url" class="config-input mt-1" placeholder="Or Paste URL (YT, Bitchute, MP4)..." oninput="updateMediaUrl()">
+        <span class="config-label">3. Campaign Details</span>
+        <label class="field-label">Organization Name</label>
+        <input type="text" id="in-org" class="config-input" value="SolutionsAe Youth" oninput="sync()">
+        <label class="field-label">Fundraiser Title</label>
+        <input type="text" id="in-title" class="config-input" value="Building a Brighter Future" oninput="sync()">
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div>
+                <label class="field-label">Goal Amount ($)</label>
+                <input type="number" id="in-goal" class="config-input" value="50000" oninput="sync()">
+            </div>
+            <div>
+                <label class="field-label">Target Completion Date</label>
+                <input type="date" id="in-date" class="config-input" oninput="sync()">
+            </div>
+        </div>
+        <span class="config-label !text-red-600">4. Admin Chat Console</span>
+        <div class="p-4 bg-slate-900 rounded-2xl mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-[10px] text-slate-400 font-black uppercase">Live Chat Status</span>
+                <button id="toggle-chat-btn" onclick="toggleChatStatus()" class="px-3 py-1 bg-red-500 text-white rounded text-[9px] font-black">DISABLE</button>
+            </div>
+            <div id="admin-chat-controls">
+                <input type="text" id="sim-admin-name" class="config-input !bg-slate-800 !border-slate-700 text-white !mb-2" value="Admin">
+                <textarea id="sim-admin-msg" class="config-input !bg-slate-800 !border-slate-700 text-white !mb-3 h-16" placeholder="Message to Live Chat..."></textarea>
+                <button onclick="adminChat()" class="w-full py-3 bg-red-500 text-white rounded-xl font-black text-[10px] uppercase">Post to Chat</button>
+            </div>
+        </div>
+        <span class="config-label !text-green-600">5. Manual Donor Records</span>
+        <div class="p-4 bg-slate-100 rounded-2xl mb-32">
+            <button onclick="openPaymentModal()" class="w-full py-3 bg-green-600 text-white rounded-xl font-black text-[10px] uppercase"><i class="fas fa-plus mr-2"></i> Add Record</button>
+            <div id="manual-list" class="mt-4 space-y-2"></div>
+        </div>
+        <div class="sticky-bar"><button class="w-full py-4 bg-slate-900 text-white font-bold rounded-xl text-sm">LAUNCH CAMPAIGN</button></div>
+    </aside>
+
+    <main id="preview-viewport">
+        <div class="cf-container">
+            <div class="cf-main-row">
+                <div class="cf-visual">
+                    <div id="v-live-badge" class="live-indicator hidden"><div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>LIVE BROADCAST</div>
+                    <div class="v-logo-badge"><img id="v-logo" src="https://cdn-icons-png.flaticon.com/512/2583/2583277.png"></div>
+                    <img id="v-hero" src="https://images.unsplash.com/photo-1509099836639-18ba1795216d?q=80&w=2062&auto=format&fit=crop">
+                    <video id="v-video-hero" class="hidden" autoplay muted loop playsinline></video>
+                    <iframe id="v-live-player" class="hidden" allow="autoplay; fullscreen"></iframe>
+                    <div id="v-lower-third" class="live-lower-third">
+                        <div class="live-lower-third-card">
+                            <div class="live-lower-third-icon"><i class="fas fa-gift"></i></div>
+                            <div class="live-lower-third-copy">
+                                <div class="live-lower-third-kicker">Celebrating a Major Gift</div>
+                                <div id="v-lower-third-headline" class="live-lower-third-headline">Thank you!</div>
+                                <div id="v-lower-third-sub" class="live-lower-third-sub">Your generosity is making a difference.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="cf-stats-panel">
+                    <div id="donor-payment-overlay">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 id="overlay-title" class="font-black text-xl">Payment Details</h3>
+                            <button onclick="closeDonorPayment()" class="text-slate-400 hover:text-slate-900"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div id="main-payment-view">
+                            <p class="text-[10px] font-black uppercase text-slate-400 mb-4">Choose Method</p>
+                            <button onclick="showCardEntry()" class="payment-option-btn"><i class="fas fa-credit-card text-blue-500"></i> Credit/Debit Card</button>
+                            <button onclick="showACHEntry()" class="payment-option-btn"><i class="fas fa-university text-green-600"></i> ACH Transfer</button>
+                            <button class="payment-option-btn"><i class="fab fa-google-pay text-2xl"></i> Google Pay</button>
+                            <button class="payment-option-btn"><i class="fab fa-apple-pay text-2xl"></i> Apple Pay</button>
+                            <button onclick="showInstallmentsView()" class="payment-option-btn"><i class="fas fa-calendar-alt text-purple-500"></i> Installments</button>
+                        </div>
+                        <div id="card-entry-view" class="hidden">
+                            <button onclick="resetPaymentView()" class="text-[10px] font-black uppercase text-blue-600 mb-4 hover:underline"><i class="fas fa-arrow-left mr-1"></i> Back to Methods</button>
+                            <p class="text-[10px] font-black uppercase text-slate-400 mb-4">Card Information</p>
+                            <input type="text" id="v-card-name" class="config-input" placeholder="Name on Card">
+                            <input type="text" id="v-card-num" class="config-input" placeholder="Card Number">
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                <input type="text" id="v-card-exp" class="config-input !mb-0" placeholder="MM/YY">
+                                <input type="text" id="v-card-cvv" class="config-input !mb-0" placeholder="CVV">
+                            </div>
+                            <input type="number" id="v-card-amt" class="config-input" placeholder="Donation Amount ($)">
+                            <button onclick="processFinalPayment()" class="w-full py-4 bg-green-500 text-white font-black rounded-xl">COMPLETE DONATION</button>
+                        </div>
+                        <div id="ach-entry-view" class="hidden">
+                            <button onclick="resetPaymentView()" class="text-[10px] font-black uppercase text-blue-600 mb-4 hover:underline"><i class="fas fa-arrow-left mr-1"></i> Back to Methods</button>
+                            <p class="text-[10px] font-black uppercase text-slate-400 mb-4">Bank Information</p>
+                            <input type="text" class="config-input" placeholder="Routing Number">
+                            <input type="text" class="config-input" placeholder="Account Number">
+                            <input type="number" id="v-ach-amt" class="config-input" placeholder="Donation Amount ($)">
+                            <button onclick="processFinalPayment('ACH')" class="w-full py-4 bg-green-500 text-white font-black rounded-xl">AUTHORIZE TRANSFER</button>
+                        </div>
+                        <div id="installments-view" class="hidden">
+                            <button onclick="resetPaymentView()" class="text-[10px] font-black uppercase text-blue-600 mb-4 hover:underline"><i class="fas fa-arrow-left mr-1"></i> Back to Methods</button>
+                            <p class="text-[10px] font-black uppercase text-slate-400 mb-4">Select Installment Provider</p>
+                            <button class="payment-option-btn"><div class="provider-icon-frame"><img src="Affirm_logo.svg.png" class="provider-icon"></div> Affirm</button>
+                            <button class="payment-option-btn"><div class="provider-icon-frame"><img src="Afterpay_Logo_Border.png" class="provider-icon"></div> Afterpay</button>
+                            <button class="payment-option-btn"><div class="provider-icon-frame"><img src="klarna_logo_icon_168402.webp" class="provider-icon"></div> Klarna</button>
+                            <button class="payment-option-btn"><div class="provider-icon-frame"><img src="png-clipart-zip-pay-logo-tech-companies-payments.png" class="provider-icon"></div> Zip</button>
+                        </div>
+                        <div id="thank-you-view" class="hidden flex-1 flex flex-col items-center justify-center text-center">
+                            <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-3xl mb-4 animate-bounce"><i class="fas fa-check"></i></div>
+                            <h2 class="text-2xl font-black text-slate-900 mb-2">Thank You!</h2>
+                            <p class="text-slate-500 font-medium mb-8">Your donation has been processed successfully. Your receipt has been downloaded.</p>
+                            <button onclick="closeDonorPayment()" class="w-full py-4 bg-slate-900 text-white font-black rounded-xl uppercase tracking-widest text-xs">Close</button>
+                        </div>
+                    </div>
+                    <div id="v-timer-wrap" class="hidden">
+                        <div class="flip-clock">
+                            <div><div class="flip-card" id="f-d">00</div><div class="flip-label">Days</div></div>
+                            <div><div class="flip-card" id="f-h">00</div><div class="flip-label">Hrs</div></div>
+                            <div><div class="flip-card" id="f-m">00</div><div class="flip-label">Mins</div></div>
+                            <div><div class="flip-card" id="f-s">00</div><div class="flip-label">Secs</div></div>
+                        </div>
+                    </div>
+                    <p id="v-org" class="text-[10px] font-black uppercase text-blue-600 mb-1"></p>
+                    <h1 id="v-title" class="text-2xl font-black text-slate-900 leading-tight mb-4"></h1>
+                    <div class="flex items-baseline gap-2"><span id="v-raised" class="text-4xl font-black text-slate-900 tracking-tighter">$0</span></div>
+                    <div class="w-full bg-slate-100 h-2.5 rounded-full my-4"><div id="v-bar" class="h-full rounded-full transition-all duration-1000" style="background:var(--accent); width:0%"></div></div>
+                    <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase">
+                        <span id="v-goal"></span>
+                        <span id="v-count">0 Supporters</span>
+                    </div>
+                    <button onclick="openDonorPayment()" class="mt-4 bg-green-500 text-white font-bold py-3 rounded-xl hover:bg-green-600 transition-colors">Donate Now</button>
+                    <div class="ticker-wrap"><div class="ticker-move" id="v-ticker-move"><span class="ticker-item">Awaiting supporters...</span></div></div>
+                </div>
+            </div>
+            <div id="v-chat-row" class="hidden">
+                <div id="chat-messages"></div>
+                <div class="chat-input-bar">
+                    <div class="flex gap-3 text-lg mr-2">
+                        <span class="cursor-pointer" onclick="addChatEmoji('🔥')">🔥</span>
+                        <span class="cursor-pointer" onclick="addChatEmoji('🙌')">🙌</span>
+                        <span class="cursor-pointer" onclick="addChatEmoji('❤️')">❤️</span>
+                    </div>
+                    <input type="text" id="chat-input-view" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white" placeholder="Say something...">
+                    <button onclick="processUserChat()" class="text-green-500 font-bold text-xs uppercase ml-2">Send</button>
+                    <div class="grid grid-cols-3 gap-1 ml-4 border-l border-slate-700 pr-4 w-52">
+                        <button onclick="processUserDonate(25)" class="py-1 bg-slate-800 text-[8px] text-white font-bold rounded hover:bg-green-600 transition">FRIEND</button>
+                        <button onclick="processUserDonate(50)" class="py-1 bg-slate-800 text-[8px] text-white font-bold rounded hover:bg-green-600 transition">SUPPORTER</button>
+                        <button onclick="processUserDonate(100)" class="py-1 bg-slate-800 text-[8px] text-white font-bold rounded hover:bg-green-600 transition">ADVOCATE</button>
+                        <button onclick="processUserDonate(250)" class="py-1 bg-slate-800 text-[8px] text-white font-bold rounded hover:bg-green-600 transition">LEADER</button>
+                        <button onclick="processUserDonate(500)" class="py-1 bg-slate-800 text-[8px] text-white font-bold rounded hover:bg-green-600 transition">CHAMPION</button>
+                        <button onclick="processUserDonate(1000)" class="py-1 bg-slate-800 text-[8px] text-white font-bold rounded hover:bg-green-600 transition">VISIONARY</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="payment-modal">
+    <div class="modal-card">
+        <h3 class="font-black text-xl mb-6 text-slate-900">New Donor Record</h3>
+        <input type="text" id="sim-donor-name" class="config-input !mb-2" placeholder="Donor Name">
+        <input type="number" id="sim-donor-amt" class="config-input !mb-4" placeholder="Amount ($)">
+        <span class="config-label">Payment Method</span>
+        <select id="sim-payment-method" class="config-input !mb-4" onchange="toggleManualPaymentUI()">
+            <option value="">Select Payment Method...</option>
+            <option value="card">Credit/Debit Card</option>
+            <option value="ach">ACH Transfer</option>
+        </select>
+        <div id="manual-card-ui" class="hidden space-y-3">
+            <input type="text" id="manual-card-num" class="config-input !mb-0" placeholder="Card Number">
+            <div class="grid grid-cols-2 gap-3">
+                <input type="text" id="manual-card-expiry" class="config-input" placeholder="MM/YY">
+                <input type="text" id="manual-card-ccv" class="config-input" placeholder="CCV">
+            </div>
+        </div>
+        <div id="manual-ach-ui" class="hidden space-y-3">
+            <input type="text" id="manual-ach-routing" class="config-input !mb-0" placeholder="Routing Number">
+            <input type="text" id="manual-ach-account" class="config-input" placeholder="Account Number">
+        </div>
+        <div class="flex gap-3 mt-8">
+            <button onclick="closePaymentModal()" class="flex-1 py-3 font-bold text-slate-400">Cancel</button>
+            <button onclick="addFullDonation()" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold">Save Record</button>
+        </div>
+    </div>
+</div>
+
+<div id="donor-detail-modal">
+    <div class="modal-card">
+        <div class="flex justify-between items-start mb-6">
+            <div>
+                <h3 id="detail-name" class="font-black text-xl text-slate-900">Donor Details</h3>
+                <p id="detail-record" class="text-xs text-green-600 font-bold uppercase"></p>
+            </div>
+            <button onclick="closeDetailModal()" class="text-slate-400"><i class="fas fa-times"></i></button>
+        </div>
+        <span class="config-label">Postal Address</span>
+        <textarea id="detail-address" class="config-input h-24 mb-6" placeholder="Address line 1..."></textarea>
+        <div class="flex gap-3">
+            <button onclick="saveDetailAddress()" class="flex-1 bg-slate-900 text-white py-3 rounded-xl font-bold text-xs uppercase">Save Address</button>
+            <button id="thank-button" onclick="generateThankYouLetter()" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold text-xs uppercase"><i class="fas fa-envelope mr-2"></i> Thank</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let donations = [];
+    let manualRecords = [];
+    let isChatEnabled = true;
+    let currentMode = 'image';
+    let currentDonorId = null;
+    let timerInterval = null;
+    let lowerThirdTimeout;
+
+    function updateMediaUrl() {
+        let url = document.getElementById('in-hero-url').value;
+        if (url) {
+            if (url.includes('youtube.com/live/')) {
+                const videoId = url.split('live/')[1].split('?')[0];
+                url = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            } else if (url.includes('youtu.be/')) {
+                const videoId = url.split('.be/')[1].split('?')[0];
+                url = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            }
+            if (currentMode === 'video') {
+                const v = document.getElementById('v-video-hero');
+                v.src = url;
+                v.load();
+            } else if (currentMode === 'live') {
+                document.getElementById('v-live-player').src = url;
+            } else {
+                document.getElementById('v-hero').src = url;
+            }
+        }
+    }
+
+    function openDonorPayment() { 
+        document.getElementById('donor-payment-overlay').style.display = 'flex';
+        resetPaymentView();
+    }
+    function closeDonorPayment() { document.getElementById('donor-payment-overlay').style.display = 'none'; }
+
+    function resetPaymentView() {
+        document.getElementById('overlay-title').classList.remove('hidden');
+        document.getElementById('main-payment-view').classList.remove('hidden');
+        document.getElementById('installments-view').classList.add('hidden');
+        document.getElementById('card-entry-view').classList.add('hidden');
+        document.getElementById('ach-entry-view').classList.add('hidden');
+        document.getElementById('thank-you-view').classList.add('hidden');
+        document.getElementById('v-card-name').value = '';
+        document.getElementById('v-card-amt').value = '';
+        document.getElementById('v-card-num').value = '';
+    }
+
+    function showInstallmentsView() {
+        document.getElementById('main-payment-view').classList.add('hidden');
+        document.getElementById('installments-view').classList.remove('hidden');
+    }
+
+    function showCardEntry() {
+        document.getElementById('main-payment-view').classList.add('hidden');
+        document.getElementById('card-entry-view').classList.remove('hidden');
+    }
+
+    function showACHEntry() {
+        document.getElementById('main-payment-view').classList.add('hidden');
+        document.getElementById('ach-entry-view').classList.remove('hidden');
+    }
+
+    function generateReceipt(name, amt, cardLast4, org) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const date = new Date().toLocaleDateString();
+        const receiptId = "GIVE-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+        doc.setFont("helvetica", "bold"); doc.setFontSize(22);
+        doc.text(org, 20, 30);
+        doc.setFontSize(12); doc.setFont("helvetica", "normal"); doc.text("Supporting God's Work Together", 20, 38);
+        doc.setFont("helvetica", "bold"); doc.text(`DONOR: ${name.toUpperCase()}`, 20, 55);
+        doc.text(`PAYMENT METHOD: Card ending in ${cardLast4}`, 20, 62);
+        doc.line(20, 70, 190, 70); doc.text("Category", 20, 80); doc.text("Amount", 170, 80);
+        doc.line(20, 83, 190, 83);
+        doc.setFont("helvetica", "normal"); doc.text("Youth", 20, 93); doc.text(`$${amt.toFixed(2)}`, 170, 93);
+        doc.setFont("helvetica", "bold"); doc.text(`Total: $${amt.toFixed(2)}`, 160, 105);
+        doc.setFontSize(10);
+        doc.text(`RECEIPT ID: ${receiptId}`, 20, 125); doc.text(`DATE: ${date}`, 20, 132); doc.text(`STATUS: PAID`, 20, 139);
+        doc.setFontSize(8); doc.setFont("helvetica", "italic");
+        const footer = `Refund Policy: All donations to ${org} are non-refundable and will be used to support our mission.`;
+        doc.text(doc.splitTextToSize(footer, 170), 20, 155);
+        doc.save(`Receipt_${receiptId}.pdf`);
+    }
+
+    function generateThankYouLetter() {
+        const donor = manualRecords[currentDonorId];
+        if (!donor) return;
+        
+        const orgName = document.getElementById('in-org').value;
+        const title = document.getElementById('in-title').value;
+        const logoImg = document.getElementById('v-logo');
+        const date = new Date().toLocaleDateString();
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Header Branding with Matching Logo
+        try {
+            doc.addImage(logoImg.src, 'PNG', 20, 15, 15, 15);
+        } catch (e) {
+            doc.setFont("helvetica", "bold"); doc.setFontSize(24);
+            doc.text("G", 20, 20);
+        }
+
+        doc.setFontSize(18); doc.setFont("helvetica", "bold");
+        doc.text(orgName, 20, 40);
+        
+        doc.setFontSize(10); doc.setFont("helvetica", "normal");
+        doc.text("123 Ministry Way, Springfield, OH 45501", 20, 47);
+        doc.text("Contact: info@goodforus.org | www.goodforus.org", 20, 52);
+        
+        // Date and Recipient
+        doc.setFontSize(11);
+        doc.text(date, 20, 70);
+        doc.setFont("helvetica", "bold");
+        doc.text(`TO: ${donor.name}`, 20, 85);
+        doc.setFont("helvetica", "normal");
+        const addrLines = doc.splitTextToSize(donor.address || "Address on File", 100);
+        doc.text(addrLines, 20, 91);
+
+        // Body Content
+        doc.text(`Dear ${donor.name},`, 20, 115);
+        const body1 = `We want to express our deepest gratitude for your generous gift of $${donor.amt.toLocaleString()} toward the ${title}. Your contribution is vital to the success of this mission.`;
+        const body2 = `As we move forward, we are wondering if you would consider sharing your passion and love for ${title} with others? Your voice and story have the power to inspire more hearts to join us in this work.`;
+        const body3 = `Thank you again for your faithfulness and partnership. We are honored to have you as part of our community.`;
+        
+        doc.text(doc.splitTextToSize(body1, 170), 20, 125);
+        doc.text(doc.splitTextToSize(body2, 170), 20, 145);
+        doc.text(doc.splitTextToSize(body3, 170), 20, 170);
+
+        // Closing
+        doc.text("With appreciation,", 20, 190);
+        doc.setFont("helvetica", "bold");
+        doc.text(`The Team at ${orgName}`, 20, 200);
+
+        // Footer Legal
+        doc.setFontSize(8); doc.setFont("helvetica", "normal");
+        doc.text(`${orgName} is a registered non-profit organization. Your contribution is tax-deductible to the extent allowed by law.`, 20, 275);
+
+        doc.save(`Thank_You_${donor.name.replace(/\s/g, '_')}.pdf`);
+    }
+
+    function processFinalPayment(type = 'CARD') {
+        const orgName = document.getElementById('in-org').value;
+        let name, amt, last4;
+        if (type === 'CARD') {
+            name = document.getElementById('v-card-name').value || "Valued Donor";
+            amt = parseFloat(document.getElementById('v-card-amt').value);
+            const cardNum = document.getElementById('v-card-num').value;
+            last4 = cardNum.slice(-4) || "0000";
+        } else {
+            name = "Valued Donor";
+            amt = parseFloat(document.getElementById('v-ach-amt').value);
+            last4 = "BANK";
+        }
+        if (!amt || amt <= 0) { alert("Please enter a valid donation amount."); return; }
+        recordDonation(name, amt, false);
+        generateReceipt(name, amt, last4, orgName);
+        document.getElementById('overlay-title').classList.add('hidden');
+        document.getElementById('card-entry-view').classList.add('hidden');
+        document.getElementById('ach-entry-view').classList.add('hidden');
+        document.getElementById('thank-you-view').classList.remove('hidden');
+    }
+
+    function openPaymentModal() { document.getElementById('payment-modal').style.display = 'flex'; }
+    function closePaymentModal() { 
+        document.getElementById('payment-modal').style.display = 'none';
+        document.getElementById('sim-donor-name').value = '';
+        document.getElementById('sim-donor-amt').value = '';
+        document.getElementById('sim-payment-method').value = '';
+        toggleManualPaymentUI();
+    }
+
+    function openDetailModal(id) {
+        currentDonorId = id;
+        const donor = manualRecords[id];
+        document.getElementById('detail-name').innerText = donor.name;
+        document.getElementById('detail-record').innerText = `Total Gift: $${donor.amt.toLocaleString()}`;
+        document.getElementById('detail-address').value = donor.address || '';
+        document.getElementById('donor-detail-modal').style.display = 'flex';
+    }
+    function closeDetailModal() { document.getElementById('donor-detail-modal').style.display = 'none'; }
+    
+    function saveDetailAddress() {
+        if (currentDonorId !== null) {
+            manualRecords[currentDonorId].address = document.getElementById('detail-address').value;
+            alert("Address updated.");
+        }
+    }
+
+    function recordDonation(name, amt, isManual = true) {
+        const donation = { name, amt, date: new Date(), id: Date.now() };
+        donations.push(donation);
+        if (isManual) {
+            manualRecords.push(donation);
+            updateManualList();
+        }
+        sync();
+        triggerLowerThird(name, amt);
+        addTickerItem(name, amt);
+    }
+
+    function updateManualList() {
+        const list = document.getElementById('manual-list');
+        list.innerHTML = manualRecords.map((d, i) => `
+            <div onclick="openDetailModal(${i})" class="p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-green-500 transition-all flex justify-between items-center group">
+                <div>
+                    <p class="text-[11px] font-black text-slate-900">${d.name}</p>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase">${new Date(d.date).toLocaleDateString()}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[11px] font-black text-green-600">$${d.amt.toLocaleString()}</p>
+                    <i class="fas fa-chevron-right text-[8px] text-slate-300 group-hover:text-green-500"></i>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function sync() {
+        const org = document.getElementById('in-org').value;
+        const title = document.getElementById('in-title').value;
+        const goal = parseFloat(document.getElementById('in-goal').value) || 0;
+        document.getElementById('v-org').innerText = org;
+        document.getElementById('v-title').innerText = title;
+        document.getElementById('v-goal').innerText = `Goal: $${goal.toLocaleString()}`;
+        const total = donations.reduce((sum, d) => sum + d.amt, 0);
+        document.getElementById('v-raised').innerText = `$${total.toLocaleString()}`;
+        document.getElementById('v-count').innerText = `${donations.length} Supporters`;
+        const perc = goal > 0 ? Math.min((total / goal) * 100, 100) : 0;
+        document.getElementById('v-bar').style.width = perc + '%';
+        updateTimer();
+    }
+
+    function setMediaMode(mode) {
+        currentMode = mode;
+        ['image', 'video', 'live'].forEach(m => {
+            const btn = document.getElementById(`btn-${m}`);
+            btn.className = m === mode ? 'flex-1 py-2 bg-slate-800 text-white rounded-lg text-[10px] font-bold' : 'flex-1 py-2 bg-slate-200 text-slate-600 rounded-lg text-[10px] font-bold';
+        });
+        document.getElementById('v-hero').classList.toggle('hidden', mode !== 'image');
+        document.getElementById('v-video-hero').classList.toggle('hidden', mode !== 'video');
+        document.getElementById('v-live-player').classList.toggle('hidden', mode !== 'live');
+        document.getElementById('v-live-badge').classList.toggle('hidden', mode !== 'live');
+        document.getElementById('v-chat-row').classList.toggle('hidden', mode !== 'live');
+        document.getElementById('v-timer-wrap').classList.toggle('hidden', mode === 'live');
+        updateMediaUrl();
+    }
+
+    function triggerLowerThird(name, amt) {
+        const lt = document.getElementById('v-lower-third');
+        const h = document.getElementById('v-lower-third-headline');
+        const s = document.getElementById('v-lower-third-sub');
+        clearTimeout(lowerThirdTimeout);
+        h.innerText = `Thank you, ${name}!`;
+        s.innerText = `Just gave a transformative gift of $${amt.toLocaleString()}`;
+        lt.classList.add('show');
+        lowerThirdTimeout = setTimeout(() => lt.classList.remove('show'), 6000);
+    }
+
+    function addTickerItem(name, amt) {
+        const move = document.getElementById('v-ticker-move');
+        if (donations.length === 1) move.innerHTML = '';
+        const span = document.createElement('span');
+        span.className = 'ticker-item';
+        span.innerHTML = `<span class="ticker-highlight">${name}</span>&nbsp;just gave $${amt.toLocaleString()}`;
+        move.appendChild(span);
+        const clone = span.cloneNode(true);
+        move.appendChild(clone);
+    }
+
+    function updateTimer() {
+        const dateVal = document.getElementById('in-date').value;
+        if (!dateVal) return;
+        
+        document.getElementById('v-timer-wrap').classList.remove('hidden');
+
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            const now = new Date().getTime();
+            const target = new Date(dateVal).getTime();
+            const diff = target - now;
+            if (diff <= 0) {
+                clearInterval(timerInterval);
+                ['f-d','f-h','f-m','f-s'].forEach(id => document.getElementById(id).innerText = '00');
+                return;
+            }
+            document.getElementById('f-d').innerText = Math.floor(diff / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+            document.getElementById('f-h').innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+            document.getElementById('f-m').innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+            document.getElementById('f-s').innerText = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
+        }, 1000);
+    }
+
+    function toggleManualPaymentUI() {
+        const val = document.getElementById('sim-payment-method').value;
+        document.getElementById('manual-card-ui').classList.toggle('hidden', val !== 'card');
+        document.getElementById('manual-ach-ui').classList.toggle('hidden', val !== 'ach');
+    }
+
+    function addFullDonation() {
+        const name = document.getElementById('sim-donor-name').value;
+        const amt = parseFloat(document.getElementById('sim-donor-amt').value);
+        if (!name || !amt) return alert("Please fill name and amount");
+        recordDonation(name, amt, true);
+        closePaymentModal();
+    }
+
+    function toggleChatStatus() {
+        isChatEnabled = !isChatEnabled;
+        const btn = document.getElementById('toggle-chat-btn');
+        btn.innerText = isChatEnabled ? 'DISABLE' : 'ENABLE';
+        btn.className = isChatEnabled ? 'px-3 py-1 bg-red-500 text-white rounded text-[9px] font-black' : 'px-3 py-1 bg-green-500 text-white rounded text-[9px] font-black';
+        document.getElementById('v-chat-row').style.opacity = isChatEnabled ? '1' : '0.3';
+    }
+
+    function adminChat() {
+        const name = document.getElementById('sim-admin-name').value;
+        const msg = document.getElementById('sim-admin-msg').value;
+        if (!msg) return;
+        postChat(name, msg, true);
+        document.getElementById('sim-admin-msg').value = '';
+    }
+
+    function postChat(name, msg, isAdmin = false) {
+        if (!isChatEnabled && !isAdmin) return;
+        const chat = document.getElementById('chat-messages');
+        const div = document.createElement('div');
+        div.className = 'chat-msg relative';
+        div.innerHTML = `
+            ${isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
+            <span class="font-black text-slate-400 mr-2">${name}</span>
+            <span class="${isAdmin ? 'text-green-400 font-bold' : ''}">${msg}</span>
+            <span class="block-btn" onclick="this.parentElement.remove()">BLOCK</span>
+        `;
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    function processUserChat() {
+        const input = document.getElementById('chat-input-view');
+        if (!input.value) return;
+        postChat('User', input.value);
+        input.value = '';
+    }
+
+    function processUserDonate(amt) {
+        recordDonation('Supporter', amt, false);
+        postChat('Supporter', `Just donated $${amt}! 🚀`, false);
+    }
+
+    function addChatEmoji(emoji) {
+        const input = document.getElementById('chat-input-view');
+        input.value += emoji;
+    }
+
+    function previewHeroFile(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        if (file.type.startsWith('video')) {
+            setMediaMode('video');
+            const v = document.getElementById('v-video-hero');
+            v.src = url;
+            v.load();
+        } else {
+            setMediaMode('image');
+            document.getElementById('v-hero').src = url;
+        }
+    }
+
+    function previewLogo(e) {
+        const file = e.target.files[0];
+        if (file) document.getElementById('v-logo').src = URL.createObjectURL(file);
+    }
+
+    sync();
+</script>
+
+</body>
+</html>

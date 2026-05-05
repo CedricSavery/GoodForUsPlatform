@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoodForUs OS | Master Admin Sandbox</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --brand: #00b964; --dark: #0f172a; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: var(--dark); overflow: hidden; }
+        .sidebar-item.active { background: #1e293b; border-left: 4px solid var(--brand); color: white; }
+        .glass-card { background: white; border: 1px solid #e2e8f0; transition: all 0.2s; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        .slide-enter-active, .slide-leave-active { transition: all 0.3s ease; }
+        .slide-enter-from, .slide-leave-to { transform: translateX(100%); opacity: 0; }
+        .aml-alert { border-left: 5px solid #ef4444; background: #fff1f2; }
+        .animate-fade-in { animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div id="app" class="flex h-screen overflow-hidden">
+        
+        <aside class="w-64 bg-slate-900 text-slate-400 flex flex-shrink-0 flex-col border-r border-slate-800">
+            <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+                <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-black italic shadow-lg shadow-emerald-500/20">G</div>
+                <span class="font-black text-white tracking-tighter text-xl uppercase">GoodForUs</span>
+            </div>
+            
+            <nav class="flex-1 overflow-y-auto py-4">
+                <div class="px-6 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">Executive Snapshot</div>
+                <div @click="currentTab = 'analytics'" :class="['sidebar-item px-6 py-3 cursor-pointer flex items-center gap-3 text-xs font-bold transition-all', currentTab === 'analytics' ? 'active' : '']"><i class="fas fa-chart-pie"></i> Performance</div>
+                <div @click="currentTab = 'financials'" :class="['sidebar-item px-6 py-3 cursor-pointer flex items-center gap-3 text-xs font-bold transition-all', currentTab === 'financials' ? 'active' : '']"><i class="fas fa-money-bill-transfer"></i> Payouts & Ledger</div>
+                <div class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">Operations</div>
+                <div @click="currentTab = 'organizations'" :class="['sidebar-item px-6 py-3 cursor-pointer flex items-center gap-3 text-xs font-bold transition-all', currentTab === 'organizations' ? 'active' : '']"><i class="fas fa-landmark"></i> Organizations</div>
+                <div @click="currentTab = 'donors'" :class="['sidebar-item px-6 py-3 cursor-pointer flex items-center gap-3 text-xs font-bold transition-all', currentTab === 'donors' ? 'active' : '']"><i class="fas fa-users"></i> Donors CRM</div>
+                <div @click="currentTab = 'kyc'" :class="['sidebar-item px-6 py-3 cursor-pointer flex items-center gap-3 text-xs font-bold transition-all', currentTab === 'kyc' ? 'active' : '']"><i class="fas fa-shield-check"></i> KYC Compliance</div>
+            </nav>
+        </aside>
+
+        <main class="flex-1 flex flex-col min-w-0 relative">
+            <header class="h-20 bg-white border-b border-slate-200 flex items-center px-8 z-10 gap-10 shadow-sm">
+                <div v-for="m in snapshot" :key="m.label" class="border-r border-slate-100 pr-8 last:border-none">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">{{ m.label }}</p>
+                    <p :class="['text-xl font-black mt-1', m.label === 'Total in Risk' ? 'text-rose-600' : m.label === 'Requested Payouts' ? 'text-amber-500' : 'text-slate-900']">{{ m.value }}</p>
+                </div>
+                <div class="flex-1"></div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8 bg-slate-50/50">
+                
+                <div v-if="currentTab === 'kyc'" class="glass-card rounded-2xl overflow-hidden shadow-xl animate-fade-in">
+                    <div class="p-6 border-b bg-white flex justify-between items-center"><h3 class="font-black text-slate-800 uppercase text-xs tracking-widest">Global KYC Triage</h3></div>
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 text-[10px] font-black uppercase text-slate-400">
+                            <tr><th class="px-8 py-4">Applicant</th><th class="px-6 py-4">Risk Score</th><th class="px-6 py-4">Risk Level</th><th class="px-8 py-4 text-right">Actions</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr v-for="app in applications" :key="app.id" class="hover:bg-slate-50 transition">
+                                <td class="px-8 py-6"><div class="font-black text-slate-900">{{ app.name }}</div><div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Applied: Mar 30, 2026</div></td>
+                                <td class="px-6 py-6 font-bold text-slate-600">{{ app.riskScore }}/100</td>
+                                <td class="px-6 py-6"><span class="bg-rose-100 text-rose-600 px-3 py-1 rounded-full text-[10px] font-black uppercase">High Risk</span></td>
+                                <td class="px-8 py-6 text-right"><button @click="selectedApp = app" class="text-[10px] font-black uppercase text-emerald-600 hover:underline">Analyze KYC Factors <i class="fas fa-chevron-right ml-1"></i></button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div v-if="currentTab === 'organizations'" class="space-y-4 animate-fade-in">
+                    <div v-for="org in organizations" :key="org.id" class="glass-card p-6 rounded-2xl flex items-center justify-between shadow-sm">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-emerald-500 text-white rounded-xl flex items-center justify-center font-black uppercase">{{ org.name[0] }}</div>
+                            <div>
+                                <p class="font-black text-slate-900 uppercase">{{ org.name }}</p>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Balance: <span class="text-emerald-600 font-black">${{ org.balance }}</span></p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div v-if="org.amlAlerts > 0" class="flex items-center gap-1 text-rose-500 font-black text-[10px] uppercase">
+                                <i class="fas fa-exclamation-triangle animate-pulse"></i> {{ org.amlAlerts }} Risk Alerts
+                            </div>
+                            <button @click="openOrgDossier(org)" class="text-[10px] font-black uppercase bg-slate-900 text-white px-5 py-2.5 rounded-lg hover:bg-black transition cursor-pointer">View File</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="currentTab === 'donors'" class="p-20 text-center text-slate-300 italic uppercase font-black text-xs tracking-widest">Donors CRM Active</div>
+            </div>
+
+            <transition name="slide">
+                <div v-if="selectedApp" class="absolute inset-y-0 right-0 w-[550px] bg-white shadow-2xl border-l border-slate-200 z-[60] flex flex-col">
+                    <div class="p-8 border-b bg-slate-900 text-white flex justify-between items-center">
+                        <div><h3 class="text-lg font-black uppercase tracking-widest">Compliance Audit</h3><p class="text-[10px] font-bold text-slate-400 uppercase">{{ selectedApp.name }}</p></div>
+                        <button @click="selectedApp = null" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+                    </div>
+                    <div class="flex-1 p-8 space-y-6 overflow-y-auto">
+                        <div class="text-center p-8 bg-slate-50 rounded-3xl"><div class="text-6xl font-black text-rose-500 mb-1">{{ selectedApp.riskScore }}</div><p class="text-[10px] font-black uppercase text-slate-400">Risk Index</p></div>
+                        <div class="space-y-4">
+                            <div v-for="f in selectedApp.kycFactors" :key="f.name" class="p-5 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-2">
+                                <div class="flex justify-between items-center"><span class="text-xs font-black text-slate-900 uppercase">{{ f.name }}</span><span class="text-[9px] font-black px-2 py-0.5 rounded uppercase bg-rose-100 text-rose-600">High Risk</span></div>
+                                <p class="text-[10px] text-slate-500 leading-relaxed font-medium">Log: {{ f.auditNote }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8 bg-slate-50 border-t flex gap-4"><button @click="approveOrg(selectedApp)" class="flex-1 bg-emerald-600 text-white py-4 rounded-xl font-black uppercase text-[10px]">Approve KYC</button></div>
+                </div>
+            </transition>
+
+            <transition name="slide">
+                <div v-if="viewingOrg" class="absolute inset-y-0 right-0 w-[1000px] bg-white shadow-2xl border-l border-slate-200 z-[60] flex flex-col">
+                    <div class="p-8 border-b bg-slate-900 text-white flex justify-between items-center">
+                        <div>
+                            <div class="flex items-center gap-3">
+                                <h3 class="text-2xl font-black tracking-tighter">{{ viewingOrg.name }}</h3>
+                                <span :class="viewingOrg.status === 'Active' ? 'bg-emerald-500' : 'bg-rose-500'" class="px-2 py-1 rounded text-[9px] uppercase font-black">{{ viewingOrg.status }}</span>
+                            </div>
+                            <p class="text-[10px] font-black text-rose-400 uppercase tracking-widest">Forensic Accounting Audit Mode • ID: {{ viewingOrg.id }}</p>
+                        </div>
+                        <button @click="viewingOrg = null" class="text-slate-400 hover:text-white transition"><i class="fas fa-times text-2xl"></i></button>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto p-8 space-y-10">
+                        <div v-if="viewingOrg.amlAlerts > 0" class="aml-alert p-6 rounded-2xl shadow-lg border border-rose-100">
+                            <h4 class="text-[10px] font-black text-rose-600 uppercase mb-4 tracking-[0.2em] flex items-center gap-2"><i class="fas fa-shield-virus"></i> High Priority Risk Alert</h4>
+                            <div v-for="alert in viewingOrg.alerts" :key="alert.id" class="flex justify-between items-center">
+                                <div><p class="text-[10px] font-black uppercase text-slate-400">Flagged Donor</p><p class="text-xl font-black text-rose-600">{{ alert.donor }}</p><p class="text-[10px] font-bold text-rose-500 mt-1 uppercase">Risk Volume: ${{ alert.flaggedTotal }}</p></div>
+                                <div class="flex gap-3">
+                                    <button @click="toggleBlock(alert)" class="bg-rose-600 text-white text-[9px] font-black px-6 py-2.5 rounded-lg uppercase shadow-lg">Block Globally</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-6">
+                            <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                                <p class="text-[10px] font-black text-slate-400 uppercase">Settled Financials</p>
+                                <p class="text-2xl font-black text-slate-900 tracking-tighter">${{ viewingOrg.balance }}</p>
+                            </div>
+                            <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 col-span-2">
+                                <p class="text-[10px] font-black text-slate-400 uppercase mb-3">Campaign Governance</p>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div v-for="camp in viewingOrg.campaigns" :key="camp.name" class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center">
+                                        <div>
+                                            <span class="text-[10px] font-black text-slate-900 uppercase">{{ camp.name }}</span>
+                                            <p class="text-sm font-black text-emerald-600">${{ camp.raised }}</p>
+                                        </div>
+                                        <button @click="toggleCampaignFunds(camp)" :class="camp.frozen ? 'text-emerald-600' : 'text-rose-600'" class="text-[8px] font-black uppercase underline decoration-dotted">
+                                            {{ camp.frozen ? 'Release' : 'Freeze' }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="border-b flex gap-8">
+                                <button @click="forensicTab = 'donors'" :class="forensicTab === 'donors' ? 'border-rose-500 text-slate-900' : 'border-transparent text-slate-400'" class="pb-4 border-b-2 text-xs font-black uppercase transition-all">Transactional Ledger</button>
+                                <button @click="forensicTab = 'users'" :class="forensicTab === 'users' ? 'border-rose-500 text-slate-900' : 'border-transparent text-slate-400'" class="pb-4 border-b-2 text-xs font-black uppercase transition-all">Platform Users</button>
+                            </div>
+
+                            <div v-if="forensicTab === 'donors'" class="animate-fade-in space-y-4">
+                                <div v-for="d in donors" :key="d.id" class="border border-slate-100 rounded-xl overflow-hidden">
+                                    <div class="p-4 bg-slate-50 flex justify-between items-center">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-[10px]">{{ d.name[0] }}</div>
+                                            <p class="text-xs font-black text-slate-900 uppercase">{{ d.name }}</p>
+                                        </div>
+                                        <p class="text-xs font-black text-emerald-600 tracking-tighter">${{ d.ltv }} LTV</p>
+                                    </div>
+                                    <table class="w-full text-left text-[10px] p-4">
+                                        <thead class="bg-slate-50 text-slate-400 font-black uppercase tracking-widest border-b">
+                                            <tr><th class="px-4 py-2">Tx ID</th><th class="px-4 py-2">Campaign</th><th class="px-4 py-2 text-right">Amt</th><th class="px-4 py-2 text-right">Forensic Action</th></tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-50">
+                                            <tr v-for="tx in d.history" class="hover:bg-slate-50/50">
+                                                <td class="px-4 py-3 font-mono text-slate-400">{{ tx.id || 'TX-8821' }}</td>
+                                                <td class="px-4 py-3 font-bold text-slate-600 uppercase">{{ tx.campaign }}</td>
+                                                <td class="px-4 py-3 text-right font-black text-slate-900">${{ tx.amt }}</td>
+                                                <td class="px-4 py-3 text-right">
+                                                    <button @click="freezeDonation(tx)" :class="tx.frozen ? 'text-emerald-600' : 'text-rose-600'" class="text-[9px] font-black uppercase">
+                                                        {{ tx.frozen ? 'Unfreeze' : 'Freeze Tx' }}
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div v-if="forensicTab === 'users'" class="animate-fade-in space-y-2">
+                                <div v-for="user in viewingOrg.users" class="p-4 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 bg-slate-200 rounded flex items-center justify-center text-slate-500"><i class="fas fa-user-shield"></i></div>
+                                        <div><p class="text-xs font-black text-slate-900 uppercase">{{ user.name }}</p><p class="text-[9px] text-slate-400 font-bold uppercase">{{ user.email }}</p></div>
+                                    </div>
+                                    <span class="text-[9px] font-black uppercase bg-white px-3 py-1 rounded-full border shadow-sm">{{ user.role }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-8 bg-slate-50 border-t flex gap-4">
+                        <button @click="suspendAccount(viewingOrg)" class="flex-1 bg-slate-200 text-slate-700 py-4 rounded-xl font-black uppercase text-[10px] hover:bg-slate-300">Suspend Account</button>
+                        <button @click="blockOrganization(viewingOrg)" class="flex-1 bg-rose-600 text-white py-4 rounded-xl font-black uppercase text-[10px] shadow-xl shadow-rose-100 hover:bg-rose-700">Block Globally</button>
+                    </div>
+                </div>
+            </transition>
+        </main>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    currentTab: 'kyc',
+                    forensicTab: 'donors',
+                    viewingOrg: null,
+                    selectedApp: null,
+                    snapshot: [ 
+                        { label: 'Network GTV', value: '$12,500.00' }, 
+                        { label: 'Settlement Yield', value: '$2,500.00' },
+                        { label: 'Requested Payouts', value: '$11,875.00' },
+                        { label: 'Total in Risk', value: '$10,000.00' }
+                    ],
+                    organizations: [
+                        { 
+                            id: 8001, 
+                            name: 'St. James HOFS', 
+                            balance: '11,875.00', 
+                            status: 'Active',
+                            amlAlerts: 1, 
+                            campaigns: [
+                                { name: 'Manifold Ministry', raised: '8,500.00', frozen: false }, 
+                                { name: 'Youth Outreach', raised: '3,375.00', frozen: false }
+                            ],
+                            users: [
+                                { name: 'Reverend James', email: 'lead@stjames.org', role: 'Super Admin' },
+                                { name: 'Sarah Miller', email: 'sarah@stjames.org', role: 'Treasurer' }
+                            ],
+                            alerts: [{ id: 1, donorId: 77, donor: 'Paul Witfield', flaggedTotal: '10,000.00' }]
+                        },
+                        { id: 8002, name: 'GoodForUs Community', balance: '0.00', status: 'Active', amlAlerts: 0, campaigns: [{ name: 'Operational Fund', raised: '0.00', frozen: false }], users: [{ name: 'SysAdmin', email: 'root@goodforus.org', role: 'Dev' }] }
+                    ],
+                    donors: [
+                        { id: 42, name: 'Dr. Ana Everett', ip: '192.168.1.1', region: 'USA', ltv: 2500, history: [{ id: 'TX-4401', campaign: 'Manifold Ministry', amt: '500.00', frozen: false }] },
+                        { id: 77, name: 'Paul Witfield', ip: '172.16.2.14', region: 'USA', ltv: 10000, history: [{ id: 'TX-9901', campaign: 'Manifold Ministry', amt: '1000.00', frozen: false }, { id: 'TX-9902', campaign: 'Manifold Ministry', amt: '1000.00', frozen: false }] }
+                    ],
+                    applications: [{ id: 501, name: "Misty's Crazy Creations", riskScore: 80, kycFactors: [{ name: 'UBO Chain', auditNote: 'Incomplete ownership data.' }, { name: 'Source of Funds', auditNote: 'Unverified initial capital.' }, { name: 'Adverse Media', auditNote: 'Related to 2021 litigation.' }, { name: 'Shell Indicators', auditNote: 'Virtual address used.' }] }]
+                }
+            },
+            methods: {
+                openOrgDossier(org) { this.viewingOrg = org; this.forensicTab = 'donors'; },
+                toggleCampaignFunds(camp) {
+                    camp.frozen = !camp.frozen;
+                    alert(`Forensic Action: Campaign "${camp.name}" funds are now ${camp.frozen ? 'FROZEN' : 'RELEASED'}.`);
+                },
+                freezeDonation(tx) {
+                    tx.frozen = !tx.frozen;
+                    alert(`Forensic Action: Transaction ${tx.id} is now ${tx.frozen ? 'FROZEN' : 'RELEASED'}.`);
+                },
+                toggleBlock(u) { alert(`Security: Block Protocol initiated for ${u.donor}.`); },
+                approveOrg(app) { alert(`KYC for ${app.name} Approved.`); this.selectedApp = null; },
+                suspendAccount(org) { org.status = 'Suspended'; alert(`Organization ${org.name} SUSPENDED.`); },
+                blockOrganization(org) { org.status = 'Blocked'; alert(`Organization ${org.name} BLOCKED.`); }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

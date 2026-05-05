@@ -1,0 +1,20 @@
+ #chat-messages { 
+    flex: 1; 
+    overflow-y: auto; /* Ensures scrolling happens here  */
+    max-height: calc(350px - 60px); /* Subtract the height of the input bar */
+    padding: 20px; 
+    font-size: 14px; 
+    color: #e2e8f0;
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+}
+.chat-input-bar { 
+    background: #1e293b;
+    padding: 15px 20px; 
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+    border-top: 1px solid #334155;
+    flex-shrink: 0; /* Prevents the bar from being squeezed out [cite: 46, 47] */
+}

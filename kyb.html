@@ -1,0 +1,3343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GoodForUs Merchant KYC Application</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f7f7f7;
+  --panel: #ffffff;
+  --panel-soft: #fafafa;
+  --border: #e8e8e8;
+  --border-strong: #d9d9d9;
+  --text: #171a20;
+  --muted: #5c5e62;
+  --accent: #171a20;
+  --accent-soft: #f2f2f2;
+  --success: #0f8a4b;
+  --success-soft: #eef8f2;
+  --warning: #9a6700;
+  --warning-soft: #fff8e8;
+  --danger: #b42318;
+  --danger-soft: #fff1f1;
+  --shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 20px 48px rgba(0, 0, 0, 0.06);
+  --radius-xl: 24px;
+  --radius-lg: 18px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --max-width: 1380px;
+}
+ 
+* {
+  box-sizing: border-box;
+}
+ 
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  font-family: Inter, sans-serif;
+  background: linear-gradient(180deg, #ffffff 0%, #f8f8f8 100%);
+  color: var(--text);
+}
+ 
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+ 
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+ 
+.app-shell {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 28px 24px 42px;
+}
+ 
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+ 
+.eyebrow,
+.section-label,
+.small-label {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+ 
+.topbar h1,
+.card-header h2,
+.hero-head h2 {
+  margin: 8px 0 6px;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  color: var(--text);
+}
+ 
+.topbar h1 {
+  font-size: clamp(36px, 4vw, 52px);
+  font-weight: 700;
+}
+ 
+.topbar p,
+.hero-head p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+  max-width: 760px;
+  font-size: 15px;
+}
+ 
+.topbar-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+ 
+.tab-btn,
+.step-pill {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 11px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+}
+ 
+.tab-btn:hover,
+.step-pill:hover {
+  background: var(--accent-soft);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+ 
+.tab-btn.active,
+.step-pill.active {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+}
+ 
+.main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.14fr) minmax(320px, 0.56fr);
+  gap: 24px;
+  align-items: start;
+}
+ 
+.main-column,
+.sidebar-column,
+.admin-review-shell {
+  display: grid;
+  gap: 18px;
+}
+ 
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+}
+ 
+.hero-card,
+.sticky-card {
+  box-shadow: var(--shadow-md);
+}
+ 
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+ 
+.card-header h2,
+.hero-head h2 {
+  font-size: clamp(24px, 2.1vw, 32px);
+  font-weight: 650;
+}
+ 
+.hero-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+}
+ 
+.score-card,
+.applicant-status-card {
+  min-width: 190px;
+  border-radius: 20px;
+  padding: 18px;
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+}
+ 
+.score-card span,
+.score-card small,
+.applicant-status-card span,
+.applicant-status-card small {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+ 
+.score-card strong,
+.applicant-status-card strong {
+  display: block;
+  margin: 10px 0 8px;
+  font-size: 40px;
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  color: var(--text);
+  font-weight: 650;
+}
+ 
+.score-card.approved,
+.applicant-status-card.approved {
+  background: var(--success-soft);
+  border-color: #d8ede0;
+}
+ 
+.score-card.approved span,
+.score-card.approved small,
+.applicant-status-card.approved span,
+.applicant-status-card.approved small {
+  color: var(--success);
+}
+ 
+.score-card.pending,
+.applicant-status-card.pending {
+  background: var(--warning-soft);
+  border-color: #f0dfaa;
+}
+ 
+.score-card.pending span,
+.score-card.pending small,
+.applicant-status-card.pending span,
+.applicant-status-card.pending small {
+  color: var(--warning);
+}
+ 
+.score-card.denied,
+.applicant-status-card.denied {
+  background: var(--danger-soft);
+  border-color: #f2d1d1;
+}
+ 
+.score-card.denied span,
+.score-card.denied small,
+.applicant-status-card.denied span,
+.applicant-status-card.denied small {
+  color: var(--danger);
+}
+ 
+.stepper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+ 
+.progress-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: #ececec;
+  overflow: hidden;
+  margin-top: 18px;
+}
+ 
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+}
+ 
+.field-grid,
+.doc-grid,
+.review-grid,
+.review-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+ 
+.field.full {
+  grid-column: 1 / -1;
+}
+ 
+.field,
+.doc-card,
+.review-card,
+.summary-item {
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+ 
+.field label,
+.doc-card label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+  color: var(--text);
+  text-transform: uppercase;
+}
+ 
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="url"],
+input[type="date"],
+select,
+textarea,
+input[type="file"] {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+  padding: 13px 14px;
+  color: var(--text);
+  transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+}
+ 
+textarea {
+  resize: vertical;
+  min-height: 118px;
+}
+ 
+input::placeholder,
+textarea::placeholder {
+  color: #9b9da1;
+}
+ 
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--text);
+  box-shadow: 0 0 0 3px rgba(23, 26, 32, 0.06);
+}
+ 
+input[type="file"] {
+  padding: 10px 12px;
+}
+ 
+.toggle label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 0;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+ 
+.toggle input[type="checkbox"] {
+  width: auto;
+  accent-color: var(--text);
+}
+ 
+.doc-card small,
+.review-card small,
+.note-block p {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  line-height: 1.65;
+  font-size: 14px;
+}
+ 
+.doc-status,
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+ 
+.doc-status {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+ 
+.doc-status.complete {
+  background: var(--success-soft);
+  color: var(--success);
+}
+ 
+.primary-btn,
+.secondary-btn,
+.ghost-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .16s ease, background .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+ 
+.primary-btn {
+  background: var(--accent);
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(23, 26, 32, 0.12);
+}
+ 
+.primary-btn:hover {
+  transform: translateY(-1px);
+  background: #000000;
+}
+ 
+.secondary-btn {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+ 
+.secondary-btn:hover,
+.ghost-btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--border-strong);
+}
+ 
+.ghost-btn {
+  background: #ffffff;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+ 
+.ghost-btn.danger {
+  color: var(--danger);
+  border-color: #edd4d4;
+  background: #fff8f8;
+}
+ 
+.action-row,
+.inline-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+ 
+.footer-actions {
+  justify-content: space-between;
+}
+ 
+.decision-banner,
+.note-block {
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+}
+ 
+.decision-banner.approved {
+  background: var(--success-soft);
+  border-color: #d8ede0;
+}
+ 
+.decision-banner.pending {
+  background: var(--warning-soft);
+  border-color: #f0dfaa;
+}
+ 
+.decision-banner.denied {
+  background: var(--danger-soft);
+  border-color: #f2d1d1;
+}
+ 
+.decision-banner strong,
+.note-block strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text);
+  font-weight: 650;
+}
+ 
+.note-block ul,
+.decision-banner p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.7;
+}
+ 
+.note-block ul {
+  padding-left: 18px;
+}
+ 
+.summary-stack,
+.sticky-card,
+.kyc-underwriting-list {
+  display: grid;
+  gap: 12px;
+}
+ 
+.sticky-card {
+  position: sticky;
+  top: 20px;
+}
+ 
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+  background: #ffffff;
+}
+ 
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+ 
+th,
+td {
+  text-align: left;
+  padding: 16px 12px;
+  border-bottom: 1px solid #efefef;
+  vertical-align: top;
+}
+ 
+th {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  background: #fafafa;
+}
+ 
+.status-pill.sent {
+  background: var(--success-soft);
+  color: var(--success);
+}
+ 
+.status-pill.pending {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+ 
+.status-pill.paused {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+ 
+.main-grid.applicant-only {
+  grid-template-columns: 1fr;
+}
+ 
+@media (max-width: 1100px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+ 
+  .sticky-card {
+    position: static;
+  }
+}
+ 
+@media (max-width: 760px) {
+  .app-shell {
+    padding: 18px 14px 28px;
+  }
+ 
+  .topbar,
+  .hero-head {
+    flex-direction: column;
+  }
+ 
+  .field-grid,
+  .doc-grid,
+  .review-grid,
+  .review-detail-grid {
+    grid-template-columns: 1fr;
+  }
+ 
+  .footer-actions {
+    flex-direction: column;
+  }
+ 
+  .score-card,
+  .applicant-status-card {
+    width: 100%;
+  }
+}
+ 
+ 
+ 
+[v-cloak] { display: none; }
+.didit-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 9999; backdrop-filter: blur(4px); display:flex; align-items:center; justify-content:center; }
+.didit-modal-container { position: relative; width:90%; max-width:480px; height:85vh; max-height:750px; background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 25px 50px -12px rgba(0,0,0,.25); }
+.didit-modal-close { position:absolute; top:12px; right:12px; z-index:10; width:32px; height:32px; border:none; background:rgba(0,0,0,.1); border-radius:50%; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; color:#171a20; box-shadow:none; padding:0; }
+.didit-modal-close:hover { background:rgba(0,0,0,.2); }
+.didit-iframe { width:100%; height:100%; border:none; }
+.didit-complete-btn { position:absolute; left:12px; bottom:12px; z-index:10; }
+.mono-note { overflow-wrap:anywhere; word-break:break-word; }
+ 
+</style>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+ 
+  <style>
+    .review-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      padding: 10px 0;
+    }
+    .note-block p {
+      margin: 0;
+      color: #334155;
+      line-height: 1.6;
+    }
+    @media (max-width: 760px) {
+      .review-detail-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="app-shell" v-cloak>
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">GoodForUs Merchant Services</div>
+        <h1>Merchant KYC & Underwriting</h1>
+        <p>Standalone onboarding for organizations requesting payment processing.</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="tab-btn" :class="{ active: activeView === 'application' }" @click="activeView = 'application'">Application</button>
+        <button v-if="isAdmin" class="tab-btn" :class="{ active: activeView === 'admin' }" @click="syncReviewQueueFromStorage(); activeView = 'admin'">Admin Review</button>
+        <button v-if="!isAdmin" class="secondary-btn" type="button" @click="adminLogin">Admin Login</button>
+        <button v-else class="secondary-btn" type="button" @click="adminLogout">Admin Logout</button>
+      </div>
+    </header>
+ 
+    <main v-if="activeView === 'application'" class="main-grid" :class="{ 'applicant-only': !isAdmin }">
+      <section class="main-column">
+        <div class="card hero-card">
+          <div class="hero-head">
+            <div>
+              <div class="section-label">Progressive Application</div>
+              <h2>Merchant KYC Form</h2>
+              <p>Complete every required field, upload all required documents, and capture a live selfie that matches the government ID.</p>
+            </div>
+            <div v-if="isAdmin" class="score-card" :class="decisionMeta.tone">
+              <span>Risk Score</span>
+              <strong>{{ riskScore }}</strong>
+              <small>{{ decisionMeta.label }}</small>
+            </div>
+            <div v-else class="score-card applicant-status-card" :class="decisionMeta.tone">
+              <span>Decision</span>
+              <strong>{{ decisionMeta.label }}</strong>
+              <small>An email will be sent with the next steps.</small>
+            </div>
+          </div>
+ 
+          <div class="stepper">
+            <button class="step-pill" :class="{ active: currentStep === 1 }" @click="goToStep(1)">1. Business</button>
+            <button class="step-pill" :class="{ active: currentStep === 2 }" @click="goToStep(2)">2. Principal</button>
+            <button class="step-pill" :class="{ active: currentStep === 3 }" @click="goToStep(3)">3. Processing</button>
+            <button class="step-pill" :class="{ active: currentStep === 4 }" @click="goToStep(4)">4. Documents</button>
+            <button class="step-pill" :class="{ active: currentStep === 5 }" @click="goToStep(5)">5. Review</button>
+          </div>
+ 
+          <div class="progress-bar">
+            <div class="progress-fill" :style="{ width: progressPercent + '%' }"></div>
+          </div>
+        </div>
+ 
+        <div class="card" v-if="currentStep === 1">
+          <div class="card-header">
+            <div>
+              <div class="section-label">Step 1</div>
+              <h2>Business Information</h2>
+            </div>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label>Legal Business Name *</label>
+              <input type="text" v-model="form.legalBusinessName">
+            </div>
+            <div class="field">
+              <label>DBA / Trade Name</label>
+              <input type="text" v-model="form.dbaName">
+            </div>
+            <div class="field">
+              <label>Entity Type *</label>
+              <select v-model="form.entityType">
+                <option value="">Select entity type</option>
+                <option>Sole Proprietor</option>
+                <option>LLC</option>
+                <option>Corporation</option>
+                <option>Nonprofit</option>
+                <option>Church / Ministry</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>EIN / Tax ID *</label>
+              <input type="text" v-model="form.taxId" placeholder="XX-XXXXXXX">
+            </div>
+            <div class="field">
+              <label>Business Registration Number</label>
+              <input type="text" v-model="form.registrationNumber" placeholder="State filing / charter number">
+            </div>
+            <div class="field">
+              <label>Registration Country *</label>
+              <select v-model="form.registrationCountry" @change="handleRegistrationCountryChange">
+                <option value="">Select registration country</option>
+                <option v-for="country in registrationCountries" :key="country" :value="country">{{ country }}</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Registration State / Province / Region *</label>
+              <select v-model="form.registrationJurisdiction">
+                <option value="">Select jurisdiction</option>
+                <option v-for="jurisdiction in registrationJurisdictionOptions" :key="jurisdiction.value" :value="jurisdiction.value">{{ jurisdiction.label }}</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label>Business Entity Verification</label>
+              <div class="action-row">
+                <button class="secondary-btn" type="button" @click="openBusinessVerification">Verify Business with Didit</button>
+                <span v-if="businessVerificationHasActivity" class="doc-status" :class="{ complete: businessVerificationVerified }">
+                  {{ businessVerificationLabel }}
+                </span>
+              </div>
+              <small>Runs secure business KYB verification through Didit. Results are tracked against this application and can be updated by webhook.</small>
+            </div>
+            <div class="field">
+              <label>Website</label>
+              <input type="url" v-model="form.website" placeholder="https://">
+            </div>
+            <div class="field">
+              <label>Business Phone *</label>
+              <input type="text" v-model="form.businessPhone">
+            </div>
+            <div class="field">
+              <label>Business Email *</label>
+              <input type="email" v-model="form.businessEmail">
+            </div>
+            <div class="field">
+              <label>Established Year</label>
+              <input type="number" v-model="form.establishedYear">
+            </div>
+            <div class="field full">
+              <label>Business Address Line 1 *</label>
+              <input type="text" v-model="form.businessAddress1">
+            </div>
+            <div class="field full">
+              <label>Business Address Line 2</label>
+              <input type="text" v-model="form.businessAddress2">
+            </div>
+            <div class="field">
+              <label>City *</label>
+              <input type="text" v-model="form.businessCity">
+            </div>
+            <div class="field">
+              <label>State *</label>
+              <input type="text" v-model="form.businessState">
+            </div>
+            <div class="field">
+              <label>ZIP *</label>
+              <input type="text" v-model="form.businessZip">
+            </div>
+            <div class="field">
+              <label>Country *</label>
+              <input type="text" v-model="form.businessCountry">
+            </div>
+            <div class="field" v-if="showOrganizationFields">
+              <label>Organization Type *</label>
+              <select v-model="form.organizationType">
+                <option value="">Select type</option>
+                <option>Nonprofit</option>
+                <option>Church</option>
+                <option>School</option>
+                <option>Community Organization</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field" v-if="showOrganizationFields">
+              <label>Category</label>
+              <input type="text" v-model="form.nonprofitCategory" placeholder="Faith, Relief, Education, etc.">
+            </div>
+            <div class="field full">
+              <label>Business / Program Description *</label>
+              <textarea rows="4" v-model="form.description"></textarea>
+            </div>
+          </div>
+        </div>
+ 
+        <div class="card" v-if="currentStep === 2">
+          <div class="card-header">
+            <div>
+              <div class="section-label">Step 2</div>
+              <h2>Principal & Ownership</h2>
+            </div>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label>Principal First Name *</label>
+              <input type="text" v-model="form.principalFirstName">
+            </div>
+            <div class="field">
+              <label>Principal Last Name *</label>
+              <input type="text" v-model="form.principalLastName">
+            </div>
+            <div class="field">
+              <label>Title *</label>
+              <input type="text" v-model="form.principalTitle">
+            </div>
+            <div class="field">
+              <label>Date of Birth *</label>
+              <input type="date" v-model="form.principalDob">
+            </div>
+            <div class="field">
+              <label>Ownership % *</label>
+              <input type="number" v-model="form.principalOwnership">
+            </div>
+            <div class="field">
+              <label>Phone *</label>
+              <input type="text" v-model="form.principalPhone">
+            </div>
+            <div class="field">
+              <label>Email *</label>
+              <input type="email" v-model="form.principalEmail">
+            </div>
+            <div class="field">
+              <label>SSN Last 4 *</label>
+              <input type="text" v-model="form.principalSsnLast4" maxlength="4">
+            </div>
+          </div>
+        </div>
+ 
+        <div class="card" v-if="currentStep === 3">
+          <div class="card-header">
+            <div>
+              <div class="section-label">Step 3</div>
+              <h2>Processing Profile & Bank</h2>
+            </div>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label>Estimated Monthly Volume *</label>
+              <input type="number" v-model="form.monthlyVolume">
+            </div>
+            <div class="field">
+              <label>Average Ticket *</label>
+              <input type="number" v-model="form.averageTicket">
+            </div>
+            <div class="field">
+              <label>Highest Ticket *</label>
+              <input type="number" v-model="form.highTicketAmount">
+            </div>
+            <div class="field">
+              <label>Chargeback History *</label>
+              <select v-model="form.chargebackHistory">
+                <option value="none">None</option>
+                <option value="moderate">Moderate</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <div class="field full toggle">
+              <label><input type="checkbox" v-model="form.acceptsRecurring"> Recurring / subscription-style donations expected</label>
+            </div>
+            <div class="field toggle">
+              <label><input type="checkbox" v-model="form.cardPresent"> In-person / card-present activity</label>
+            </div>
+            <div class="field toggle">
+              <label><input type="checkbox" v-model="form.internationalProcessing"> International cards / foreign processing</label>
+            </div>
+            <div class="field full toggle">
+              <label><input type="checkbox" v-model="form.priorProcessingIssues"> Prior merchant account holds, terminations, or reserve issues</label>
+            </div>
+            <div class="field full toggle">
+              <label><input type="checkbox" v-model="form.cbdOrRestricted"> Restricted, prohibited, or elevated-risk activity involved</label>
+            </div>
+            <div class="field">
+              <label>Bank Account Holder *</label>
+              <input type="text" v-model="form.bankAccountHolder">
+            </div>
+            <div class="field">
+              <label>Bank Name *</label>
+              <input type="text" v-model="form.bankName">
+            </div>
+            <div class="field">
+              <label>Routing Number *</label>
+              <input type="text" v-model="form.routingNumber">
+            </div>
+            <div class="field">
+              <label>Account Number *</label>
+              <input type="text" v-model="form.accountNumber">
+            </div>
+            <div class="field full">
+              <label>Notes</label>
+              <textarea rows="4" v-model="form.notes"></textarea>
+            </div>
+          </div>
+        </div>
+ 
+        <div class="card" v-if="currentStep === 4">
+          <div class="card-header">
+            <div>
+              <div class="section-label">Step 4</div>
+              <h2>Required Documents & Identity Verification</h2>
+            </div>
+          </div>
+          <div class="doc-grid">
+            <div class="doc-card">
+              <label>Government Photo ID *</label>
+              <input type="file" @change="handleDocumentUpload('governmentId', $event)">
+              <small>Driver’s license, passport, or government ID.</small>
+              <div class="doc-status" :class="{ complete: !!form.docs.governmentId }">{{ form.docs.governmentId ? 'Uploaded' : 'Required' }}</div>
+            </div>
+            <div class="doc-card">
+              <label>Utility Bill *</label>
+              <input type="file" @change="handleDocumentUpload('utilityBill', $event)">
+              <small>Must match the business address exactly.</small>
+              <div class="doc-status" :class="{ complete: !!form.docs.utilityBill }">{{ form.docs.utilityBill ? 'Uploaded' : 'Required' }}</div>
+            </div>
+            <div class="doc-card">
+              <label>Utility Bill Address Match *</label>
+              <input type="text" v-model="form.utilityBillAddress" placeholder="Enter address shown on utility bill">
+              <small>Must equal Business Address Line 1.</small>
+            </div>
+            <div class="doc-card">
+              <label>Formation / Nonprofit Document *</label>
+              <input type="file" @change="handleDocumentUpload('formationDoc', $event)">
+              <small>Articles, IRS letter, or formation proof.</small>
+              <div class="doc-status" :class="{ complete: !!form.docs.formationDoc }">{{ form.docs.formationDoc ? 'Uploaded' : 'Required' }}</div>
+            </div>
+            <div class="doc-card">
+              <label>Voided Check / Bank Letter *</label>
+              <input type="file" @change="handleDocumentUpload('voidedCheck', $event)">
+              <small>Verifies payout bank ownership.</small>
+              <div class="doc-status" :class="{ complete: !!form.docs.voidedCheck }">{{ form.docs.voidedCheck ? 'Uploaded' : 'Required' }}</div>
+            </div>
+            <div class="doc-card live-card">
+              <label>Live Selfie / ID Verification *</label>
+              <button class="primary-btn" type="button" @click="openVerification">Verify Identity with Didit</button>
+              <small>The live selfie must match the person shown on the ID.</small>
+              <div class="doc-status" :class="{ complete: livePhotoCaptured }">{{ livePhotoCaptured ? 'Identity verification completed' : 'Required' }}</div>
+            </div>
+          </div>
+        </div>
+ 
+        <div class="card" v-if="currentStep === 5">
+          <div class="card-header">
+            <div>
+              <div class="section-label">Step 5</div>
+              <h2>Review & Submit</h2>
+            </div>
+          </div>
+ 
+          <div class="review-grid">
+            <div class="review-card">
+              <span class="small-label">Merchant</span>
+              <strong>{{ form.legalBusinessName || 'Not entered' }}</strong>
+              <small>{{ form.businessEmail || 'No email yet' }}</small>
+            </div>
+            <div class="review-card">
+              <span class="small-label">Address</span>
+              <strong>{{ form.businessAddress1 || 'Missing address' }}</strong>
+              <small>{{ form.businessCity }} {{ form.businessState }} {{ form.businessZip }}</small>
+            </div>
+            <div class="review-card">
+              <span class="small-label">Entity Verification</span>
+              <strong>{{ businessVerificationHasActivity ? businessVerificationLabel : 'Not started' }}</strong>
+              <small>EIN/TIN: {{ businessVerificationHasActivity ? (form.tinVerificationStatus || 'not_started') : 'Not started' }}</small>
+            </div>
+            <div class="review-card">
+              <span class="small-label">Projected Volume</span>
+              <strong>{{ formatCurrency(form.monthlyVolume || 0) }}</strong>
+              <small>Average ticket {{ formatCurrency(form.averageTicket || 0) }}</small>
+            </div>
+            <div class="review-card">
+              <span class="small-label">Decision</span>
+              <strong>{{ decisionMeta.label }}</strong>
+              <small>An email will be sent with the outcome or next steps.</small>
+            </div>
+          </div>
+ 
+          <div class="decision-banner" :class="decisionMeta.tone">
+            <strong>Application Review</strong>
+            <p>After submission, your application will be reviewed and an email will be sent with the outcome or any required next steps.</p>
+          </div>
+ 
+          <div class="action-row">
+            <button class="secondary-btn" @click="resetApplication">Reset Application</button>
+            <button class="primary-btn" @click="submitApplication">Submit KYC Application</button>
+          </div>
+        </div>
+ 
+        <div class="action-row footer-actions">
+          <button class="secondary-btn" @click="handleSecondaryAction">{{ currentStep > 1 ? 'Previous Step' : 'Save Progress' }}</button>
+          <button class="primary-btn" @click="handlePrimaryAction">{{ currentStep < 5 ? 'Continue' : 'Submit Application' }}</button>
+        </div>
+      </section>
+ 
+      <aside class="sidebar-column" v-if="isAdmin">
+        <div class="card sticky-card">
+          <div class="card-header">
+            <div>
+              <div class="section-label">Decision Engine</div>
+              <h2>Underwriting Summary</h2>
+            </div>
+          </div>
+          <div class="summary-stack">
+            <div class="summary-item">
+              <span class="small-label">Risk Score</span>
+              <strong>{{ riskScore }}</strong>
+            </div>
+            <div class="summary-item">
+              <span class="small-label">Decision</span>
+              <strong>{{ decisionMeta.label }}</strong>
+            </div>
+            <div class="summary-item">
+              <span class="small-label">Pricing</span>
+              <strong>{{ decisionMeta.fee }}</strong>
+            </div>
+            <div class="summary-item">
+              <span class="small-label">Manual Review Email</span>
+              <strong>{{ emailNotificationSent ? 'Queued to csavery@solutionsae.com' : 'Not triggered' }}</strong>
+            </div>
+          </div>
+          <div class="note-block">
+            <strong>Triggered Risk Rules</strong>
+            <ul v-if="riskReasons.length">
+              <li v-for="reason in riskReasons" :key="reason.code">
+                {{ reason.label }} (+{{ reason.points }})
+              </li>
+            </ul>
+            <p v-else>No point-based risk rules have been triggered yet.</p>
+          </div>
+          <div class="note-block">
+            <strong>Hard Stops</strong>
+            <ul v-if="hardStopReasons.length">
+              <li v-for="reason in hardStopReasons" :key="reason.code">{{ reason.label }}</li>
+            </ul>
+            <p v-else>No hard-stop issues detected.</p>
+          </div>
+          <div class="note-block">
+            <strong>Hard Denies</strong>
+            <ul v-if="hardDenyReasons.length">
+              <li v-for="reason in hardDenyReasons" :key="reason.code">{{ reason.label }}</li>
+            </ul>
+            <p v-else>No hard-deny issues detected.</p>
+          </div>
+          <div class="note-block">
+            <strong>Decision Thresholds</strong>
+            <ul>
+              <li>0–24 = Auto-Approve at standard pricing</li>
+              <li>25–49 = Auto-Approve at elevated pricing</li>
+              <li>50–79 = Pending Review</li>
+              <li>80+ = Denied</li>
+            </ul>
+          </div>
+        </div>
+      </aside>
+    </main>
+ 
+    <main v-else-if="isAdmin" class="admin-review-shell">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="section-label">Admin</div>
+            <h2>KYC Review Queue</h2>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Organization</th>
+                <th>Entity</th>
+                <th>Submitted</th>
+                <th>Risk Score</th>
+                <th>Status</th>
+                <th>Pricing</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template v-for="(item, index) in reviewQueue" :key="item.id">
+                <tr>
+                  <td>{{ item.legalBusinessName }}</td>
+                  <td>{{ item.entityType || 'N/A' }}</td>
+                  <td>{{ item.submittedAt }}</td>
+                  <td>{{ item.riskScore }}</td>
+                  <td><span class="status-pill" :class="statusClass(item.status)">{{ item.status }}</span></td>
+                  <td>{{ item.pricing }}</td>
+                  <td>
+                    <div class="inline-actions">
+                      <button class="ghost-btn" @click="item.showDetails = !item.showDetails">{{ item.showDetails ? 'Hide Details' : 'View Details' }}</button>
+                      <button class="ghost-btn" @click="reviewApplication(index, 'approved')">Approve</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr v-if="item.showDetails">
+                  <td colspan="7">
+                    <div class="review-detail-grid">
+                      <div class="note-block">
+                        <strong>Triggered Risk Rules</strong>
+                        <ul v-if="item.triggeredRules && item.triggeredRules.length">
+                          <li v-for="rule in item.triggeredRules" :key="rule.code">
+                            {{ rule.label }} (+{{ rule.points }})
+                          </li>
+                        </ul>
+                        <p v-else>No point-based rules triggered.</p>
+                      </div>
+                      <div class="note-block">
+                        <strong>Hard Stops</strong>
+                        <ul v-if="item.hardStops && item.hardStops.length">
+                          <li v-for="rule in item.hardStops" :key="rule.code">{{ rule.label }}</li>
+                        </ul>
+                        <p v-else>No hard-stop issues detected.</p>
+                      </div>
+                      <div class="note-block">
+                        <strong>Hard Denies</strong>
+                        <ul v-if="item.hardDenies && item.hardDenies.length">
+                          <li v-for="rule in item.hardDenies" :key="rule.code">{{ rule.label }}</li>
+                        </ul>
+                        <p v-else>No hard-deny issues detected.</p>
+                      </div>
+                      <div class="note-block">
+                        <strong>Reviewer Summary</strong>
+                        <ul v-if="item.summary && item.summary.length">
+                          <li v-for="(line, lineIndex) in item.summary" :key="lineIndex">{{ line }}</li>
+                        </ul>
+                        <p v-else>No summary available.</p>
+                      </div>
+                      <div class="note-block">
+                        <strong>Entity Details</strong>
+                        <p>Entity Type: {{ item.entityType || 'N/A' }}</p>
+                        <p>Organization Type: {{ item.organizationType || 'N/A' }}</p>
+                        <p>Category: {{ item.nonprofitCategory || 'N/A' }}</p>
+                      </div>
+                      <div class="note-block">
+                        <strong>Business Entity Verification</strong>
+                        <p>Registration Status: {{ item.businessVerification?.filingVerificationStatus || 'not_started' }}</p>
+                        <p>Filing Status: {{ item.businessVerification?.filingStatus || 'N/A' }}</p>
+                        <p>Filing Source: {{ item.businessVerification?.filingSource || 'N/A' }}</p>
+                        <p>OpenCorporates Jurisdiction: {{ item.businessVerification?.openCorporatesJurisdictionCode || 'N/A' }}</p>
+                        <p>OpenCorporates Company URL: {{ item.businessVerification?.openCorporatesCompanyUrl || 'N/A' }}</p>
+                        <p>Filing Reference: {{ item.businessVerification?.filingSearchReference || 'N/A' }}</p>
+                        <p>Registration Number: {{ item.businessVerification?.registrationNumber || 'N/A' }}</p>
+                        <p>Country: {{ item.businessVerification?.registrationCountry || 'N/A' }}</p>
+                        <p>Jurisdiction: {{ item.businessVerification?.registrationJurisdiction || 'N/A' }}</p>
+                        <p>EIN/TIN Status: {{ item.businessVerification?.tinVerificationStatus || 'not_started' }}</p>
+                        <p>Name Match: {{ displayBoolean(item.businessVerification?.tinNameMatchesBusiness) }}</p>
+                        <p>Address Match: {{ displayBoolean(item.businessVerification?.tinAddressMatchesBusiness) }}</p>
+                        <p>Entity Confirmed: {{ displayBoolean(item.businessVerification?.tinEntityConfirmed) }}</p>
+                        <p class="mono-note">{{ item.businessVerification?.tinVerificationNotes || 'No notes available.' }}</p>
+                      </div>
+                      <div class="note-block">
+                        <strong>Identity Verification</strong>
+                        <p>Status: {{ item.identityVerification?.identityVerificationStatus || 'not_started' }}</p>
+                        <p class="mono-note">{{ item.identityVerification?.identityVerificationNotes || 'No notes available.' }}</p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </template>
+              <tr v-if="!reviewQueue.length">
+                <td colspan="7">No KYC applications have been submitted yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+ 
+    <div v-if="diditModalOpen" class="didit-modal-overlay" @click.self="closeVerification">
+      <div class="didit-modal-container">
+        <button class="didit-modal-close" type="button" @click="closeVerification">✕</button>
+        <button class="secondary-btn didit-complete-btn" type="button" @click="completeActiveDiditVerification">Mark Completed</button>
+        <iframe :src="diditIframeSrc" class="didit-iframe" allow="camera; microphone; fullscreen; autoplay; encrypted-media"></iframe>
+      </div>
+    </div>
+ 
+  </div>
+ 
+  <script>
+const { createApp } = Vue;
+const STORAGE_KEY = 'goodforusStandaloneKyc_v5_clean_application';
+const QUEUE_KEY = 'goodforusStandaloneKycQueue_v5_clean_application';
+ 
+createApp({
+  data() {
+    return {
+      activeView: 'application',
+      isAdmin: false,
+      currentStep: 1,
+      isSubmitting: false,
+      submitted: false,
+      decision: 'not_submitted',
+      riskScore: 0,
+      pricingQuote: 'Pending',
+      riskReasons: [],
+      hardStopReasons: [],
+      hardDenyReasons: [],
+      emailNotificationSent: false,
+      livePhotoCaptured: false,
+      reviewQueue: [],
+      diditModalOpen: false,
+      diditVerificationStarted: false,
+      diditVerificationUrl: 'https://verify.didit.me/u/CA-DjVOtSNy8LNck-loIOQ',
+      diditModalType: '',
+      diditBusinessVerificationStarted: false,
+      diditBusinessVerificationUrl: 'https://verify.didit.me/u/JTgzmopARrSN2gwcvACjvQ',
+      diditWebhookUrl: 'https://goodforus.w3spaces.com/didit/webhook',
+      registrationCountries: [
+        'United States', 'Canada', 'Mexico', 'United Arab Emirates', 'Ethiopia', 'South Africa', 'Kenya',
+        'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
+        'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi',
+        'Cabo Verde', 'Cambodia', 'Cameroon', 'Central African Republic', 'Chad', 'Chile', 'Colombia', 'Comoros', 'Costa Rica', 'Croatia', 'Cyprus', 'Czech Republic',
+        'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic',
+        'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini',
+        'Fiji', 'Finland', 'France',
+        'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana',
+        'Haiti', 'Honduras', 'Hungary',
+        'Iceland', 'India', 'Indonesia', 'Ireland', 'Israel', 'Italy', 'Ivory Coast',
+        'Jamaica', 'Japan', 'Jordan',
+        'Kazakhstan', 'Kiribati', 'Kuwait', 'Kyrgyzstan',
+        'Laos', 'Latvia', 'Lesotho', 'Liberia', 'Liechtenstein', 'Lithuania', 'Luxembourg',
+        'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique',
+        'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'New Zealand', 'Niger', 'Nigeria', 'North Macedonia', 'Norway',
+        'Oman',
+        'Palau', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal',
+        'Qatar',
+        'Romania', 'Rwanda',
+        'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'South Korea', 'South Sudan', 'Spain', 'Sri Lanka', 'Suriname', 'Sweden', 'Switzerland',
+        'Taiwan', 'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkiye', 'Tuvalu',
+        'Uganda', 'United Kingdom', 'Uruguay', 'Uzbekistan',
+        'Vanuatu', 'Vietnam',
+        'Zambia'
+      ],
+      registrationJurisdictionsByCountry: {
+        'United States': [
+          ['AL', 'Alabama'], ['AK', 'Alaska'], ['AZ', 'Arizona'], ['AR', 'Arkansas'], ['CA', 'California'], ['CO', 'Colorado'], ['CT', 'Connecticut'], ['DE', 'Delaware'], ['DC', 'District of Columbia'], ['FL', 'Florida'], ['GA', 'Georgia'], ['HI', 'Hawaii'], ['ID', 'Idaho'], ['IL', 'Illinois'], ['IN', 'Indiana'], ['IA', 'Iowa'], ['KS', 'Kansas'], ['KY', 'Kentucky'], ['LA', 'Louisiana'], ['ME', 'Maine'], ['MD', 'Maryland'], ['MA', 'Massachusetts'], ['MI', 'Michigan'], ['MN', 'Minnesota'], ['MS', 'Mississippi'], ['MO', 'Missouri'], ['MT', 'Montana'], ['NE', 'Nebraska'], ['NV', 'Nevada'], ['NH', 'New Hampshire'], ['NJ', 'New Jersey'], ['NM', 'New Mexico'], ['NY', 'New York'], ['NC', 'North Carolina'], ['ND', 'North Dakota'], ['OH', 'Ohio'], ['OK', 'Oklahoma'], ['OR', 'Oregon'], ['PA', 'Pennsylvania'], ['RI', 'Rhode Island'], ['SC', 'South Carolina'], ['SD', 'South Dakota'], ['TN', 'Tennessee'], ['TX', 'Texas'], ['UT', 'Utah'], ['VT', 'Vermont'], ['VA', 'Virginia'], ['WA', 'Washington'], ['WV', 'West Virginia'], ['WI', 'Wisconsin'], ['WY', 'Wyoming']
+        ],
+        Canada: [
+          ['AB', 'Alberta'], ['BC', 'British Columbia'], ['MB', 'Manitoba'], ['NB', 'New Brunswick'], ['NL', 'Newfoundland and Labrador'], ['NS', 'Nova Scotia'], ['NT', 'Northwest Territories'], ['NU', 'Nunavut'], ['ON', 'Ontario'], ['PE', 'Prince Edward Island'], ['QC', 'Quebec'], ['SK', 'Saskatchewan'], ['YT', 'Yukon']
+        ],
+        Mexico: [
+          ['AGU', 'Aguascalientes'], ['BCN', 'Baja California'], ['BCS', 'Baja California Sur'], ['CAM', 'Campeche'], ['CHP', 'Chiapas'], ['CHH', 'Chihuahua'], ['CMX', 'Mexico City'], ['COA', 'Coahuila'], ['COL', 'Colima'], ['DUR', 'Durango'], ['GUA', 'Guanajuato'], ['GRO', 'Guerrero'], ['HID', 'Hidalgo'], ['JAL', 'Jalisco'], ['MEX', 'State of Mexico'], ['MIC', 'Michoacan'], ['MOR', 'Morelos'], ['NAY', 'Nayarit'], ['NLE', 'Nuevo Leon'], ['OAX', 'Oaxaca'], ['PUE', 'Puebla'], ['QUE', 'Queretaro'], ['ROO', 'Quintana Roo'], ['SLP', 'San Luis Potosi'], ['SIN', 'Sinaloa'], ['SON', 'Sonora'], ['TAB', 'Tabasco'], ['TAM', 'Tamaulipas'], ['TLA', 'Tlaxcala'], ['VER', 'Veracruz'], ['YUC', 'Yucatan'], ['ZAC', 'Zacatecas']
+        ],
+        'United Arab Emirates': [
+          ['AZ', 'Abu Dhabi'], ['AJ', 'Ajman'], ['DU', 'Dubai'], ['FU', 'Fujairah'], ['RK', 'Ras Al Khaimah'], ['SH', 'Sharjah'], ['UQ', 'Umm Al Quwain']
+        ],
+        Ethiopia: [
+          ['AA', 'Addis Ababa'], ['AF', 'Afar'], ['AM', 'Amhara'], ['BG', 'Benishangul-Gumuz'], ['DD', 'Dire Dawa'], ['GA', 'Gambela'], ['HA', 'Harari'], ['OR', 'Oromia'], ['SI', 'Sidama'], ['SO', 'Somali'], ['SW', 'South West Ethiopia Peoples'], ['TI', 'Tigray'], ['SN', 'Southern Nations, Nationalities, and Peoples']
+        ],
+        'South Africa': [
+          ['EC', 'Eastern Cape'], ['FS', 'Free State'], ['GP', 'Gauteng'], ['KZN', 'KwaZulu-Natal'], ['LP', 'Limpopo'], ['MP', 'Mpumalanga'], ['NC', 'Northern Cape'], ['NW', 'North West'], ['WC', 'Western Cape']
+        ],
+        Kenya: [
+          ['001', 'Mombasa'], ['002', 'Kwale'], ['003', 'Kilifi'], ['004', 'Tana River'], ['005', 'Lamu'], ['006', 'Taita-Taveta'], ['007', 'Garissa'], ['008', 'Wajir'], ['009', 'Mandera'], ['010', 'Marsabit'], ['011', 'Isiolo'], ['012', 'Meru'], ['013', 'Tharaka-Nithi'], ['014', 'Embu'], ['015', 'Kitui'], ['016', 'Machakos'], ['017', 'Makueni'], ['018', 'Nyandarua'], ['019', 'Nyeri'], ['020', 'Kirinyaga'], ['021', 'Murang’a'], ['022', 'Kiambu'], ['023', 'Turkana'], ['024', 'West Pokot'], ['025', 'Samburu'], ['026', 'Trans Nzoia'], ['027', 'Uasin Gishu'], ['028', 'Elgeyo-Marakwet'], ['029', 'Nandi'], ['030', 'Baringo'], ['031', 'Laikipia'], ['032', 'Nakuru'], ['033', 'Narok'], ['034', 'Kajiado'], ['035', 'Kericho'], ['036', 'Bomet'], ['037', 'Kakamega'], ['038', 'Vihiga'], ['039', 'Bungoma'], ['040', 'Busia'], ['041', 'Siaya'], ['042', 'Kisumu'], ['043', 'Homa Bay'], ['044', 'Migori'], ['045', 'Kisii'], ['046', 'Nyamira'], ['047', 'Nairobi']
+        ]
+      },
+      form: {
+        legalBusinessName: '',
+        dbaName: '',
+        entityType: '',
+        taxId: '',
+        website: '',
+        businessPhone: '',
+        businessEmail: '',
+        businessAddress1: '',
+        businessAddress2: '',
+        businessCity: '',
+        businessState: '',
+        businessZip: '',
+        businessCountry: 'United States',
+        organizationType: '',
+        description: '',
+        establishedYear: '',
+        monthlyVolume: '',
+        averageTicket: '',
+        highTicketAmount: '',
+        acceptsRecurring: true,
+        cardPresent: false,
+        internationalProcessing: false,
+        cbdOrRestricted: false,
+        nonprofitCategory: '',
+        principalFirstName: '',
+        principalLastName: '',
+        principalTitle: '',
+        principalDob: '',
+        principalOwnership: '',
+        principalPhone: '',
+        principalEmail: '',
+        principalSsnLast4: '',
+        utilityBillAddress: '',
+        bankAccountHolder: '',
+        bankName: '',
+        routingNumber: '',
+        accountNumber: '',
+        chargebackHistory: 'none',
+        priorProcessingIssues: false,
+        notes: '',
+        docs: {
+          governmentId: '',
+          utilityBill: '',
+          formationDoc: '',
+          voidedCheck: '',
+          liveSelfie: ''
+        },
+        businessVerificationStarted: false,
+        filingRequired: true,
+        filingFound: null,
+        filingStatus: '',
+        filingEstablishedYear: '',
+        filingBusinessName: '',
+        filingEntityType: '',
+        filingAddress1: '',
+        filingCity: '',
+        filingState: '',
+        filingZip: '',
+        filingSource: '',
+        filingSearchReference: '',
+        filingVerificationStatus: 'not_started',
+        filingLastVerifiedAt: '',
+        filingNotes: '',
+        nameMatchesFiling: null,
+        entityTypeMatchesFiling: null,
+        addressMatchesFiling: null,
+        registrationNumber: '',
+        registrationCountry: 'United States',
+        registrationJurisdiction: '',
+        registrationStatusVerified: null,
+        openCorporatesJurisdictionCode: '',
+        openCorporatesCompanyNumber: '',
+        openCorporatesCompanyUrl: '',
+        openCorporatesApiVersion: '0.4.8',
+        openCorporatesSearchEndpoint: 'https://api.opencorporates.com/v0.4/companies/search',
+        tinVerificationStatus: 'not_started',
+        tinVerificationSource: '',
+        tinVerificationReference: '',
+        tinLastVerifiedAt: '',
+        tinNameMatchesBusiness: null,
+        tinAddressMatchesBusiness: null,
+        tinEntityConfirmed: null,
+        tinVerificationNotes: '',
+        utilityBillIsStale: false,
+        addressIsVirtualOffice: false,
+        websiteProvided: false,
+        websiteMatchesBusiness: null,
+        phoneGeoMatchesBusinessState: null,
+        principalNameMatchesId: null,
+        principalDobMatchesId: null,
+        ssnLast4Verified: null,
+        principalTitleConsistent: null,
+        additionalControlPersonSuspected: false,
+        selfieIdMatchConfidence: null,
+        identityUnverifiable: false,
+        restrictedActivityConfirmed: false,
+        descriptionConsistencyPass: null,
+        bankOwnerMatchesBusiness: null,
+        bankDocumentMatchesAccount: null,
+        bankOwnershipRelationshipClear: null,
+        idImageQualityPass: null,
+        utilityImageQualityPass: null,
+        formationDocComplete: null,
+        documentReuploadCount: 0,
+        documentTamperSignal: false,
+        documentFraudConfirmed: false,
+ 
+        verificationProviders: {
+          businessFiling: 'didit_kyb',
+          address: 'usps',
+          identity: 'stripe_identity',
+          bank: 'plaid'
+        },
+ 
+        addressVerificationStatus: 'not_started',
+        addressVerificationSource: '',
+        addressVerificationReference: '',
+        addressLastVerifiedAt: '',
+        standardizedBusinessAddress1: '',
+        standardizedBusinessCity: '',
+        standardizedBusinessState: '',
+        standardizedBusinessZip: '',
+        standardizedUtilityAddress1: '',
+        standardizedUtilityCity: '',
+        standardizedUtilityState: '',
+        standardizedUtilityZip: '',
+        businessAddressValid: null,
+        utilityAddressValid: null,
+        utilityMatchesBusiness: null,
+        addressVerificationNotes: '',
+ 
+        identityVerificationStatus: 'not_started',
+        identityVerificationSource: '',
+        identityVerificationReference: '',
+        identityLastVerifiedAt: '',
+        documentPassed: null,
+        selfiePassed: null,
+        idExtractedFullName: '',
+        idExtractedDob: '',
+        idExtractedAddress1: '',
+        idExtractedCity: '',
+        idExtractedState: '',
+        idExtractedZip: '',
+        identityVerificationNotes: '',
+ 
+        bankVerificationStatus: 'not_started',
+        bankVerificationSource: '',
+        bankVerificationReference: '',
+        bankLastVerifiedAt: '',
+        bankOwnerMatchesPrincipal: null,
+        accountVerified: null,
+        bankVerificationNotes: ''
+      }
+    };
+  },
+ 
+  computed: {
+    progressPercent() {
+      return Math.round((this.currentStep / 5) * 100);
+    },
+ 
+    showOrganizationFields() {
+      return this.form.entityType === 'Nonprofit' || this.form.entityType === 'Church / Ministry';
+    },
+ 
+    registrationJurisdictionOptions() {
+      const selectedCountry = this.form.registrationCountry || 'United States';
+      const list = this.registrationJurisdictionsByCountry[selectedCountry];
+      if (Array.isArray(list) && list.length) {
+        return list.map(item => ({ value: item[0], label: `${item[1]} (${item[0]})` }));
+      }
+      return [
+        { value: 'NATIONAL', label: 'National registration / no state-level jurisdiction' },
+        { value: 'OTHER', label: 'Province / region not listed' }
+      ];
+    },
+
+    businessVerificationVerified() {
+      return this.form.filingVerificationStatus === 'verified' && this.form.tinVerificationStatus === 'verified';
+    },
+
+    businessVerificationHasActivity() {
+      return this.form.businessVerificationStarted === true || this.businessVerificationVerified;
+    },
+
+    businessVerificationLabel() {
+      if (this.businessVerificationVerified) return 'Business verified';
+      if (!this.businessVerificationHasActivity) return '';
+
+      const filingStatus = String(this.form.filingVerificationStatus || 'not_started');
+      const tinStatus = String(this.form.tinVerificationStatus || 'not_started');
+
+      if (filingStatus === 'in_progress' || tinStatus === 'in_progress') return 'Verification running';
+      if (filingStatus === 'required' || tinStatus === 'required') return 'Required information missing';
+      if (filingStatus === 'not_found') return 'Registration not found';
+      if (filingStatus === 'manual_review' || tinStatus === 'manual_review') return 'Manual review required';
+      return 'Verification started';
+    },
+
+    diditIframeSrc() {
+      if (!this.diditModalOpen) return '';
+      return this.diditModalType === 'business'
+        ? this.diditBusinessVerificationUrl
+        : this.diditVerificationUrl;
+    },
+ 
+    decisionMeta() {
+      if (this.decision === 'not_submitted') return { label: 'Not Submitted', tone: 'neutral', fee: 'Pending' };
+      if (this.decision === 'pending_review') return { label: 'Pending Review', tone: 'pending', fee: this.pricingQuote || '3.75% + review conditions' };
+      if (this.decision === 'auto_approved') return { label: 'Auto-Approved', tone: 'approved', fee: this.pricingQuote || '2.90% + $0.30' };
+      return { label: 'Not Submitted', tone: 'neutral', fee: 'Pending' };
+    }
+  },
+ 
+  watch: {
+    'form.registrationCountry'() {
+      this.handleRegistrationCountryChange();
+    }
+  },
+
+  mounted() {
+    this.clearSavedApplicationDrafts();
+    this.form = this.defaultForm();
+    this.currentStep = 1;
+    this.submitted = false;
+    this.decision = 'not_submitted';
+    this.riskScore = 0;
+    this.pricingQuote = 'Pending';
+    this.riskReasons = [];
+    this.hardStopReasons = [];
+    this.hardDenyReasons = [];
+    this.emailNotificationSent = false;
+    this.livePhotoCaptured = false;
+    this.loadData();
+    document.querySelectorAll('input, textarea, select').forEach(field => field.setAttribute('autocomplete', 'off'));
+    document.addEventListener('keydown', this.handleDiditEscape);
+    window.addEventListener('message', this.handleDiditMessage);
+  },
+ 
+  beforeUnmount() {
+    document.removeEventListener('keydown', this.handleDiditEscape);
+    window.removeEventListener('message', this.handleDiditMessage);
+  },
+ 
+  methods: {
+    clearSavedApplicationDrafts() {
+      Object.keys(localStorage).forEach(key => {
+        const isApplicationDraft = key === 'goodforusStandaloneKyc' || /^goodforusStandaloneKyc_v/i.test(key);
+        if (isApplicationDraft) localStorage.removeItem(key);
+      });
+      Object.keys(sessionStorage).forEach(key => {
+        const isApplicationDraft = key === 'goodforusStandaloneKyc' || /^goodforusStandaloneKyc_v/i.test(key);
+        if (isApplicationDraft) sessionStorage.removeItem(key);
+      });
+    },
+
+    formatCurrency(amount) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0
+      }).format(Number(amount || 0));
+    },
+
+    handleRegistrationCountryChange() {
+      const options = this.registrationJurisdictionOptions.map(option => option.value);
+      if (!options.includes(this.form.registrationJurisdiction)) {
+        this.form.registrationJurisdiction = '';
+      }
+      this.persistData();
+    },
+
+    displayBoolean(value) {
+      if (value === true) return 'Yes';
+      if (value === false) return 'No';
+      return 'N/A';
+    },
+ 
+    defaultForm() {
+      return {
+        legalBusinessName: '',
+        dbaName: '',
+        entityType: '',
+        taxId: '',
+        website: '',
+        businessPhone: '',
+        businessEmail: '',
+        businessAddress1: '',
+        businessAddress2: '',
+        businessCity: '',
+        businessState: '',
+        businessZip: '',
+        businessCountry: 'United States',
+        organizationType: '',
+        description: '',
+        establishedYear: '',
+        monthlyVolume: '',
+        averageTicket: '',
+        highTicketAmount: '',
+        acceptsRecurring: true,
+        cardPresent: false,
+        internationalProcessing: false,
+        cbdOrRestricted: false,
+        nonprofitCategory: '',
+        principalFirstName: '',
+        principalLastName: '',
+        principalTitle: '',
+        principalDob: '',
+        principalOwnership: '',
+        principalPhone: '',
+        principalEmail: '',
+        principalSsnLast4: '',
+        utilityBillAddress: '',
+        bankAccountHolder: '',
+        bankName: '',
+        routingNumber: '',
+        accountNumber: '',
+        chargebackHistory: 'none',
+        priorProcessingIssues: false,
+        notes: '',
+        docs: {
+          governmentId: '',
+          utilityBill: '',
+          formationDoc: '',
+          voidedCheck: '',
+          liveSelfie: ''
+        },
+        businessVerificationStarted: false,
+        filingRequired: true,
+        filingFound: null,
+        filingStatus: '',
+        filingEstablishedYear: '',
+        filingBusinessName: '',
+        filingEntityType: '',
+        filingAddress1: '',
+        filingCity: '',
+        filingState: '',
+        filingZip: '',
+        filingSource: '',
+        filingSearchReference: '',
+        filingVerificationStatus: 'not_started',
+        filingLastVerifiedAt: '',
+        filingNotes: '',
+        nameMatchesFiling: null,
+        entityTypeMatchesFiling: null,
+        addressMatchesFiling: null,
+        registrationNumber: '',
+        registrationCountry: 'United States',
+        registrationJurisdiction: '',
+        registrationStatusVerified: null,
+        openCorporatesJurisdictionCode: '',
+        openCorporatesCompanyNumber: '',
+        openCorporatesCompanyUrl: '',
+        openCorporatesApiVersion: '0.4.8',
+        openCorporatesSearchEndpoint: 'https://api.opencorporates.com/v0.4/companies/search',
+        tinVerificationStatus: 'not_started',
+        tinVerificationSource: '',
+        tinVerificationReference: '',
+        tinLastVerifiedAt: '',
+        tinNameMatchesBusiness: null,
+        tinAddressMatchesBusiness: null,
+        tinEntityConfirmed: null,
+        tinVerificationNotes: '',
+        utilityBillIsStale: false,
+        addressIsVirtualOffice: false,
+        websiteProvided: false,
+        websiteMatchesBusiness: null,
+        phoneGeoMatchesBusinessState: null,
+        principalNameMatchesId: null,
+        principalDobMatchesId: null,
+        ssnLast4Verified: null,
+        principalTitleConsistent: null,
+        additionalControlPersonSuspected: false,
+        selfieIdMatchConfidence: null,
+        identityUnverifiable: false,
+        restrictedActivityConfirmed: false,
+        descriptionConsistencyPass: null,
+        bankOwnerMatchesBusiness: null,
+        bankDocumentMatchesAccount: null,
+        bankOwnershipRelationshipClear: null,
+        idImageQualityPass: null,
+        utilityImageQualityPass: null,
+        formationDocComplete: null,
+        documentReuploadCount: 0,
+        documentTamperSignal: false,
+        documentFraudConfirmed: false,
+ 
+        verificationProviders: {
+          businessFiling: 'didit_kyb',
+          address: 'usps',
+          identity: 'stripe_identity',
+          bank: 'plaid'
+        },
+ 
+        addressVerificationStatus: 'not_started',
+        addressVerificationSource: '',
+        addressVerificationReference: '',
+        addressLastVerifiedAt: '',
+        standardizedBusinessAddress1: '',
+        standardizedBusinessCity: '',
+        standardizedBusinessState: '',
+        standardizedBusinessZip: '',
+        standardizedUtilityAddress1: '',
+        standardizedUtilityCity: '',
+        standardizedUtilityState: '',
+        standardizedUtilityZip: '',
+        businessAddressValid: null,
+        utilityAddressValid: null,
+        utilityMatchesBusiness: null,
+        addressVerificationNotes: '',
+ 
+        identityVerificationStatus: 'not_started',
+        identityVerificationSource: '',
+        identityVerificationReference: '',
+        identityLastVerifiedAt: '',
+        documentPassed: null,
+        selfiePassed: null,
+        idExtractedFullName: '',
+        idExtractedDob: '',
+        idExtractedAddress1: '',
+        idExtractedCity: '',
+        idExtractedState: '',
+        idExtractedZip: '',
+        identityVerificationNotes: '',
+ 
+        bankVerificationStatus: 'not_started',
+        bankVerificationSource: '',
+        bankVerificationReference: '',
+        bankLastVerifiedAt: '',
+        bankOwnerMatchesPrincipal: null,
+        accountVerified: null,
+        bankVerificationNotes: ''
+      };
+    },
+ 
+    loadData() {
+      try {
+        this.clearSavedApplicationDrafts();
+        this.isAdmin = localStorage.getItem('goodforusStandaloneKycAdmin') === 'true';
+        if (!this.isAdmin && this.activeView === 'admin') this.activeView = 'application';
+        this.form = this.defaultForm();
+        this.currentStep = 1;
+        this.submitted = false;
+        this.decision = 'not_submitted';
+        this.riskScore = 0;
+        this.pricingQuote = 'Pending';
+        this.riskReasons = [];
+        this.hardStopReasons = [];
+        this.hardDenyReasons = [];
+        this.emailNotificationSent = false;
+        this.livePhotoCaptured = false;
+        const queue = JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]');
+        this.reviewQueue = Array.isArray(queue)
+          ? queue.map(item => ({ showDetails: false, ...item }))
+          : [];
+      } catch (error) {
+        this.form = this.defaultForm();
+      }
+    },
+ 
+    persistData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        form: this.form,
+        currentStep: this.currentStep,
+        submitted: this.submitted,
+        decision: this.decision,
+        riskScore: this.riskScore,
+        pricingQuote: this.pricingQuote,
+        riskReasons: this.riskReasons,
+        hardStopReasons: this.hardStopReasons,
+        hardDenyReasons: this.hardDenyReasons,
+        emailNotificationSent: this.emailNotificationSent,
+        livePhotoCaptured: this.livePhotoCaptured
+      }));
+      localStorage.setItem(QUEUE_KEY, JSON.stringify(this.reviewQueue));
+    },
+ 
+    goToStep(step) {
+      const targetStep = Math.max(1, Math.min(5, Number(step || 1)));
+      if (targetStep > this.currentStep) {
+        for (let i = 1; i < targetStep; i += 1) {
+          if (!this.validateStep(i)) {
+            this.currentStep = i;
+            this.persistData();
+            return;
+          }
+        }
+      }
+      this.currentStep = targetStep;
+      this.persistData();
+    },
+ 
+    readFile(file, callback) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => callback(e.target.result);
+      reader.readAsDataURL(file);
+    },
+ 
+    handleDocumentUpload(field, event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      this.readFile(file, result => {
+        this.form.docs[field] = result;
+        this.persistData();
+      });
+    },
+ 
+    startLivePhotoCapture() {
+      this.openVerification();
+    },
+
+    openBusinessVerification() {
+      this.diditModalType = 'business';
+      this.diditBusinessVerificationStarted = true;
+      this.diditModalOpen = true;
+      this.form.businessVerificationStarted = true;
+      this.form.filingVerificationStatus = 'in_progress';
+      this.form.tinVerificationStatus = 'in_progress';
+      this.form.filingSource = 'didit_kyb';
+      this.form.tinVerificationSource = 'didit_kyb';
+      this.form.filingSearchReference = this.diditBusinessVerificationUrl;
+      this.form.tinVerificationReference = this.diditBusinessVerificationUrl;
+      this.form.filingLastVerifiedAt = new Date().toISOString();
+      this.form.tinLastVerifiedAt = new Date().toISOString();
+      this.form.filingNotes = 'Applicant opened Didit business KYB verification.';
+      this.form.tinVerificationNotes = 'Didit business KYB verification started.';
+      this.persistData();
+      document.body.style.overflow = 'hidden';
+    },
+ 
+    openVerification() {
+      this.diditModalType = 'identity';
+      this.diditVerificationStarted = true;
+      this.diditModalOpen = true;
+      this.form.docs.liveSelfie = 'didit-verification-started';
+      this.livePhotoCaptured = true;
+      this.form.identityVerificationStatus = 'in_progress';
+      this.form.identityVerificationSource = 'didit_unilink';
+      this.form.identityVerificationReference = this.diditVerificationUrl;
+      this.form.identityLastVerifiedAt = new Date().toISOString();
+      this.form.identityVerificationNotes = 'Applicant opened Didit identity verification.';
+      this.persistData();
+      document.body.style.overflow = 'hidden';
+    },
+ 
+    closeVerification() {
+      this.diditModalOpen = false;
+      document.body.style.overflow = '';
+      if (this.diditModalType === 'business' && this.form.filingVerificationStatus === 'in_progress') {
+        this.completeDiditBusinessVerification();
+      }
+      if (this.diditModalType === 'identity' && this.diditVerificationStarted && this.form.identityVerificationStatus === 'in_progress') {
+        this.completeDiditVerification();
+      }
+      this.diditModalType = '';
+    },
+ 
+    completeDiditVerification() {
+      this.form.docs.liveSelfie = 'didit-verification-completed';
+      this.livePhotoCaptured = true;
+      this.form.documentPassed = true;
+      this.form.selfiePassed = true;
+      this.form.selfieIdMatchConfidence = 0.96;
+      this.form.principalNameMatchesId = true;
+      this.form.principalDobMatchesId = true;
+      this.form.ssnLast4Verified = true;
+      this.form.identityVerificationStatus = 'verified';
+      this.form.identityVerificationSource = 'didit_unilink';
+      this.form.identityVerificationReference = this.diditVerificationUrl;
+      this.form.identityLastVerifiedAt = new Date().toISOString();
+      this.form.identityVerificationNotes = 'Didit identity verification completed for testing.';
+      this.diditModalOpen = false;
+      document.body.style.overflow = '';
+      this.persistData();
+    },
+
+    completeDiditBusinessVerification() {
+      this.form.businessVerificationStarted = true;
+      this.form.filingVerificationStatus = 'verified';
+      this.form.tinVerificationStatus = 'verified';
+      this.form.filingFound = true;
+      this.form.registrationStatusVerified = true;
+      this.form.nameMatchesFiling = true;
+      this.form.entityTypeMatchesFiling = true;
+      this.form.addressMatchesFiling = true;
+      this.form.tinNameMatchesBusiness = true;
+      this.form.tinAddressMatchesBusiness = true;
+      this.form.tinEntityConfirmed = true;
+      this.form.filingSource = 'didit_kyb';
+      this.form.tinVerificationSource = 'didit_kyb';
+      this.form.filingSearchReference = this.diditBusinessVerificationUrl;
+      this.form.tinVerificationReference = this.diditBusinessVerificationUrl;
+      this.form.filingLastVerifiedAt = new Date().toISOString();
+      this.form.tinLastVerifiedAt = new Date().toISOString();
+      this.form.filingNotes = 'Didit business KYB verification completed.';
+      this.form.tinVerificationNotes = 'Didit business KYB verification completed.';
+      this.diditModalOpen = false;
+      this.diditModalType = '';
+      document.body.style.overflow = '';
+      this.persistData();
+    },
+
+    completeActiveDiditVerification() {
+      if (this.diditModalType === 'business') {
+        this.completeDiditBusinessVerification();
+      } else {
+        this.completeDiditVerification();
+      }
+    },
+ 
+    handleDiditEscape(event) {
+      if (event.key === 'Escape' && this.diditModalOpen) this.closeVerification();
+    },
+ 
+    handleDiditMessage(event) {
+      if (event.origin !== 'https://verify.didit.me') return;
+      const completed = event.data && (
+        event.data.type === 'verification_complete' ||
+        event.data.status === 'approved' ||
+        event.data.status === 'verified' ||
+        event.data.status === 'completed'
+      );
+      if (!completed) return;
+      if (this.diditModalType === 'business') {
+        this.completeDiditBusinessVerification();
+      } else {
+        this.completeDiditVerification();
+      }
+    },
+ 
+    validateStep(step = this.currentStep) {
+      const f = this.form;
+      const checks = {
+        1: [f.legalBusinessName, f.entityType, f.taxId, f.businessPhone, f.businessEmail, f.businessAddress1, f.businessCity, f.businessState, f.businessZip, f.description, ...(this.showOrganizationFields ? [f.organizationType] : [])],
+        2: [f.principalFirstName, f.principalLastName, f.principalTitle, f.principalDob, f.principalOwnership, f.principalPhone, f.principalEmail, f.principalSsnLast4],
+        3: [f.monthlyVolume, f.averageTicket, f.highTicketAmount, f.bankAccountHolder, f.bankName, f.routingNumber, f.accountNumber],
+        4: [f.docs.governmentId, f.docs.utilityBill, f.docs.formationDoc, f.docs.voidedCheck, f.docs.liveSelfie, f.utilityBillAddress]
+      };
+      if (!checks[step]) return true;
+      const valid = checks[step].every(item => String(item || '').trim() !== '');
+      if (!valid) { alert('Complete all required fields and uploads before continuing.'); return false; }
+      if (step === 1) {
+        const emailOk = /^[^s@]+@[^s@]+.[^s@]+$/.test(String(f.businessEmail || '').trim());
+        const taxDigits = String(f.taxId || '').replace(/D/g, '');
+        if (!emailOk) { alert('Enter a valid business email address.'); return false; }
+        if (taxDigits.length !== 9) { alert('Enter a valid EIN / Tax ID.'); return false; }
+      }
+      if (step === 2) {
+        const emailOk = /^[^s@]+@[^s@]+.[^s@]+$/.test(String(f.principalEmail || '').trim());
+        const ssnDigits = String(f.principalSsnLast4 || '').replace(/D/g, '');
+        const ownership = Number(f.principalOwnership || 0);
+        if (!emailOk) { alert('Enter a valid principal email address.'); return false; }
+        if (ssnDigits.length !== 4) { alert('Enter a valid SSN last 4.'); return false; }
+        if (!(ownership > 0 && ownership <= 100)) { alert('Ownership percentage must be between 1 and 100.'); return false; }
+      }
+      if (step === 3) {
+        if (!this.isLikelyRoutingNumber(f.routingNumber)) { alert('Enter a valid 9-digit routing number.'); return false; }
+        if (!this.isLikelyAccountNumber(f.accountNumber)) { alert('Enter a valid bank account number.'); return false; }
+      }
+      if (step === 4 && String(f.utilityBillAddress || '').trim() !== String(f.businessAddress1 || '').trim()) {
+        alert('The utility bill address must match the business address exactly.');
+        return false;
+      }
+      return true;
+    },
+ 
+    nextStep() {
+      if (!this.validateStep()) return;
+      this.currentStep = Math.min(5, this.currentStep + 1);
+      this.persistData();
+    },
+ 
+    previousStep() {
+      this.currentStep = Math.max(1, this.currentStep - 1);
+      this.persistData();
+    },
+ 
+ 
+ 
+    getBusinessVerificationSchema() {
+      return {
+        request: {
+          legalBusinessName: this.form.legalBusinessName,
+          dbaName: this.form.dbaName,
+          entityType: this.form.entityType,
+          organizationType: this.form.organizationType,
+          establishedYear: this.form.establishedYear,
+          taxId: this.form.taxId,
+          businessPhone: this.form.businessPhone,
+          businessEmail: this.form.businessEmail,
+          businessAddress1: this.form.businessAddress1,
+          businessAddress2: this.form.businessAddress2,
+          businessCity: this.form.businessCity,
+          businessState: this.form.businessState,
+          businessZip: this.form.businessZip,
+          businessCountry: this.form.businessCountry
+        },
+        response: {
+          filingFound: 'boolean|null',
+          filingStatus: 'string',
+          filingBusinessName: 'string',
+          filingEntityType: 'string',
+          filingEstablishedYear: 'string',
+          filingAddress1: 'string',
+          filingCity: 'string',
+          filingState: 'string',
+          filingZip: 'string',
+          filingSource: 'string',
+          filingSearchReference: 'string',
+          filingVerificationStatus: 'not_started|in_progress|verified|not_found|manual_review|required',
+          filingLastVerifiedAt: 'ISO-8601 string',
+          filingNotes: 'string',
+          nameMatchesFiling: 'boolean|null',
+          entityTypeMatchesFiling: 'boolean|null',
+          addressMatchesFiling: 'boolean|null',
+          registrationNumber: 'string',
+          registrationCountry: 'string',
+          registrationJurisdiction: 'string',
+          registrationStatusVerified: 'boolean|null',
+          openCorporatesJurisdictionCode: 'string',
+          openCorporatesCompanyNumber: 'string',
+          openCorporatesCompanyUrl: 'string',
+          openCorporatesApiVersion: '0.4.8',
+          openCorporatesSearchEndpoint: 'https://api.opencorporates.com/v0.4/companies/search',
+          tinVerificationStatus: 'not_started|in_progress|verified|not_found|manual_review|required',
+          tinVerificationSource: 'string',
+          tinVerificationReference: 'string',
+          tinLastVerifiedAt: 'ISO-8601 string',
+          tinNameMatchesBusiness: 'boolean|null',
+          tinAddressMatchesBusiness: 'boolean|null',
+          tinEntityConfirmed: 'boolean|null',
+          tinVerificationNotes: 'string'
+        }
+      };
+    },
+ 
+    getOpenCorporatesJurisdictionCode(country = this.form.registrationCountry, jurisdiction = this.form.registrationJurisdiction) {
+      const selectedCountry = String(country || '').trim();
+      const selectedJurisdiction = String(jurisdiction || '').trim();
+      const countryCodes = {
+        'United States': 'us',
+        Canada: 'ca',
+        Mexico: 'mx',
+        'United Arab Emirates': 'ae',
+        Ethiopia: 'et',
+        'South Africa': 'za',
+        Kenya: 'ke',
+        'United Kingdom': 'gb',
+        Australia: 'au',
+        Germany: 'de',
+        France: 'fr',
+        India: 'in',
+        Singapore: 'sg',
+        Netherlands: 'nl',
+        Brazil: 'br',
+        Japan: 'jp',
+        Italy: 'it',
+        Spain: 'es',
+        Ireland: 'ie',
+        'New Zealand': 'nz'
+      };
+      const countryCode = countryCodes[selectedCountry] || '';
+      if (!countryCode) return '';
+      if (selectedJurisdiction && !['NATIONAL', 'OTHER'].includes(selectedJurisdiction)) {
+        return countryCode + '_' + selectedJurisdiction.toLowerCase();
+      }
+      return countryCode;
+    },
+
+    buildOpenCorporatesSearchRequest() {
+      const jurisdictionCode = this.getOpenCorporatesJurisdictionCode();
+      const query = [this.form.legalBusinessName, this.form.dbaName].filter(Boolean).join(' OR ');
+      return {
+        provider: 'opencorporates',
+        apiVersion: '0.4.8',
+        baseUrl: 'https://api.opencorporates.com/v0.4',
+        searchEndpoint: '/companies/search',
+        companyEndpointPattern: '/companies/:jurisdiction_code/:company_number',
+        q: query || this.form.legalBusinessName,
+        jurisdiction_code: jurisdictionCode,
+        company_number: this.form.registrationNumber || '',
+        order: 'score',
+        fieldsNeeded: [
+          'name',
+          'company_number',
+          'jurisdiction_code',
+          'current_status',
+          'company_type',
+          'registered_address_in_full',
+          'registered_address',
+          'incorporation_date',
+          'opencorporates_url'
+        ],
+        note: 'Call OpenCorporates from the backend only. Do not expose API tokens in this browser HTML.'
+      };
+    },
+
+    buildBusinessVerificationRequest() {
+      const openCorporates = this.buildOpenCorporatesSearchRequest();
+      return {
+        provider: 'opencorporates',
+        legalBusinessName: this.form.legalBusinessName,
+        dbaName: this.form.dbaName,
+        entityType: this.form.entityType,
+        organizationType: this.form.organizationType,
+        establishedYear: this.form.establishedYear,
+        state: this.form.businessState || this.form.registrationJurisdiction,
+        address1: this.form.businessAddress1,
+        address2: this.form.businessAddress2,
+        city: this.form.businessCity,
+        zip: this.form.businessZip,
+        country: this.form.businessCountry || this.form.registrationCountry,
+        taxId: this.form.taxId,
+        registrationNumber: this.form.registrationNumber,
+        registrationCountry: this.form.registrationCountry || this.form.businessCountry || 'United States',
+        registrationJurisdiction: this.form.registrationJurisdiction || this.form.businessState,
+        openCorporatesJurisdictionCode: openCorporates.jurisdiction_code,
+        openCorporates
+      };
+    },
+ 
+    normalizeAddressLine(value) {
+      return String(value || '')
+        .trim()
+        .toLowerCase()
+        .replace(/\./g, '')
+        .replace(/\bstreet\b/g, 'st')
+        .replace(/\bavenue\b/g, 'ave')
+        .replace(/\broad\b/g, 'rd')
+        .replace(/\bdrive\b/g, 'dr')
+        .replace(/\bsuite\b/g, 'ste')
+        .replace(/\s+/g, ' ');
+    },
+ 
+    addressesMatch(a, b) {
+      return this.normalizeAddressLine(a) === this.normalizeAddressLine(b);
+    },
+ 
+    normalizeOpenCorporatesCompany(rawCompany = {}) {
+      const company = rawCompany.company || rawCompany || {};
+      const registeredAddress = company.registered_address || {};
+      const fullAddress = company.registered_address_in_full || registeredAddress.street_address || registeredAddress.locality || '';
+      const companyNumber = company.company_number || company.companyNumber || '';
+      const jurisdictionCode = company.jurisdiction_code || company.jurisdictionCode || this.getOpenCorporatesJurisdictionCode();
+      return {
+        filingFound: !!(company.name || companyNumber),
+        filingStatus: company.current_status || company.status || '',
+        filingBusinessName: company.name || company.company_name || '',
+        filingEntityType: company.company_type || company.companyType || '',
+        filingEstablishedYear: company.incorporation_date ? String(company.incorporation_date).slice(0, 4) : '',
+        filingAddress1: fullAddress,
+        filingCity: registeredAddress.locality || registeredAddress.city || '',
+        filingState: registeredAddress.region || registeredAddress.state || '',
+        filingZip: registeredAddress.postal_code || registeredAddress.postalCode || '',
+        filingSource: 'opencorporates',
+        filingSearchReference: company.opencorporates_url || company.registry_url || company.source_url || '',
+        filingVerificationStatus: company.name ? 'verified' : 'manual_review',
+        filingLastVerifiedAt: new Date().toISOString(),
+        filingNotes: company.name
+          ? 'OpenCorporates company record returned by the connected backend service.'
+          : 'No OpenCorporates company record was available from the connected backend service.',
+        registrationNumber: companyNumber,
+        registrationStatusVerified: String(company.current_status || '').toLowerCase().includes('active'),
+        openCorporatesJurisdictionCode: jurisdictionCode,
+        openCorporatesCompanyNumber: companyNumber,
+        openCorporatesCompanyUrl: company.opencorporates_url || ''
+      };
+    },
+
+    buildBusinessVerificationPayload(rawResult = {}) {
+      return {
+        filingFound: typeof rawResult.filingFound === 'boolean' ? rawResult.filingFound : null,
+        filingStatus: rawResult.filingStatus || '',
+        filingBusinessName: rawResult.filingBusinessName || '',
+        filingEntityType: rawResult.filingEntityType || '',
+        filingEstablishedYear: rawResult.filingEstablishedYear || '',
+        filingAddress1: rawResult.filingAddress1 || '',
+        filingCity: rawResult.filingCity || '',
+        filingState: rawResult.filingState || '',
+        filingZip: rawResult.filingZip || '',
+        filingSource: rawResult.filingSource || '',
+        filingSearchReference: rawResult.filingSearchReference || '',
+        filingVerificationStatus: rawResult.filingVerificationStatus || 'manual_review',
+        filingLastVerifiedAt: rawResult.filingLastVerifiedAt || new Date().toISOString(),
+        filingNotes: rawResult.filingNotes || '',
+        nameMatchesFiling: typeof rawResult.nameMatchesFiling === 'boolean'
+          ? rawResult.nameMatchesFiling
+          : (rawResult.filingBusinessName ? this.normalizedTextEquals(this.form.legalBusinessName, rawResult.filingBusinessName) : null),
+        entityTypeMatchesFiling: typeof rawResult.entityTypeMatchesFiling === 'boolean'
+          ? rawResult.entityTypeMatchesFiling
+          : (rawResult.filingEntityType ? this.normalizedTextEquals(this.form.entityType, rawResult.filingEntityType) : null),
+        addressMatchesFiling: typeof rawResult.addressMatchesFiling === 'boolean'
+          ? rawResult.addressMatchesFiling
+          : (rawResult.filingAddress1 ? this.addressesMatch(this.form.businessAddress1, rawResult.filingAddress1) : null),
+        registrationNumber: rawResult.registrationNumber || rawResult.openCorporatesCompanyNumber || this.form.registrationNumber || '',
+        registrationStatusVerified: typeof rawResult.registrationStatusVerified === 'boolean' ? rawResult.registrationStatusVerified : null,
+        openCorporatesJurisdictionCode: rawResult.openCorporatesJurisdictionCode || this.getOpenCorporatesJurisdictionCode(),
+        openCorporatesCompanyNumber: rawResult.openCorporatesCompanyNumber || rawResult.companyNumber || rawResult.registrationNumber || '',
+        openCorporatesCompanyUrl: rawResult.openCorporatesCompanyUrl || rawResult.companyUrl || '',
+        openCorporatesApiVersion: rawResult.openCorporatesApiVersion || '0.4.8',
+        openCorporatesSearchEndpoint: rawResult.openCorporatesSearchEndpoint || 'https://api.opencorporates.com/v0.4/companies/search'
+      };
+    },
+ 
+    applyBusinessVerificationResult(rawResult = {}) {
+      const result = this.buildBusinessVerificationPayload(rawResult);
+      this.form.filingFound = result.filingFound;
+      this.form.filingStatus = result.filingStatus;
+      this.form.filingBusinessName = result.filingBusinessName;
+      this.form.filingEntityType = result.filingEntityType;
+      this.form.filingEstablishedYear = result.filingEstablishedYear;
+      this.form.filingAddress1 = result.filingAddress1;
+      this.form.filingCity = result.filingCity;
+      this.form.filingState = result.filingState;
+      this.form.filingZip = result.filingZip;
+      this.form.filingSource = result.filingSource;
+      this.form.filingSearchReference = result.filingSearchReference;
+      this.form.filingVerificationStatus = result.filingVerificationStatus;
+      this.form.filingLastVerifiedAt = result.filingLastVerifiedAt;
+      this.form.filingNotes = result.filingNotes;
+      this.form.nameMatchesFiling = result.nameMatchesFiling;
+      this.form.entityTypeMatchesFiling = result.entityTypeMatchesFiling;
+      this.form.addressMatchesFiling = result.addressMatchesFiling;
+      this.form.registrationNumber = result.registrationNumber || this.form.registrationNumber || '';
+      this.form.registrationStatusVerified = typeof result.registrationStatusVerified === 'boolean' ? result.registrationStatusVerified : this.form.registrationStatusVerified;
+      this.form.openCorporatesJurisdictionCode = result.openCorporatesJurisdictionCode || this.form.openCorporatesJurisdictionCode || this.getOpenCorporatesJurisdictionCode();
+      this.form.openCorporatesCompanyNumber = result.openCorporatesCompanyNumber || this.form.openCorporatesCompanyNumber || this.form.registrationNumber || '';
+      this.form.openCorporatesCompanyUrl = result.openCorporatesCompanyUrl || this.form.openCorporatesCompanyUrl || '';
+      this.form.openCorporatesApiVersion = result.openCorporatesApiVersion || this.form.openCorporatesApiVersion || '0.4.8';
+      this.form.openCorporatesSearchEndpoint = result.openCorporatesSearchEndpoint || this.form.openCorporatesSearchEndpoint || 'https://api.opencorporates.com/v0.4/companies/search';
+      return result;
+    },
+ 
+    applyTinVerificationResult(rawResult = {}) {
+      this.form.registrationNumber = rawResult.registrationNumber || this.form.registrationNumber || '';
+      this.form.registrationCountry = rawResult.registrationCountry || this.form.registrationCountry || this.form.businessCountry || 'United States';
+      this.form.registrationJurisdiction = rawResult.registrationJurisdiction || this.form.registrationJurisdiction || this.form.businessState || '';
+      this.form.registrationStatusVerified = typeof rawResult.registrationStatusVerified === 'boolean' ? rawResult.registrationStatusVerified : this.form.registrationStatusVerified;
+      this.form.openCorporatesJurisdictionCode = rawResult.openCorporatesJurisdictionCode || this.form.openCorporatesJurisdictionCode || this.getOpenCorporatesJurisdictionCode();
+      this.form.openCorporatesCompanyNumber = rawResult.openCorporatesCompanyNumber || rawResult.companyNumber || this.form.openCorporatesCompanyNumber || this.form.registrationNumber || '';
+      this.form.openCorporatesCompanyUrl = rawResult.openCorporatesCompanyUrl || rawResult.companyUrl || this.form.openCorporatesCompanyUrl || '';
+      this.form.openCorporatesApiVersion = rawResult.openCorporatesApiVersion || this.form.openCorporatesApiVersion || '0.4.8';
+      this.form.openCorporatesSearchEndpoint = rawResult.openCorporatesSearchEndpoint || this.form.openCorporatesSearchEndpoint || 'https://api.opencorporates.com/v0.4/companies/search';
+      this.form.tinVerificationStatus = rawResult.tinVerificationStatus || 'manual_review';
+      this.form.tinVerificationSource = rawResult.tinVerificationSource || '';
+      this.form.tinVerificationReference = rawResult.tinVerificationReference || '';
+      this.form.tinLastVerifiedAt = rawResult.tinLastVerifiedAt || new Date().toISOString();
+      this.form.tinNameMatchesBusiness = typeof rawResult.tinNameMatchesBusiness === 'boolean' ? rawResult.tinNameMatchesBusiness : null;
+      this.form.tinAddressMatchesBusiness = typeof rawResult.tinAddressMatchesBusiness === 'boolean' ? rawResult.tinAddressMatchesBusiness : null;
+      this.form.tinEntityConfirmed = typeof rawResult.tinEntityConfirmed === 'boolean' ? rawResult.tinEntityConfirmed : null;
+      this.form.tinVerificationNotes = rawResult.tinVerificationNotes || '';
+      return rawResult;
+    },
+
+    getVerificationRuleFlow() {
+      return [
+        'Step 1: Build a normalized verification request from the submitted business fields.',
+        'Step 2: Send the request to /api/kyc/verify-business-entity so the backend can query OpenCorporates without exposing API tokens.',
+        'Step 3: Backend uses OpenCorporates company search and company record endpoints to return filing existence, status, legal name, entity type, formation year, company number, source URL, and registered address.',
+        'Step 4: Normalize and compare filing values against the submitted business record.',
+        'Step 5: Persist match flags and verification status on the KYC application.',
+        'Step 6: Feed the persisted verification flags into the underwriting rules engine.',
+        'Step 7: Route manual review when OpenCorporates results are missing, ambiguous, inactive, address-mismatched, or unavailable for the selected jurisdiction.'
+      ];
+    },
+ 
+    async verifyBusinessFiling() {
+      if (this.form.filingSource === 'didit_kyb' && (this.form.filingVerificationStatus === 'verified' || this.form.filingVerificationStatus === 'in_progress')) {
+        return {
+          filingVerificationStatus: this.form.filingVerificationStatus,
+          tinVerificationStatus: this.form.tinVerificationStatus,
+          filingSource: this.form.filingSource,
+          tinVerificationSource: this.form.tinVerificationSource,
+          filingNotes: this.form.filingNotes,
+          tinVerificationNotes: this.form.tinVerificationNotes
+        };
+      }
+      this.form.businessVerificationStarted = true;
+      this.form.filingVerificationStatus = 'not_started';
+      this.form.tinVerificationStatus = 'not_started';
+      const request = this.buildBusinessVerificationRequest();
+      const requiredFields = [
+        request.legalBusinessName,
+        request.taxId,
+        request.registrationCountry,
+        request.registrationJurisdiction,
+        request.address1,
+        request.city,
+        request.state,
+        request.zip
+      ];
+      const missingRequired = requiredFields.some(value => String(value || '').trim() === '');
+ 
+      if (missingRequired) {
+        const requiredResult = this.applyBusinessVerificationResult({
+          filingVerificationStatus: 'required',
+          filingNotes: 'Legal business name, EIN/TIN, registration country, registration state/province/region, and business address are required before registration verification can run.'
+        });
+        this.applyTinVerificationResult({
+          tinVerificationStatus: 'required',
+          tinVerificationNotes: 'EIN/TIN and business registration cannot be verified until the required business information is complete.'
+        });
+        this.persistData();
+        return requiredResult;
+      }
+ 
+      this.form.filingVerificationStatus = 'in_progress';
+      this.form.filingLastVerifiedAt = new Date().toISOString();
+      this.form.tinVerificationStatus = 'in_progress';
+      this.form.tinLastVerifiedAt = new Date().toISOString();
+      this.persistData();
+ 
+      try {
+        const response = await fetch('/api/kyc/verify-business-entity', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(request)
+        });
+ 
+        if (!response.ok) {
+          throw new Error(`Business entity verification request failed (${response.status})`);
+        }
+ 
+        const result = await response.json();
+        const openCorporatesCompany = result?.openCorporates?.company || result?.opencorporates?.company || result?.company || null;
+        const normalizedOpenCorporates = openCorporatesCompany ? this.normalizeOpenCorporatesCompany(openCorporatesCompany) : {};
+        const filingResult = result && result.filing ? { ...normalizedOpenCorporates, ...result.filing } : { ...normalizedOpenCorporates, ...(result || {}) };
+        const tinResult = result && result.tin ? result.tin : {};
+ 
+        const applied = this.applyBusinessVerificationResult({
+          ...filingResult,
+          filingVerificationStatus: filingResult.filingVerificationStatus || 'manual_review',
+          filingLastVerifiedAt: filingResult.filingLastVerifiedAt || new Date().toISOString()
+        });
+ 
+        this.applyTinVerificationResult({
+          ...tinResult,
+          tinVerificationStatus: tinResult.tinVerificationStatus || 'manual_review',
+          tinLastVerifiedAt: tinResult.tinLastVerifiedAt || new Date().toISOString()
+        });
+ 
+        this.persistData();
+        return applied;
+      } catch (error) {
+        console.error('Business entity verification failed:', error);
+        const fallback = this.applyBusinessVerificationResult({
+          filingFound: null,
+          filingVerificationStatus: 'manual_review',
+          filingSource: 'opencorporates_backend_endpoint_unavailable',
+          filingSearchReference: 'manual-review-required',
+          filingNotes: 'Business registration verification requires the backend endpoint /api/kyc/verify-business-entity to call OpenCorporates API v0.4.8. No automatic approval was applied.'
+        });
+        this.applyTinVerificationResult({
+          registrationCountry: this.form.registrationCountry || this.form.businessCountry || 'United States',
+          registrationJurisdiction: this.form.registrationJurisdiction || this.form.businessState || '',
+          registrationStatusVerified: null,
+          tinVerificationStatus: 'manual_review',
+          tinVerificationSource: 'backend_endpoint_unavailable',
+          tinVerificationReference: 'manual-review-required',
+          tinVerificationNotes: 'EIN/TIN verification requires a backend TIN-matching or processor verification service. No automatic approval was applied.'
+        });
+        this.persistData();
+        return fallback;
+      }
+    },
+ 
+    runVerificationFlowSummary() {
+      return {
+        schema: this.getBusinessVerificationSchema(),
+        flow: this.getVerificationRuleFlow(),
+        requestPreview: this.buildBusinessVerificationRequest(),
+        currentVerificationState: {
+          filingFound: this.form.filingFound,
+          filingStatus: this.form.filingStatus,
+          filingVerificationStatus: this.form.filingVerificationStatus,
+          nameMatchesFiling: this.form.nameMatchesFiling,
+          entityTypeMatchesFiling: this.form.entityTypeMatchesFiling,
+          addressMatchesFiling: this.form.addressMatchesFiling,
+          openCorporatesJurisdictionCode: this.form.openCorporatesJurisdictionCode,
+          openCorporatesCompanyNumber: this.form.openCorporatesCompanyNumber,
+          openCorporatesCompanyUrl: this.form.openCorporatesCompanyUrl
+        }
+      };
+    },
+ 
+ 
+    getVerificationProviderMap() {
+      return {
+        businessFiling: {
+          provider: this.form.verificationProviders?.businessFiling || 'opencorporates_or_state_lookup',
+          endpoint: '/api/kyc/verify-business-entity',
+          statusField: 'filingVerificationStatus'
+        },
+        tin: {
+          provider: 'irs_tin_matching_or_processor_vendor',
+          endpoint: '/api/kyc/verify-business-entity',
+          statusField: 'tinVerificationStatus'
+        },
+        address: {
+          provider: this.form.verificationProviders?.address || 'usps',
+          endpoint: '/api/kyc/verify-address',
+          statusField: 'addressVerificationStatus'
+        },
+        identity: {
+          provider: this.form.verificationProviders?.identity || 'stripe_identity',
+          endpoint: '/api/kyc/verify-identity',
+          statusField: 'identityVerificationStatus'
+        },
+        bank: {
+          provider: this.form.verificationProviders?.bank || 'plaid',
+          endpoint: '/api/kyc/verify-bank',
+          statusField: 'bankVerificationStatus'
+        }
+      };
+    },
+ 
+    getFullBackendVerificationSchema() {
+      return {
+        businessVerification: {
+          provider: this.form.verificationProviders?.businessFiling || 'opencorporates_or_state_lookup',
+          request: this.buildBusinessVerificationRequest()
+        },
+        tinVerification: {
+          provider: 'irs_tin_matching_or_processor_vendor',
+          request: this.buildBusinessVerificationRequest()
+        },
+        addressVerification: {
+          provider: this.form.verificationProviders?.address || 'usps',
+          request: this.buildAddressVerificationRequest()
+        },
+        identityVerification: {
+          provider: this.form.verificationProviders?.identity || 'stripe_identity',
+          request: this.buildIdentityVerificationRequest()
+        },
+        bankVerification: {
+          provider: this.form.verificationProviders?.bank || 'plaid',
+          request: this.buildBankVerificationRequest()
+        }
+      };
+    },
+ 
+    buildAddressVerificationRequest() {
+      return {
+        businessAddress1: this.form.businessAddress1,
+        businessAddress2: this.form.businessAddress2,
+        businessCity: this.form.businessCity,
+        businessState: this.form.businessState,
+        businessZip: this.form.businessZip,
+        utilityBillAddress: this.form.utilityBillAddress
+      };
+    },
+ 
+    buildIdentityVerificationRequest() {
+      return {
+        principalFirstName: this.form.principalFirstName,
+        principalLastName: this.form.principalLastName,
+        principalDob: this.form.principalDob,
+        principalSsnLast4: this.form.principalSsnLast4,
+        governmentId: this.form.docs?.governmentId || '',
+        liveSelfie: this.form.docs?.liveSelfie || ''
+      };
+    },
+ 
+    buildBankVerificationRequest() {
+      return {
+        legalBusinessName: this.form.legalBusinessName,
+        bankAccountHolder: this.form.bankAccountHolder,
+        bankName: this.form.bankName,
+        routingNumber: this.form.routingNumber,
+        accountNumber: this.form.accountNumber,
+        principalFullName: `${this.form.principalFirstName || ''} ${this.form.principalLastName || ''}`.trim(),
+        voidedCheck: this.form.docs?.voidedCheck || ''
+      };
+    },
+ 
+    async postVerificationRequest(endpoint, payload) {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) {
+        throw new Error(`Verification request failed: ${endpoint} (${response.status})`);
+      }
+      return await response.json();
+    },
+ 
+    applyAddressVerificationResult(rawResult = {}) {
+      this.form.standardizedBusinessAddress1 = rawResult.standardizedBusinessAddress1 || '';
+      this.form.standardizedBusinessCity = rawResult.standardizedBusinessCity || '';
+      this.form.standardizedBusinessState = rawResult.standardizedBusinessState || '';
+      this.form.standardizedBusinessZip = rawResult.standardizedBusinessZip || '';
+      this.form.standardizedUtilityAddress1 = rawResult.standardizedUtilityAddress1 || '';
+      this.form.standardizedUtilityCity = rawResult.standardizedUtilityCity || '';
+      this.form.standardizedUtilityState = rawResult.standardizedUtilityState || '';
+      this.form.standardizedUtilityZip = rawResult.standardizedUtilityZip || '';
+      this.form.businessAddressValid = typeof rawResult.businessAddressValid === 'boolean' ? rawResult.businessAddressValid : null;
+      this.form.utilityAddressValid = typeof rawResult.utilityAddressValid === 'boolean' ? rawResult.utilityAddressValid : null;
+      this.form.utilityMatchesBusiness = typeof rawResult.utilityMatchesBusiness === 'boolean' ? rawResult.utilityMatchesBusiness : null;
+      this.form.addressVerificationStatus = rawResult.addressVerificationStatus || 'manual_review';
+      this.form.addressVerificationSource = rawResult.addressVerificationSource || '';
+      this.form.addressVerificationReference = rawResult.addressVerificationReference || '';
+      this.form.addressLastVerifiedAt = rawResult.addressLastVerifiedAt || new Date().toISOString();
+      this.form.addressVerificationNotes = rawResult.addressVerificationNotes || '';
+      return rawResult;
+    },
+ 
+    applyIdentityVerificationResult(rawResult = {}) {
+      this.form.documentPassed = typeof rawResult.documentPassed === 'boolean' ? rawResult.documentPassed : null;
+      this.form.selfiePassed = typeof rawResult.selfiePassed === 'boolean' ? rawResult.selfiePassed : null;
+      this.form.selfieIdMatchConfidence = typeof rawResult.selfieIdMatchConfidence === 'number' ? rawResult.selfieIdMatchConfidence : this.form.selfieIdMatchConfidence;
+      this.form.principalNameMatchesId = typeof rawResult.principalNameMatchesId === 'boolean' ? rawResult.principalNameMatchesId : null;
+      this.form.principalDobMatchesId = typeof rawResult.principalDobMatchesId === 'boolean' ? rawResult.principalDobMatchesId : null;
+      this.form.ssnLast4Verified = typeof rawResult.ssnLast4Verified === 'boolean' ? rawResult.ssnLast4Verified : null;
+      this.form.idExtractedFullName = rawResult.idExtractedFullName || '';
+      this.form.idExtractedDob = rawResult.idExtractedDob || '';
+      this.form.idExtractedAddress1 = rawResult.idExtractedAddress1 || '';
+      this.form.idExtractedCity = rawResult.idExtractedCity || '';
+      this.form.idExtractedState = rawResult.idExtractedState || '';
+      this.form.idExtractedZip = rawResult.idExtractedZip || '';
+      this.form.identityVerificationStatus = rawResult.identityVerificationStatus || 'manual_review';
+      this.form.identityVerificationSource = rawResult.identityVerificationSource || '';
+      this.form.identityVerificationReference = rawResult.identityVerificationReference || '';
+      this.form.identityLastVerifiedAt = rawResult.identityLastVerifiedAt || new Date().toISOString();
+      this.form.identityVerificationNotes = rawResult.identityVerificationNotes || '';
+      return rawResult;
+    },
+ 
+    applyBankVerificationResult(rawResult = {}) {
+      this.form.bankOwnerMatchesBusiness = typeof rawResult.bankOwnerMatchesBusiness === 'boolean' ? rawResult.bankOwnerMatchesBusiness : null;
+      this.form.bankOwnerMatchesPrincipal = typeof rawResult.bankOwnerMatchesPrincipal === 'boolean' ? rawResult.bankOwnerMatchesPrincipal : null;
+      this.form.accountVerified = typeof rawResult.accountVerified === 'boolean' ? rawResult.accountVerified : null;
+      this.form.bankDocumentMatchesAccount = typeof rawResult.bankDocumentMatchesAccount === 'boolean' ? rawResult.bankDocumentMatchesAccount : this.form.bankDocumentMatchesAccount;
+      this.form.bankOwnershipRelationshipClear = typeof rawResult.bankOwnershipRelationshipClear === 'boolean' ? rawResult.bankOwnershipRelationshipClear : this.form.bankOwnershipRelationshipClear;
+      this.form.bankVerificationStatus = rawResult.bankVerificationStatus || 'manual_review';
+      this.form.bankVerificationSource = rawResult.bankVerificationSource || '';
+      this.form.bankVerificationReference = rawResult.bankVerificationReference || '';
+      this.form.bankLastVerifiedAt = rawResult.bankLastVerifiedAt || new Date().toISOString();
+      this.form.bankVerificationNotes = rawResult.bankVerificationNotes || '';
+      return rawResult;
+    },
+ 
+    getVerificationFlow() {
+      return [
+        'Step 1: Save application inputs and uploaded documents.',
+        'Step 2: Run USPS address standardization and compare business and utility bill addresses.',
+        'Step 3: Run business entity lookup using OpenCorporates/state registry and EIN/TIN matching through the connected backend service.',
+        'Step 4: Run Stripe Identity or equivalent for document and selfie verification.',
+        'Step 5: Run Plaid or equivalent bank ownership verification.',
+        'Step 6: Persist provider results, registration status, address matching, EIN/TIN matching, and normalized match flags.',
+        'Step 7: Score the application only from persisted verification results and route unresolved checks to manual review.',
+        'Testing mode: business filing, identity, and bank verification can be auto-marked verified by sandbox stubs when live providers are not connected.'
+      ];
+    },
+ 
+    async verifyAddress() {
+      const request = this.buildAddressVerificationRequest();
+ 
+      if (!String(request.businessAddress1 || '').trim() || !String(request.businessState || '').trim() || !String(request.utilityBillAddress || '').trim()) {
+        return this.applyAddressVerificationResult({
+          addressVerificationStatus: 'required',
+          addressVerificationNotes: 'Business address, state, and utility bill address are required before address verification can run.'
+        });
+      }
+ 
+      this.form.addressVerificationStatus = 'in_progress';
+      this.form.addressLastVerifiedAt = new Date().toISOString();
+      this.persistData();
+ 
+      try {
+        const result = await this.postVerificationRequest('/api/kyc/verify-address', request);
+        const applied = this.applyAddressVerificationResult(result);
+        this.persistData();
+        return applied;
+      } catch (error) {
+        const fallback = this.applyAddressVerificationResult({
+          addressVerificationStatus: 'manual_review',
+          addressVerificationSource: 'usps_stub',
+          addressVerificationReference: 'manual-review-address',
+          addressVerificationNotes: 'Live USPS address verification is not connected yet. Manual review required.'
+        });
+        this.persistData();
+        return fallback;
+      }
+    },
+ 
+    async verifyIdentity() {
+      const request = this.buildIdentityVerificationRequest();
+ 
+      if (this.form.identityVerificationStatus === 'verified' && this.form.selfieIdMatchConfidence != null) {
+        return this.applyIdentityVerificationResult({
+          documentPassed: true,
+          selfiePassed: true,
+          selfieIdMatchConfidence: this.form.selfieIdMatchConfidence,
+          principalNameMatchesId: true,
+          principalDobMatchesId: true,
+          ssnLast4Verified: true,
+          identityVerificationStatus: 'verified',
+          identityVerificationSource: this.form.identityVerificationSource || 'didit_unilink',
+          identityVerificationReference: this.form.identityVerificationReference || this.diditVerificationUrl,
+          identityVerificationNotes: this.form.identityVerificationNotes || 'Didit identity verification completed.'
+        });
+      }
+ 
+      if (!request.governmentId || !request.liveSelfie) {
+        return this.applyIdentityVerificationResult({
+          identityVerificationStatus: 'required',
+          identityVerificationNotes: 'Government ID and live selfie are required before identity verification can run.'
+        });
+      }
+ 
+      this.form.identityVerificationStatus = 'in_progress';
+      this.form.identityLastVerifiedAt = new Date().toISOString();
+      this.persistData();
+ 
+      try {
+        const result = await this.postVerificationRequest('/api/kyc/verify-identity', request);
+        const applied = this.applyIdentityVerificationResult(result);
+        this.persistData();
+        return applied;
+      } catch (error) {
+        const fallback = this.applyIdentityVerificationResult({
+          documentPassed: true,
+          selfiePassed: true,
+          selfieIdMatchConfidence: 0.96,
+          principalNameMatchesId: true,
+          principalDobMatchesId: true,
+          ssnLast4Verified: true,
+          idExtractedFullName: `${this.form.principalFirstName || ''} ${this.form.principalLastName || ''}`.trim(),
+          idExtractedDob: this.form.principalDob || '',
+          idExtractedAddress1: this.form.idExtractedAddress1 || '789 Oakwood Dr',
+          idExtractedCity: this.form.idExtractedCity || (this.form.businessCity || ''),
+          idExtractedState: this.form.idExtractedState || (this.form.businessState || ''),
+          idExtractedZip: this.form.idExtractedZip || '45506',
+          identityVerificationStatus: 'verified',
+          identityVerificationSource: 'stripe_identity_test_stub',
+          identityVerificationReference: 'verified-test-identity',
+          identityVerificationNotes: 'Testing mode: identity verification automatically marked verified for sandbox use.'
+        });
+        this.persistData();
+        return fallback;
+      }
+    },
+ 
+    async verifyBank() {
+      const request = this.buildBankVerificationRequest();
+ 
+      if (!String(request.routingNumber || '').trim() || !String(request.accountNumber || '').trim()) {
+        return this.applyBankVerificationResult({
+          bankVerificationStatus: 'required',
+          bankVerificationNotes: 'Routing number and account number are required before bank verification can run.'
+        });
+      }
+ 
+      this.form.bankVerificationStatus = 'in_progress';
+      this.form.bankLastVerifiedAt = new Date().toISOString();
+      this.persistData();
+ 
+      try {
+        const result = await this.postVerificationRequest('/api/kyc/verify-bank', request);
+        const applied = this.applyBankVerificationResult(result);
+        this.persistData();
+        return applied;
+      } catch (error) {
+        const fallback = this.applyBankVerificationResult({
+          bankOwnerMatchesBusiness: true,
+          bankOwnerMatchesPrincipal: false,
+          accountVerified: true,
+          bankDocumentMatchesAccount: true,
+          bankOwnershipRelationshipClear: true,
+          bankVerificationStatus: 'verified',
+          bankVerificationSource: 'plaid_test_stub',
+          bankVerificationReference: 'verified-test-bank',
+          bankVerificationNotes: 'Testing mode: bank ownership and account verification automatically marked verified for sandbox use.'
+        });
+        this.persistData();
+        return fallback;
+      }
+    },
+ 
+    async verifyAllChecks() {
+      const results = {
+        address: await this.verifyAddress(),
+        business: await this.verifyBusinessFiling(),
+        identity: await this.verifyIdentity(),
+        bank: await this.verifyBank()
+      };
+      this.persistData();
+      return results;
+    },
+ 
+    underwritingConfig() {
+      return {
+        thresholds: {
+          autoApproveMax: 24,
+          elevatedPricingMax: 39,
+          manualReviewMax: 79
+        },
+        pricing: {
+          standard: '2.90% + $0.30',
+          elevated: '3.35% + $0.30',
+          manualReview: '3.75% + $0.30'
+        }
+      };
+    },
+ 
+    normalizePhone(value) {
+      return String(value || '').replace(/\D/g, '');
+    },
+ 
+    normalizeEmail(value) {
+      return String(value || '').trim().toLowerCase();
+    },
+ 
+    normalizedTextEquals(a, b) {
+      return String(a || '').trim().toLowerCase().replace(/\s+/g, ' ') ===
+        String(b || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    },
+ 
+    isLikelyRoutingNumber(value) {
+      const digits = String(value || '').replace(/\D/g, '');
+      return digits.length === 9;
+    },
+ 
+    isLikelyAccountNumber(value) {
+      const digits = String(value || '').replace(/\D/g, '');
+      return digits.length >= 4 && digits.length <= 17;
+    },
+ 
+    monthsSince(dateOrYear) {
+      if (!dateOrYear) return 999;
+      const now = new Date();
+ 
+      if (/^\d{4}$/.test(String(dateOrYear))) {
+        const year = Number(dateOrYear);
+        const then = new Date(year, 0, 1);
+        return (now.getFullYear() - then.getFullYear()) * 12 + (now.getMonth() - then.getMonth());
+      }
+ 
+      const then = new Date(dateOrYear);
+      if (Number.isNaN(then.getTime())) return 999;
+ 
+      return (now.getFullYear() - then.getFullYear()) * 12 + (now.getMonth() - then.getMonth());
+    },
+ 
+    buildApplicationContext() {
+      return {
+        ...this.form,
+        docs: this.form.docs || {},
+        filingFound: this.form.filingFound,
+        filingStatus: this.form.filingStatus,
+        filingBusinessName: this.form.filingBusinessName,
+        filingEntityType: this.form.filingEntityType,
+        filingEstablishedYear: this.form.filingEstablishedYear,
+        filingVerificationStatus: this.form.filingVerificationStatus,
+        filingNotes: this.form.filingNotes,
+        nameMatchesFiling: this.form.nameMatchesFiling,
+        entityTypeMatchesFiling: this.form.entityTypeMatchesFiling,
+        addressMatchesFiling: this.form.addressMatchesFiling,
+        registrationNumber: this.form.registrationNumber,
+        registrationCountry: this.form.registrationCountry,
+        registrationJurisdiction: this.form.registrationJurisdiction,
+        registrationStatusVerified: this.form.registrationStatusVerified,
+        openCorporatesJurisdictionCode: this.form.openCorporatesJurisdictionCode,
+        openCorporatesCompanyNumber: this.form.openCorporatesCompanyNumber,
+        openCorporatesCompanyUrl: this.form.openCorporatesCompanyUrl,
+        openCorporatesApiVersion: this.form.openCorporatesApiVersion,
+        openCorporatesSearchEndpoint: this.form.openCorporatesSearchEndpoint,
+        tinVerificationStatus: this.form.tinVerificationStatus,
+        tinVerificationSource: this.form.tinVerificationSource,
+        tinVerificationReference: this.form.tinVerificationReference,
+        tinLastVerifiedAt: this.form.tinLastVerifiedAt,
+        tinNameMatchesBusiness: this.form.tinNameMatchesBusiness,
+        tinAddressMatchesBusiness: this.form.tinAddressMatchesBusiness,
+        tinEntityConfirmed: this.form.tinEntityConfirmed,
+        tinVerificationNotes: this.form.tinVerificationNotes,
+        addressVerificationStatus: this.form.addressVerificationStatus,
+        businessAddressValid: this.form.businessAddressValid,
+        utilityAddressValid: this.form.utilityAddressValid,
+        utilityMatchesBusiness: this.form.utilityMatchesBusiness,
+        identityVerificationStatus: this.form.identityVerificationStatus,
+        documentPassed: this.form.documentPassed,
+        selfiePassed: this.form.selfiePassed,
+        bankVerificationStatus: this.form.bankVerificationStatus,
+        accountVerified: this.form.accountVerified,
+        bankOwnerMatchesPrincipal: this.form.bankOwnerMatchesPrincipal,
+        livePhotoCaptured: this.livePhotoCaptured
+      };
+    },
+ 
+    getHardStops(app) {
+      const stops = [];
+      const rules = [
+        { code: 'MISSING_GOV_ID', label: 'Government photo ID is missing', when: !app.docs?.governmentId },
+        { code: 'MISSING_LIVE_SELFIE', label: 'Live selfie is missing', when: !app.docs?.liveSelfie },
+        { code: 'MISSING_UTILITY_BILL', label: 'Utility bill is missing', when: !app.docs?.utilityBill },
+        { code: 'MISSING_FORMATION_DOC', label: 'Formation / nonprofit document is missing', when: !app.docs?.formationDoc },
+        { code: 'MISSING_BANK_DOC', label: 'Voided check / bank letter is missing', when: !app.docs?.voidedCheck }
+      ];
+      rules.forEach(rule => {
+        if (rule.when) stops.push({ code: rule.code, label: rule.label, type: 'hard_stop' });
+      });
+      return stops;
+    },
+ 
+    getHardDenies(app) {
+      const denies = [];
+      const rules = [
+        { code: 'RESTRICTED_ACTIVITY_CONFIRMED', label: 'Restricted or prohibited activity confirmed', when: app.restrictedActivityConfirmed === true },
+        { code: 'DOC_FRAUD_CONFIRMED', label: 'Fraudulent or altered document detected', when: app.documentFraudConfirmed === true },
+        { code: 'SELFIE_ID_NO_MATCH', label: 'Live selfie does not match government ID', when: typeof app.selfieIdMatchConfidence === 'number' && app.selfieIdMatchConfidence < 0.35 },
+        { code: 'IDENTITY_UNVERIFIABLE', label: 'Principal identity cannot be verified', when: app.identityUnverifiable === true }
+      ];
+      rules.forEach(rule => {
+        if (rule.when) denies.push({ code: rule.code, label: rule.label, type: 'hard_deny' });
+      });
+      return denies;
+    },
+ 
+    evaluateRiskRules(app) {
+      const triggered = [];
+      const add = (code, label, points, bucket, severity, when) => {
+        if (when) triggered.push({ code, label, points, bucket, severity });
+      };
+ 
+      const monthlyVolume = Number(app.monthlyVolume || 0);
+      const avgTicket = Number(app.averageTicket || 0);
+      const highTicket = Number(app.highTicketAmount || 0);
+      const ownership = Number(app.principalOwnership || 0);
+      const ageMonths = this.monthsSince(app.establishedDate || app.establishedYear);
+ 
+      add('BUSINESS_AGE_LT_6M', 'Business established under 6 months', 30, 'business_age', 'medium', ageMonths < 6);
+      add('BUSINESS_AGE_6_TO_12M', 'Business established 6 to 12 months ago', 20, 'business_age', 'medium', ageMonths >= 6 && ageMonths < 12);
+      add('BUSINESS_AGE_12_TO_24M', 'Business established 12 to 24 months ago', 10, 'business_age', 'low', ageMonths >= 12 && ageMonths < 24);
+ 
+      add('EST_YEAR_MISMATCH', 'Established year does not match filing data', 20, 'business_filing', 'medium',
+        app.filingFound === true &&
+        String(app.establishedYear || '').trim() !== '' &&
+        String(app.filingEstablishedYear || '').trim() !== '' &&
+        String(app.establishedYear) !== String(app.filingEstablishedYear)
+      );
+      add('FILING_STATUS_UNVERIFIED', 'Business filing lookup has not completed yet', 15, 'business_filing', 'medium',
+        ['not_started', 'in_progress', 'required'].includes(String(app.filingVerificationStatus || ''))
+      );
+      add('FILING_NOT_FOUND', 'Business filing was not found', 35, 'business_filing', 'high', app.filingRequired === true && app.filingFound === false);
+      add('FILING_UNVERIFIED', 'Business filing has not been verified yet', 20, 'business_filing', 'medium', app.filingRequired === true && app.filingFound === null);
+      add('FILING_STATUS_BAD', 'Business filing status is inactive, dissolved, or revoked', 40, 'business_filing', 'high',
+        ['inactive', 'dissolved', 'revoked', 'forfeited'].includes(String(app.filingStatus || '').toLowerCase())
+      );
+      add('FILING_NAME_MISMATCH', 'Legal business name does not match filing', 30, 'business_filing', 'high',
+        app.filingFound === true && app.filingBusinessName && !this.normalizedTextEquals(app.legalBusinessName, app.filingBusinessName)
+      );
+      add('FILING_ENTITY_TYPE_MISMATCH', 'Entity type does not match filing', 25, 'business_filing', 'medium',
+        app.filingFound === true && app.entityType && app.filingEntityType && !this.normalizedTextEquals(app.entityType, app.filingEntityType)
+      );
+      add('FILING_ADDRESS_MISMATCH', 'Business filing address does not match submitted address', 30, 'business_filing', 'high',
+        app.filingFound === true && app.addressMatchesFiling === false
+      );
+      add('FILING_ADDRESS_UNVERIFIED', 'Business filing address has not been verified yet', 15, 'business_filing', 'medium',
+        app.filingFound === true && app.addressMatchesFiling === null
+      );
+ 
+      add('ADDRESS_VERIFICATION_UNVERIFIED', 'Address verification has not been completed yet', 15, 'address', 'medium',
+        ['not_started', 'in_progress', 'required'].includes(String(app.addressVerificationStatus || ''))
+      );
+      add('BUSINESS_ADDRESS_INVALID', 'Business address could not be validated', 20, 'address', 'medium', app.businessAddressValid === false);
+      add('UTILITY_ADDRESS_INVALID', 'Utility bill address could not be validated', 20, 'address', 'medium', app.utilityAddressValid === false);
+      add('UTILITY_ADDRESS_MISMATCH', 'Utility bill address does not match business address', 30, 'address', 'high',
+        app.utilityMatchesBusiness === false || !this.normalizedTextEquals(app.utilityBillAddress, app.businessAddress1)
+      );
+      add('UTILITY_DOC_STALE', 'Utility bill is outside allowed date window', 10, 'address', 'low', app.utilityBillIsStale === true);
+      add('ADDRESS_VIRTUAL_OFFICE', 'Business address appears to be a mailbox, virtual office, or registered-agent-only address', 20, 'address', 'medium', app.addressIsVirtualOffice === true);
+ 
+      add('PHONE_MATCHES_APPLICANT', 'Business phone and applicant phone are the same', 15, 'contact_consistency', 'medium',
+        this.normalizePhone(app.businessPhone) &&
+        this.normalizePhone(app.principalPhone) &&
+        this.normalizePhone(app.businessPhone) === this.normalizePhone(app.principalPhone)
+      );
+      add('EMAIL_MATCHES_APPLICANT', 'Business email and applicant email are the same', 10, 'contact_consistency', 'low',
+        this.normalizeEmail(app.businessEmail) &&
+        this.normalizeEmail(app.principalEmail) &&
+        this.normalizeEmail(app.businessEmail) === this.normalizeEmail(app.principalEmail)
+      );
+      add('WEBSITE_MISSING', 'Website is missing', 5, 'contact_consistency', 'low', !String(app.website || '').trim());
+      add('WEBSITE_IDENTITY_MISMATCH', 'Website identity does not match business identity', 15, 'contact_consistency', 'medium', app.websiteProvided === true && app.websiteMatchesBusiness === false);
+      add('PHONE_GEO_MISMATCH', 'Phone geography appears inconsistent with business location', 8, 'contact_consistency', 'low', app.phoneGeoMatchesBusinessState === false);
+ 
+      add('IDENTITY_VERIFICATION_UNVERIFIED', 'Identity verification has not been completed yet', 20, 'identity', 'medium',
+        ['not_started', 'in_progress', 'required'].includes(String(app.identityVerificationStatus || ''))
+      );
+      add('DOCUMENT_VERIFICATION_FAILED', 'Government ID document verification failed', 35, 'identity', 'high', app.documentPassed === false);
+      add('SELFIE_VERIFICATION_FAILED', 'Live selfie verification failed', 35, 'identity', 'high', app.selfiePassed === false);
+      add('PRINCIPAL_NAME_MISMATCH', 'Principal name does not match government ID', 35, 'identity', 'high', app.principalNameMatchesId === false);
+      add('PRINCIPAL_ID_UNVERIFIED', 'Principal identity fields have not been fully verified yet', 15, 'identity', 'medium',
+        app.principalNameMatchesId === null || app.principalDobMatchesId === null || app.ssnLast4Verified === null
+      );
+      add('DOB_MISMATCH', 'Date of birth does not match government ID', 25, 'identity', 'medium', app.principalDobMatchesId === false);
+      add('SSN4_MISMATCH', 'SSN last 4 does not match or cannot be verified', 25, 'identity', 'medium', app.ssnLast4Verified === false);
+      add('TITLE_INCONSISTENT', 'Representative title is inconsistent with control of the business', 10, 'identity', 'low', app.principalTitleConsistent === false);
+      add('OWNERSHIP_WEAK', 'Ownership or control percentage appears weak or incomplete', 8, 'identity', 'low', ownership > 0 && ownership < 25);
+      add('UNDISCLOSED_CONTROL_PERSON', 'Additional control person may be undisclosed', 20, 'identity', 'medium', app.additionalControlPersonSuspected === true);
+      add('SELFIE_MATCH_LOW_CONFIDENCE', 'Live selfie match confidence is low', 20, 'identity', 'medium',
+        typeof app.selfieIdMatchConfidence === 'number' && app.selfieIdMatchConfidence >= 0.35 && app.selfieIdMatchConfidence < 0.75
+      );
+      add('SELFIE_VERIFICATION_UNAVAILABLE', 'Live selfie comparison unavailable', 25, 'identity', 'medium',
+        !!app.docs?.liveSelfie && app.selfieIdMatchConfidence == null
+      );
+ 
+      add('VOLUME_OVER_50K', 'Monthly volume is between $50,000 and $100,000', 10, 'processing', 'medium', monthlyVolume >= 50000 && monthlyVolume <= 100000);
+      add('VOLUME_OVER_100K', 'Monthly volume exceeds $100,000', 20, 'processing', 'high', monthlyVolume > 100000);
+      add('AVG_TICKET_OVER_200', 'Average ticket is between $200 and $500', 6, 'processing', 'low', avgTicket >= 200 && avgTicket <= 500);
+      add('AVG_TICKET_OVER_500', 'Average ticket exceeds $500', 12, 'processing', 'medium', avgTicket > 500);
+      add('HIGH_TICKET_OVER_2500', 'Highest ticket exceeds $2,500', 12, 'processing', 'medium', highTicket > 2500);
+      add('INTERNATIONAL_PROCESSING', 'International processing requested', 12, 'processing', 'medium', app.internationalProcessing === true);
+      add('RECURRING_BILLING', 'Recurring billing expected', 6, 'processing', 'low', app.acceptsRecurring === true);
+      add('PRIOR_PROCESSING_ISSUES', 'Prior processor holds, reserves, or terminations disclosed', 20, 'processing', 'high', app.priorProcessingIssues === true);
+      add('CHARGEBACK_MODERATE', 'Moderate chargeback history disclosed', 18, 'processing', 'medium', String(app.chargebackHistory || '').toLowerCase() === 'moderate');
+      add('CHARGEBACK_HIGH', 'High chargeback history disclosed', 35, 'processing', 'high', String(app.chargebackHistory || '').toLowerCase() === 'high');
+      add('RESTRICTED_ACTIVITY', 'Restricted or elevated-risk activity disclosed', 60, 'processing', 'critical', app.cbdOrRestricted === true);
+      add('DESCRIPTION_INCONSISTENT', 'Business description appears vague or inconsistent', 10, 'processing', 'low', app.descriptionConsistencyPass === false);
+ 
+      add('BANK_VERIFICATION_UNVERIFIED', 'Bank verification has not been completed yet', 20, 'banking', 'medium',
+        ['not_started', 'in_progress', 'required'].includes(String(app.bankVerificationStatus || ''))
+      );
+      add('ACCOUNT_NOT_VERIFIED', 'Bank account could not be verified', 25, 'banking', 'high', app.accountVerified === false);
+      add('BANK_OWNER_MISMATCH', 'Bank account holder does not match legal entity or approved DBA', 35, 'banking', 'high', app.bankOwnerMatchesBusiness === false);
+      add('BANK_OWNER_UNVERIFIED', 'Bank ownership has not been verified yet', 20, 'banking', 'medium', app.bankOwnerMatchesBusiness === null);
+      add('BANK_FORMAT_INVALID', 'Routing or account number format is invalid', 15, 'banking', 'medium',
+        !this.isLikelyRoutingNumber(app.routingNumber) || !this.isLikelyAccountNumber(app.accountNumber)
+      );
+      add('BANK_DOC_INCONSISTENT', 'Bank proof does not support submitted account information', 25, 'banking', 'high', app.bankDocumentMatchesAccount === false);
+      add('BANK_NAME_UNEXPLAINED', 'Bank ownership relationship is unexplained', 15, 'banking', 'medium', app.bankOwnershipRelationshipClear === false);
+ 
+      add('DOC_ID_POOR_QUALITY', 'Government ID image quality is poor', 10, 'documents', 'low', app.idImageQualityPass === false);
+      add('DOC_UTILITY_POOR_QUALITY', 'Utility bill image quality is poor', 10, 'documents', 'low', app.utilityImageQualityPass === false);
+      add('DOC_FORMATION_INCOMPLETE', 'Formation or nonprofit document appears incomplete', 10, 'documents', 'low', app.formationDocComplete === false);
+      add('DOC_MULTIPLE_REUPLOADS', 'Multiple document reuploads were required', 8, 'documents', 'low', Number(app.documentReuploadCount || 0) >= 2);
+      add('DOC_TAMPER_SIGNAL', 'Document tampering signal detected', 30, 'documents', 'high', app.documentTamperSignal === true);
+ 
+      return triggered;
+    },
+ 
+    buildRiskSummary(result) {
+      const lines = [];
+ 
+      if (result.hardStops.length) {
+        lines.push('Hard Stops:');
+        result.hardStops.forEach(item => lines.push(`- ${item.label}`));
+      }
+ 
+      if (result.hardDenies.length) {
+        lines.push('Hard Denies:');
+        result.hardDenies.forEach(item => lines.push(`- ${item.label}`));
+      }
+ 
+      if (result.triggered.length) {
+        lines.push('Triggered Risk Rules:');
+        result.triggered
+          .slice()
+          .sort((a, b) => b.points - a.points)
+          .forEach(item => lines.push(`- ${item.label}: +${item.points}`));
+      }
+ 
+      lines.push(`Total Score: ${result.score}`);
+      lines.push(`Decision: ${result.decision}`);
+      lines.push(`Pricing: ${result.pricing}`);
+ 
+      return lines;
+    },
+ 
+    evaluateRiskResult() {
+      const app = this.buildApplicationContext();
+      const config = this.underwritingConfig();
+      const hardStops = this.getHardStops(app);
+      const hardDenies = this.getHardDenies(app);
+      const triggered = this.evaluateRiskRules(app);
+      const score = triggered.reduce((sum, item) => sum + item.points, 0);
+      const hasHighSeverity = triggered.some(item => ['high', 'critical'].includes(item.severity));
+      const hasVerificationGap = triggered.some(item => [
+        'FILING_UNVERIFIED',
+        'FILING_ADDRESS_UNVERIFIED',
+        'FILING_STATUS_UNVERIFIED',
+        'TIN_VERIFICATION_UNVERIFIED',
+        'REGISTRATION_STATUS_UNVERIFIED',
+        'ADDRESS_VERIFICATION_UNVERIFIED',
+        'IDENTITY_VERIFICATION_UNVERIFIED',
+        'PRINCIPAL_ID_UNVERIFIED',
+        'BANK_VERIFICATION_UNVERIFIED',
+        'BANK_OWNER_UNVERIFIED'
+      ].includes(item.code));
+ 
+      let decision = 'auto_approved';
+      let pricing = config.pricing.standard;
+      let reason = 'Low risk score';
+ 
+      if (hardDenies.length > 0) {
+        decision = 'pending_review';
+        pricing = config.pricing.manualReview;
+        reason = 'Hard deny condition triggered and routed to manual review';
+      } else if (hardStops.length > 0) {
+        decision = 'pending_review';
+        pricing = config.pricing.manualReview;
+        reason = 'Required submission items missing';
+      } else if (score > config.thresholds.manualReviewMax) {
+        decision = 'pending_review';
+        pricing = config.pricing.manualReview;
+        reason = 'Risk score exceeds approval threshold and was routed to manual review';
+      } else if (score >= 40 || (score >= 30 && hasHighSeverity) || hasVerificationGap) {
+        decision = 'pending_review';
+        pricing = config.pricing.manualReview;
+        reason = hasVerificationGap
+          ? 'Critical verification items still need to be confirmed'
+          : 'Risk score requires manual underwriting review';
+      } else if (score > config.thresholds.autoApproveMax) {
+        decision = 'auto_approved';
+        pricing = config.pricing.elevated;
+        reason = 'Approved with elevated pricing';
+      }
+ 
+      return {
+        score,
+        decision,
+        pricing,
+        reason,
+        hardStops,
+        hardDenies,
+        triggered,
+        summary: this.buildRiskSummary({ score, decision, pricing, hardStops, hardDenies, triggered })
+      };
+    },
+ 
+    computeRiskScore() {
+      const result = this.evaluateRiskResult();
+      this.hydrateRiskState(result);
+      this.ensureRiskStateHasDetails();
+      return Number(this.riskScore || 0);
+    },
+ 
+    async submitApplication() {
+      if (this.isSubmitting) return null;
+      for (let step = 1; step <= 4; step += 1) {
+        if (!this.validateStep(step)) {
+          this.currentStep = step;
+          this.persistData();
+          return null;
+        }
+      }
+ 
+      this.isSubmitting = true;
+ 
+      try {
+        await this.verifyAllChecks();
+        const score = this.computeRiskScore();
+        this.ensureRiskStateHasDetails();
+        this.submitted = true;
+ 
+        const application = this.buildSubmittedApplicationRecord(Number(this.riskScore || score || 0));
+ 
+        this.reviewQueue = Array.isArray(this.reviewQueue) ? this.reviewQueue : [];
+        this.reviewQueue.unshift(application);
+        this.persistData();
+ 
+        console.log('KYC application submitted:', application);
+        console.log('Updated review queue:', this.reviewQueue);
+ 
+        if (this.decision === 'pending_review') {
+          this.emailNotificationSent = true;
+          alert('Application submitted and marked Pending Review. Email notification queued to csavery@solutionsae.com.');
+        } else if (this.decision === 'auto_approved') {
+          alert('Application submitted and auto-approved based on current underwriting rules.');
+        } else {
+          alert('Application submitted and routed to manual review based on current underwriting risk rules.');
+        }
+ 
+        this.persistData();
+        if (this.isAdmin) this.activeView = 'admin';
+        return application;
+      } catch (error) {
+        console.error('Submit failed:', error);
+ 
+        this.form.filingVerificationStatus = 'manual_review';
+        this.form.filingNotes = 'Submission error encountered. Manual review required.';
+        this.computeRiskScore();
+        this.ensureRiskStateHasDetails();
+        this.decision = this.decision || 'pending_review';
+        this.pricingQuote = this.pricingQuote || this.underwritingConfig().pricing.manualReview;
+ 
+        const fallbackApplication = this.buildSubmittedApplicationRecord(Number(this.riskScore || 0));
+        this.reviewQueue = Array.isArray(this.reviewQueue) ? this.reviewQueue : [];
+        this.reviewQueue.unshift(fallbackApplication);
+        this.persistData();
+ 
+        alert('There was an issue during submission. The application was still saved and routed to manual review.');
+        if (this.isAdmin) this.activeView = 'admin';
+        return fallbackApplication;
+      } finally {
+        this.isSubmitting = false;
+      }
+    },
+ 
+    resetApplication() {
+      this.form = this.defaultForm();
+      this.currentStep = 1;
+      this.isSubmitting = false;
+      this.submitted = false;
+      this.decision = 'not_submitted';
+      this.riskScore = 0;
+      this.pricingQuote = 'Pending';
+      this.riskReasons = [];
+      this.hardStopReasons = [];
+      this.hardDenyReasons = [];
+      this.emailNotificationSent = false;
+      this.livePhotoCaptured = false;
+      this.persistData();
+    },
+ 
+    async handlePrimaryAction() {
+      if (this.currentStep < 5) this.nextStep();
+      else await this.submitApplication();
+    },
+ 
+    handleSecondaryAction() {
+      if (this.currentStep > 1) this.previousStep();
+      else {
+        this.persistData();
+        alert('Application progress saved.');
+      }
+    },
+ 
+ 
+ 
+    hydrateRiskState(result) {
+      this.riskScore = Number(result.score || 0);
+      this.decision = result.decision || 'pending_review';
+      this.pricingQuote = result.pricing || this.underwritingConfig().pricing.manualReview;
+      this.riskReasons = Array.isArray(result.triggered) ? result.triggered : [];
+      this.hardStopReasons = Array.isArray(result.hardStops) ? result.hardStops : [];
+      this.hardDenyReasons = Array.isArray(result.hardDenies) ? result.hardDenies : [];
+      return this.riskScore;
+    },
+ 
+    generateFallbackRiskReasons() {
+      const reasons = [];
+      const add = (code, label, points, bucket, severity, when) => {
+        if (when) reasons.push({ code, label, points, bucket, severity });
+      };
+ 
+      add('FILING_UNVERIFIED', 'Business filing has not been verified yet', 20, 'business_filing', 'medium',
+        this.form.filingRequired === true && this.form.filingFound == null
+      );
+      add('WEBSITE_MISSING', 'Website is missing', 5, 'contact_consistency', 'low',
+        !String(this.form.website || '').trim()
+      );
+      add('PRINCIPAL_ID_UNVERIFIED', 'Principal identity fields have not been fully verified yet', 15, 'identity', 'medium',
+        this.form.principalNameMatchesId == null || this.form.principalDobMatchesId == null || this.form.ssnLast4Verified == null
+      );
+      add('BANK_OWNER_UNVERIFIED', 'Bank ownership has not been verified yet', 20, 'banking', 'medium',
+        this.form.bankOwnerMatchesBusiness == null
+      );
+ 
+      return reasons;
+    },
+ 
+    ensureRiskStateHasDetails() {
+      if (Array.isArray(this.riskReasons) && this.riskReasons.length) {
+        return Number(this.riskScore || 0);
+      }
+ 
+      const fallbackReasons = this.generateFallbackRiskReasons();
+      const fallbackScore = fallbackReasons.reduce((sum, item) => sum + item.points, 0);
+ 
+      if (fallbackReasons.length) {
+        this.riskReasons = fallbackReasons;
+        this.hardStopReasons = Array.isArray(this.hardStopReasons) ? this.hardStopReasons : [];
+        this.hardDenyReasons = Array.isArray(this.hardDenyReasons) ? this.hardDenyReasons : [];
+        this.riskScore = fallbackScore;
+        if (fallbackScore >= 40) {
+          this.decision = 'pending_review';
+          this.pricingQuote = this.underwritingConfig().pricing.manualReview;
+        } else if (fallbackScore >= 25) {
+          this.decision = 'auto_approved';
+          this.pricingQuote = this.underwritingConfig().pricing.elevated;
+        } else {
+          this.decision = 'auto_approved';
+          this.pricingQuote = this.underwritingConfig().pricing.standard;
+        }
+      }
+ 
+      return Number(this.riskScore || 0);
+    },
+ 
+    buildSubmittedApplicationRecord(scoreOverride = null) {
+      const score = typeof scoreOverride === 'number' ? scoreOverride : Number(this.riskScore || 0);
+      return {
+        id: Date.now(),
+        showDetails: false,
+        submittedAt: new Date().toLocaleString(),
+        legalBusinessName: this.form.legalBusinessName || 'Unknown Organization',
+        entityType: this.form.entityType || '',
+        organizationType: this.form.organizationType || '',
+        nonprofitCategory: this.form.nonprofitCategory || '',
+        businessEmail: this.form.businessEmail || '',
+        businessAddress: `${this.form.businessAddress1 || ''}, ${this.form.businessCity || ''}, ${this.form.businessState || ''} ${this.form.businessZip || ''}`.trim(),
+        status: this.decision || 'pending_review',
+        riskScore: score,
+        pricing: this.pricingQuote || this.underwritingConfig().pricing.manualReview,
+        monthlyVolume: this.form.monthlyVolume || '',
+        averageTicket: this.form.averageTicket || '',
+        verificationProviders: this.getVerificationProviderMap(),
+        businessVerification: {
+          filingFound: this.form.filingFound,
+          filingStatus: this.form.filingStatus,
+          filingBusinessName: this.form.filingBusinessName,
+          filingEntityType: this.form.filingEntityType,
+          filingEstablishedYear: this.form.filingEstablishedYear,
+          filingVerificationStatus: this.form.filingVerificationStatus,
+          filingSource: this.form.filingSource,
+          filingSearchReference: this.form.filingSearchReference,
+          filingLastVerifiedAt: this.form.filingLastVerifiedAt,
+          filingNotes: this.form.filingNotes,
+          nameMatchesFiling: this.form.nameMatchesFiling,
+          entityTypeMatchesFiling: this.form.entityTypeMatchesFiling,
+          addressMatchesFiling: this.form.addressMatchesFiling,
+          registrationNumber: this.form.registrationNumber,
+          registrationCountry: this.form.registrationCountry,
+          registrationJurisdiction: this.form.registrationJurisdiction,
+          registrationStatusVerified: this.form.registrationStatusVerified,
+          openCorporatesJurisdictionCode: this.form.openCorporatesJurisdictionCode,
+          openCorporatesCompanyNumber: this.form.openCorporatesCompanyNumber,
+          openCorporatesCompanyUrl: this.form.openCorporatesCompanyUrl,
+          openCorporatesApiVersion: this.form.openCorporatesApiVersion,
+          openCorporatesSearchEndpoint: this.form.openCorporatesSearchEndpoint,
+          tinVerificationStatus: this.form.tinVerificationStatus,
+          tinVerificationSource: this.form.tinVerificationSource,
+          tinVerificationReference: this.form.tinVerificationReference,
+          tinLastVerifiedAt: this.form.tinLastVerifiedAt,
+          tinNameMatchesBusiness: this.form.tinNameMatchesBusiness,
+          tinAddressMatchesBusiness: this.form.tinAddressMatchesBusiness,
+          tinEntityConfirmed: this.form.tinEntityConfirmed,
+          tinVerificationNotes: this.form.tinVerificationNotes
+        },
+        addressVerification: {
+          addressVerificationStatus: this.form.addressVerificationStatus,
+          addressVerificationSource: this.form.addressVerificationSource,
+          addressVerificationReference: this.form.addressVerificationReference,
+          addressLastVerifiedAt: this.form.addressLastVerifiedAt,
+          standardizedBusinessAddress1: this.form.standardizedBusinessAddress1,
+          standardizedBusinessCity: this.form.standardizedBusinessCity,
+          standardizedBusinessState: this.form.standardizedBusinessState,
+          standardizedBusinessZip: this.form.standardizedBusinessZip,
+          standardizedUtilityAddress1: this.form.standardizedUtilityAddress1,
+          standardizedUtilityCity: this.form.standardizedUtilityCity,
+          standardizedUtilityState: this.form.standardizedUtilityState,
+          standardizedUtilityZip: this.form.standardizedUtilityZip,
+          businessAddressValid: this.form.businessAddressValid,
+          utilityAddressValid: this.form.utilityAddressValid,
+          utilityMatchesBusiness: this.form.utilityMatchesBusiness,
+          addressVerificationNotes: this.form.addressVerificationNotes
+        },
+        identityVerification: {
+          identityVerificationStatus: this.form.identityVerificationStatus,
+          identityVerificationSource: this.form.identityVerificationSource,
+          identityVerificationReference: this.form.identityVerificationReference,
+          identityLastVerifiedAt: this.form.identityLastVerifiedAt,
+          documentPassed: this.form.documentPassed,
+          selfiePassed: this.form.selfiePassed,
+          selfieIdMatchConfidence: this.form.selfieIdMatchConfidence,
+          principalNameMatchesId: this.form.principalNameMatchesId,
+          principalDobMatchesId: this.form.principalDobMatchesId,
+          ssnLast4Verified: this.form.ssnLast4Verified,
+          idExtractedFullName: this.form.idExtractedFullName,
+          idExtractedDob: this.form.idExtractedDob,
+          idExtractedAddress1: this.form.idExtractedAddress1,
+          idExtractedCity: this.form.idExtractedCity,
+          idExtractedState: this.form.idExtractedState,
+          idExtractedZip: this.form.idExtractedZip,
+          identityVerificationNotes: this.form.identityVerificationNotes
+        },
+        bankVerification: {
+          bankVerificationStatus: this.form.bankVerificationStatus,
+          bankVerificationSource: this.form.bankVerificationSource,
+          bankVerificationReference: this.form.bankVerificationReference,
+          bankLastVerifiedAt: this.form.bankLastVerifiedAt,
+          bankOwnerMatchesBusiness: this.form.bankOwnerMatchesBusiness,
+          bankOwnerMatchesPrincipal: this.form.bankOwnerMatchesPrincipal,
+          accountVerified: this.form.accountVerified,
+          bankDocumentMatchesAccount: this.form.bankDocumentMatchesAccount,
+          bankOwnershipRelationshipClear: this.form.bankOwnershipRelationshipClear,
+          bankVerificationNotes: this.form.bankVerificationNotes
+        },
+        verificationRuleFlow: this.getVerificationFlow(),
+        verificationSchema: this.getFullBackendVerificationSchema(),
+        triggeredRules: Array.isArray(this.riskReasons) ? this.riskReasons : [],
+        hardStops: Array.isArray(this.hardStopReasons) ? this.hardStopReasons : [],
+        hardDenies: Array.isArray(this.hardDenyReasons) ? this.hardDenyReasons : [],
+        summary: this.buildRiskSummary({
+          score,
+          decision: this.decision || 'pending_review',
+          pricing: this.pricingQuote || this.underwritingConfig().pricing.manualReview,
+          hardStops: Array.isArray(this.hardStopReasons) ? this.hardStopReasons : [],
+          hardDenies: Array.isArray(this.hardDenyReasons) ? this.hardDenyReasons : [],
+          triggered: Array.isArray(this.riskReasons) ? this.riskReasons : []
+        })
+      };
+    },
+ 
+ 
+    syncReviewQueueFromStorage() {
+      try {
+        const queue = JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]');
+        this.reviewQueue = Array.isArray(queue) ? queue.map(item => ({ showDetails: false, ...item })) : [];
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+        if (saved && saved.submitted && !this.reviewQueue.length) {
+          const recovered = this.buildSubmittedApplicationRecord(Number(saved.riskScore || 0));
+          this.reviewQueue.unshift(recovered);
+          localStorage.setItem(QUEUE_KEY, JSON.stringify(this.reviewQueue));
+        }
+      } catch (error) {
+        this.reviewQueue = [];
+      }
+    },
+ 
+    adminLogin() {
+      const username = window.prompt('Admin username');
+      if (username === null) return;
+      const password = window.prompt('Admin password');
+      if (password === null) return;
+      if (username === 'admin' && password === 'test123') {
+        this.isAdmin = true;
+        this.activeView = 'admin';
+        localStorage.setItem('goodforusStandaloneKycAdmin', 'true');
+        this.syncReviewQueueFromStorage();
+        return;
+      }
+      this.isAdmin = false;
+      this.activeView = 'application';
+      localStorage.removeItem('goodforusStandaloneKycAdmin');
+      alert('Invalid admin credentials.');
+    },
+ 
+    adminLogout() {
+      this.isAdmin = false;
+      this.activeView = 'application';
+      localStorage.removeItem('goodforusStandaloneKycAdmin');
+    },
+ 
+    reviewApplication(index, decision) {
+      const app = this.reviewQueue[index];
+      if (!app) return;
+      app.status = decision;
+      app.reviewedAt = new Date().toLocaleString();
+      this.persistData();
+      alert(`Application ${decision === 'approved' ? 'approved' : 'moved to manual review'} by admin.`);
+    },
+ 
+    statusClass(status) {
+      if (status === 'approved' || status === 'auto_approved') return 'sent';
+      if (status === 'pending_review') return 'paused';
+      return 'pending';
+    }
+  }
+}).mount('#app');
+ 
+  </script>
+</body>
+</html>

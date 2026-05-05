@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Giving Portal | Master Builder</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { 
+            --admin-bg: #0f1113; --admin-acc: #3498db; 
+            --accent: #3498db; --header-bg: #ffffff;
+            --in-bg: #ffffff; --in-txt: #333; --in-brd: #e0e0e0;
+        }
+        body { margin: 0; font-family: 'Inter', sans-serif; display: flex; height: 100vh; background: #f4f7f9; overflow: hidden; }
+
+        /* --- ADMIN PANEL --- */
+        #admin-panel { width: 400px; background: var(--admin-bg); color: #fff; padding: 25px; overflow-y: auto; border-right: 1px solid #222; flex-shrink: 0; display: flex; flex-direction: column; }
+        .adm-box { border-bottom: 1px solid #222; padding-bottom: 25px; margin-bottom: 25px; }
+        .adm-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .adm-hdr h3 { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--admin-acc); margin: 0; }
+        .edit-btn { font-size: 9px; background: rgba(52, 152, 219, 0.1); color: var(--admin-acc); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; border: 1px solid var(--admin-acc); text-transform: uppercase; }
+        label { display: block; font-size: 10px; color: #777; margin: 12px 0 5px; text-transform: uppercase; font-weight: 700; }
+        .adm-in { width: 100%; background: #1a1d21; border: 1px solid #333; color: white; padding: 12px; border-radius: 6px; font-size: 13px; box-sizing: border-box; margin-bottom: 10px; }
+        .btn-publish { width: 100%; padding: 18px; background: #27ae60; color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 15px; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3); margin-top: auto; }
+
+        /* --- PREVIEW UI --- */
+        #preview-wrap { flex-grow: 1; padding: 40px; overflow: hidden; display: flex; justify-content: center; align-items: flex-start; position: relative; }
+        .card { background: white; width: 100%; max-width: 480px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.08); overflow: hidden; position: relative; z-index: 10; }
+        .p-head { padding: 40px 30px; text-align: center; }
+        .p-body { padding: 0 30px 40px; min-height: 480px; position: relative; }
+        .step { display: none; }
+        .step.active { display: block; animation: fadeInUp 0.4s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .row { display: flex; gap: 12px; margin-bottom: 15px; }
+        .c-in, .c-sel { padding: 14px; border-radius: 10px; font-size: 15px; width: 100%; box-sizing: border-box; border: 1px solid var(--in-brd); outline: none; }
+        .amt-wrap { position: relative; border: 1px solid var(--accent); border-radius: 12px; padding: 15px; margin-bottom: 20px; display: flex; align-items: center; }
+        .amt-wrap span { color: var(--accent); font-size: 24px; font-weight: 800; margin-right: 10px; }
+        .amt-wrap input { border: none; font-size: 28px; font-weight: 800; color: var(--accent); width: 100%; outline: none; background: transparent; }
+
+        .chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .chip { padding: 14px 5px; border: 1px solid var(--in-brd); border-radius: 10px; text-align: center; cursor: pointer; font-weight: 600; font-size: 13px; background: white; transition: 0.2s; }
+        .chip.selected { border-color: var(--accent); background: var(--accent); color: white; }
+
+        .cat-title { font-size: 14px; font-weight: 900; color: var(--accent); display: block; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-add { background: #1e293b; color: white; padding: 18px; border: none; border-radius: 10px; width: 100%; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.3s; opacity: 0.3; pointer-events: none; }
+        .btn-add.ready { opacity: 1; pointer-events: auto; }
+        .btn-go { background: var(--accent); color: white; padding: 18px; border: none; border-radius: 12px; width: 100%; font-weight: 700; font-size: 16px; cursor: pointer; margin-top: 15px; }
+        .btn-back { background: none; color: #94a3b8; border: none; width: 100%; padding: 12px; cursor: pointer; font-size: 13px; display: block; margin: 0 auto; font-weight: 600; }
+
+        /* LEDGER/REVIEW STYLING */
+        #ledger-preview { margin-top: 20px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #eee; display: none; }
+        .ledger-row { display: flex; justify-content: space-between; font-size: 14px; padding: 8px 0; border-bottom: 1px solid #f1f5f9; align-items: center; }
+        .remove-icon { color: #ff4d4d; cursor: pointer; font-size: 12px; margin-left: 10px; }
+        .ledger-total-row { border-top: 2px solid #e2e8f0; margin-top: 10px; padding-top: 10px; display: flex; justify-content: space-between; font-weight: 800; font-size: 18px; }
+
+        /* OVERLAY TOAST */
+        #basket-toast { 
+            position: absolute; 
+            top: 180px; 
+            left: 0; right: 0; bottom: 0;
+            background: white; 
+            padding: 20px 30px; 
+            text-align: center; 
+            transform: translateY(100%); 
+            transition: 0.4s ease-in-out; 
+            z-index: 100; 
+            border-top: 1px solid #eee; 
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        #basket-toast.show { transform: translateY(0); }
+        #basket-toast h3 { margin: 10px 0 5px; }
+        #basket-toast .btn-go { margin-top: 10px; }
+
+        #success-screen { position: absolute; inset: 0; background: white; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 200; padding: 30px; text-align: center; }
+        #success-screen.show { display: flex; }
+        .secure-header { display: flex; align-items: center; gap: 8px; color: #16a34a; font-weight: 800; text-transform: uppercase; font-size: 13px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<aside id="admin-panel">
+    <h2 style="margin: 0 0 25px 0; font-weight: 800;">Portal Builder</h2>
+    <div class="adm-box">
+        <div class="adm-hdr"><h3>1. Branding</h3><div class="edit-btn">EDIT VIEW</div></div>
+        <label>Organization Name</label><input type="text" class="adm-in" id="a-org" value="Grace Community Church" oninput="sync()">
+        <label>Subtitle</label><input type="text" class="adm-in" id="a-sub" value="Supporting God's Work Together" oninput="sync()">
+        <label>Brand Accent Color</label><input type="color" class="adm-in" id="a-acc" value="#3498db" oninput="sync()" style="height:40px; padding:5px;">
+    </div>
+    <div class="adm-box">
+        <div class="adm-hdr"><h3>2. User Fields</h3><div class="edit-btn">EDIT VIEW</div></div>
+        <label>Titles (CSV)</label><input type="text" class="adm-in" id="a-titles" value="Mr., Mrs., Pastor, Dr." oninput="sync()">
+    </div>
+    <div class="adm-box">
+        <div class="adm-hdr"><h3>3. Giving Options</h3></div>
+        <label>Amounts (CSV)</label><input type="text" class="adm-in" id="a-amts" value="10, 25, 50, 100, 250, 500" oninput="sync()">
+        <label>Categories (CSV)</label><input type="text" class="adm-in" id="a-cats" value="Tithes, Offering, Missions, Youth, Building" oninput="sync()">
+    </div>
+    <button class="btn-publish"><i class="fas fa-rocket"></i> PUBLISH LIVE PORTAL</button>
+</aside>
+
+<main id="preview-wrap">
+    <div class="card">
+        <header class="p-head">
+            <div id="v-logo-wrap"><i class="fas fa-church" id="v-icon" style="font-size: 40px; color: var(--accent); margin-bottom: 10px;"></i></div>
+            <h1 id="v-org" style="margin:0; font-size:22px; font-weight: 900;"></h1>
+            <p id="v-sub" style="margin:5px 0 0; font-size:14px; color: #64748b;"></p>
+        </header>
+
+        <div class="p-body">
+            <div id="success-screen">
+                <i class="fas fa-check-circle" style="font-size: 60px; color: #2ecc71; margin-bottom: 20px;"></i>
+                <h2 style="font-weight:900;">Thank You for Your Generosity!</h2>
+                <button class="btn-go" onclick="downloadReceipt()"><i class="fas fa-file-download"></i> DOWNLOAD RECEIPT</button>
+                <button class="btn-back" onclick="location.reload()">BACK TO HOME</button>
+            </div>
+
+            <div class="step active" id="s1">
+                <h3 style="margin-bottom:20px;">Your Information</h3>
+                <div class="row"><select class="c-sel" id="v-titles" style="width:110px;"></select><input type="text" class="c-in" id="d-name" placeholder="Full Name"></div>
+                <input type="email" class="c-in" id="d-email" placeholder="Email Address">
+                <button class="btn-go" onclick="go(2)">Next: Gift Selection</button>
+            </div>
+
+            <div class="step" id="s2">
+                <h3 style="margin-bottom:20px;">Your Gift</h3>
+                <div class="amt-wrap"><span>$</span><input type="number" id="v-unit-amt" placeholder="0" oninput="checkSelection()"></div>
+                <div class="chips" id="v-amts"></div>
+                <span class="cat-title">SELECT CATEGORIES</span>
+                <div class="chips" id="v-cats"></div>
+                <button class="btn-add" id="add-trigger" onclick="addToBasket()">+ ADD MY GIFT TO BASKET</button>
+                <div id="ledger-preview">
+                    <div id="ledger-list"></div>
+                    <div class="ledger-total-row"><span>Total</span><span id="ledger-grand-total">$0.00</span></div>
+                    <button class="btn-go" onclick="go(3)" style="background:#1e293b;">Review & Checkout</button>
+                </div>
+                <button class="btn-back" onclick="go(1)">Back</button>
+
+                <div id="basket-toast">
+                    <i class="fas fa-shopping-basket" style="color:var(--accent); font-size: 40px; margin-top: 10px;"></i>
+                    <h3 style="font-weight:900;">Added to Basket!</h3>
+                    <p style="color:#64748b; font-size:14px; margin-bottom:15px;">Your gift was successfully added.</p>
+                    <button class="btn-go" onclick="closeToast()">+ ADD ANOTHER GIFT</button>
+                    <button class="btn-go" onclick="go(3)" style="background:#1e293b;">GO TO CHECKOUT</button>
+                </div>
+            </div>
+
+            <div class="step" id="s3">
+                <h3 style="margin-bottom:20px;">Review Your Gifts</h3>
+                <div id="final-review-list" style="background:#f8fafc; padding:20px; border-radius:15px; border:1px solid #eee; margin-bottom:20px;"></div>
+                <div style="display:flex; justify-content:space-between; font-weight:900; font-size:20px; margin-bottom:20px; padding:0 10px;">
+                    <span>TOTAL</span><span id="review-total" style="color:var(--accent);"></span>
+                </div>
+                <button class="btn-go" onclick="go(4)">Confirm & Pay</button>
+                <button class="btn-back" onclick="go(2)">Add More Gifts</button>
+            </div>
+
+            <div class="step" id="s4">
+                <div class="secure-header"><i class="fas fa-lock"></i> Secure Payment</div>
+                <input type="text" class="c-in" id="card-name" placeholder="Cardholder Name" style="margin-bottom:12px;">
+                <input type="text" class="c-in" id="card-num" placeholder="0000 0000 0000 0000" style="margin-bottom:12px;">
+                <div class="row"><input type="text" class="c-in" placeholder="MM/YY"><input type="text" class="c-in" placeholder="CVV"></div>
+                <button class="btn-go" id="pay-btn" onclick="processPayment()">Complete Donation</button>
+                <button class="btn-back" onclick="go(3)">Back to Review</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    let basket = [];
+
+    function sync() {
+        const acc = document.getElementById('a-acc').value;
+        document.documentElement.style.setProperty('--accent', acc);
+        document.getElementById('v-org').innerText = document.getElementById('a-org').value;
+        document.getElementById('v-sub').innerText = document.getElementById('a-sub').value;
+        updateList('a-titles', 'v-titles', 'opt');
+        updateList('a-amts', 'v-amts', 'chip', '$');
+        updateList('a-cats', 'v-cats', 'chip', '');
+    }
+
+    function updateList(src, destId, type, pre='') {
+        const val = document.getElementById(src).value.split(',');
+        const dest = document.getElementById(destId);
+        dest.innerHTML = '';
+        val.forEach(i => {
+            let t = i.trim(); if(!t) return;
+            if(type === 'opt') dest.innerHTML += `<option>${t}</option>`;
+            else {
+                const fn = src === 'a-amts' ? `setAmt('${t}', this)` : `toggleCat(this)`;
+                dest.innerHTML += `<div class="chip" onclick="${fn}">${pre}${t}</div>`;
+            }
+        });
+    }
+
+    function setAmt(v, el) { 
+        document.querySelectorAll('#v-amts .chip').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        document.getElementById('v-unit-amt').value = v; 
+        checkSelection();
+    }
+
+    function toggleCat(el) { el.classList.toggle('selected'); checkSelection(); }
+
+    function checkSelection() {
+        const amt = parseFloat(document.getElementById('v-unit-amt').value);
+        const cats = document.querySelectorAll('#v-cats .chip.selected').length;
+        const btn = document.getElementById('add-trigger');
+        amt > 0 && cats > 0 ? btn.classList.add('ready') : btn.classList.remove('ready');
+    }
+
+    function addToBasket() {
+        const amt = parseFloat(document.getElementById('v-unit-amt').value);
+        document.querySelectorAll('#v-cats .chip.selected').forEach(c => basket.push({cat: c.innerText, amt: amt}));
+        renderBasket();
+        document.getElementById('basket-toast').classList.add('show');
+    }
+
+    function renderBasket() {
+        const list = document.getElementById('ledger-list');
+        const reviewList = document.getElementById('final-review-list');
+        list.innerHTML = reviewList.innerHTML = '';
+        let total = 0;
+        basket.forEach((item, i) => {
+            total += item.amt;
+            const html = `<div class="ledger-row"><span>${item.cat}</span><span>$${item.amt.toFixed(2)} <i class="fas fa-times-circle remove-icon" onclick="removeItem(${i})"></i></span></div>`;
+            list.innerHTML += html;
+            reviewList.innerHTML += html;
+        });
+        document.getElementById('ledger-grand-total').innerText = document.getElementById('review-total').innerText = `$${total.toFixed(2)}`;
+        document.getElementById('ledger-preview').style.display = basket.length ? 'block' : 'none';
+        document.getElementById('pay-btn').innerText = `Complete $${total.toFixed(2)} Donation`;
+    }
+
+    function removeItem(i) { basket.splice(i, 1); renderBasket(); }
+    function closeToast() { 
+        document.getElementById('basket-toast').classList.remove('show');
+        document.getElementById('v-unit-amt').value = '';
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+        checkSelection();
+    }
+
+    function go(n) {
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById('s'+n).classList.add('active');
+        if(n === 2) closeToast();
+    }
+
+    function processPayment() { confetti(); document.getElementById('success-screen').classList.add('show'); }
+
+    function downloadReceipt() {
+        const org = document.getElementById('a-org').value;
+        const sub = document.getElementById('a-sub').value;
+        const donor = (document.getElementById('d-name').value || "VALUED DONOR").toUpperCase();
+        const cardNum = document.getElementById('card-num').value.slice(-4) || "4436";
+        const total = basket.reduce((s, item) => s + item.amt, 0).toFixed(2);
+        const receiptId = "GIVE-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+        const date = new Date().toLocaleDateString();
+
+        let tableRows = '';
+        basket.forEach(item => {
+            tableRows += `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${item.cat}</td><td style="padding:10px; border-bottom:1px solid #eee; text-align:right;">$${item.amt.toFixed(2)}</td></tr>`;
+        });
+
+        const content = `
+            <div style="padding:40px; font-family:sans-serif; color:#333;">
+                <div style="text-align:center; margin-bottom:30px;">
+                    <h1 style="margin:0; font-size:24px;">${org}</h1>
+                    <p style="margin:5px 0; color:#666;">${sub}</p>
+                </div>
+                <div style="margin-bottom:20px; font-size:14px;">
+                    <p style="margin:2px 0;"><strong>DONOR:</strong> ${donor}</p>
+                    <p style="margin:2px 0;"><strong>PAYMENT METHOD:</strong> Card ending in ${cardNum}</p>
+                </div>
+                <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:14px;">
+                    <thead>
+                        <tr style="background:#f8f8f8;">
+                            <th style="text-align:left; padding:10px; border-bottom:2px solid #ddd;">Category</th>
+                            <th style="text-align:right; padding:10px; border-bottom:2px solid #ddd;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>${tableRows}</tbody>
+                    <tfoot>
+                        <tr>
+                            <td style="text-align:right; padding:10px;"><strong>Total:</strong></td>
+                            <td style="text-align:right; padding:10px;"><strong>$${total}</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <div style="border-top:1px solid #eee; pt:20px; font-size:12px; color:#888;">
+                    <p style="margin:2px 0;"><strong>RECEIPT ID:</strong> ${receiptId}</p>
+                    <p style="margin:2px 0;"><strong>DATE:</strong> ${date}</p>
+                    <p style="margin:2px 0;"><strong>STATUS:</strong> PAID</p>
+                    <p style="margin:15px 0 0;"><strong>Refund Policy:</strong> All donations to ${org} are non-refundable and will be used to support our mission.</p>
+                </div>
+            </div>`;
+        html2pdf().set({filename: `Receipt_${receiptId}.pdf` , margin: 10}).from(content).save();
+    }
+
+    window.onload = sync;
+</script>
+</body>
+</html>

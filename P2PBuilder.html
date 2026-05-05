@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoodForUs | P2P Builder Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --accent: #00b964; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; overflow: hidden; }
+        .builder-layout { display: grid; grid-template-columns: 420px 1fr; height: 100vh; }
+        #side-ctrl { background: white; border-right: 1px solid #e2e8f0; padding: 24px; padding-bottom: 120px; overflow-y: auto; box-shadow: 4px 0 15px rgba(0,0,0,0.02); position: relative; }
+        .section-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .ctrl-in { width: 100%; border: 1px solid #cbd5e1; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
+        .ctrl-in:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(0,185,100,0.1); }
+        .logo-upload-box { border: 2px dashed #cbd5e1; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; background: #f8fafc; margin-bottom: 20px; position: relative; }
+        .logo-preview-small { height: 40px; object-fit: contain; margin: 0 auto 8px; display: none; }
+        .media-toggle { display: flex; background: #f1f5f9; border-radius: 8px; padding: 4px; margin-bottom: 16px; }
+        .media-toggle button { flex: 1; padding: 6px; font-size: 11px; font-weight: 700; border-radius: 6px; transition: 0.2s; }
+        .media-toggle button.active { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: var(--accent); }
+        .role-locked { opacity: 0.5; pointer-events: none; position: relative; }
+        .role-locked::after { content: "🔒 LOCKED BY ADMIN"; position: absolute; top: 0; right: 0; font-size: 9px; font-weight: 900; color: #ef4444; background: #fee2e2; padding: 2px 6px; border-radius: 4px; z-index: 10; }
+        #preview-area { padding: 40px; overflow-y: auto; background: #f1f5f9; display: flex; justify-content: center; }
+        .gfm-page { background: white; width: 100%; max-width: 850px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow: hidden; height: fit-content; margin-bottom: 40px; }
+        .gfm-hero { width: 100%; height: 420px; background: #000; position: relative; }
+        .gfm-hero img, .gfm-hero iframe { width: 100%; height: 100%; object-fit: cover; border: none; }
+        .brand-overlay-logo { position: absolute; top: 20px; right: 20px; width: 80px; height: 80px; z-index: 50; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); backdrop-filter: blur(4px); border-radius: 12px; padding: 8px; }
+        .gfm-grid { display: grid; grid-template-columns: 1fr 320px; gap: 32px; padding: 32px; }
+        .progress-bar { height: 6px; background: #e2e8f0; border-radius: 10px; margin: 12px 0; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); transition: width 0.8s ease; }
+        .team-badge { display: inline-flex; align-items: center; gap: 6px; background: #eff6ff; border: 1px solid #dbeafe; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; color: #2563eb; margin-bottom: 12px; }
+        .btn-main { background: var(--accent); color: white; width: 100%; padding: 16px; border-radius: 8px; font-weight: 700; font-size: 18px; margin-bottom: 12px; }
+        .btn-sec { width: 100%; border: 1px solid #cbd5e1; padding: 12px; border-radius: 8px; font-weight: 600; color: #334155; }
+        .donor-row { display: flex; align-items: center; gap: 15px; padding: 16px 0; border-bottom: 1px solid #f1f5f9; }
+        .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #94a3b8; }
+        .top-donor-box { background: #fffbeb; border: 1px solid #fef3c7; border-radius: 12px; padding: 16px; margin-bottom: 24px; position: relative; }
+        .sticky-actions { position: fixed; bottom: 0; left: 0; width: 420px; background: white; border-top: 1px solid #e2e8f0; padding: 20px 24px; display: flex; gap: 12px; z-index: 100; }
+    </style>
+</head>
+<body>
+
+<div class="builder-layout">
+    <aside id="side-ctrl">
+        <div class="mb-6 flex justify-between items-center">
+            <h2 class="font-black text-xl tracking-tight">P2P Editor</h2>
+            <select id="role-selector" class="text-[10px] font-bold border rounded p-1 bg-blue-50 border-blue-200" onchange="switchRole(this.value)">
+                <option value="admin">Log-in: Main Admin</option>
+                <option value="lead">Log-in: Team Lead</option>
+                <option value="supporter">Log-in: Campaign Sub-User</option>
+            </select>
+        </div>
+
+        <div id="brand-section">
+            <span class="section-label"><i class="fas fa-shield-alt"></i> Brand Guardrails</span>
+            <label class="text-xs font-bold block mb-1">Organization Logo</label>
+            <div class="logo-upload-box">
+                <input type="file" id="in-logo-file" class="hidden" accept="image/*" onchange="handleLogoUpload(this)">
+                <label for="in-logo-file" class="cursor-pointer">
+                    <img id="logo-preview-ui" class="logo-preview-small" src="">
+                    <div id="logo-upload-prompt">
+                        <i class="fas fa-plus-circle text-slate-400 mb-1"></i>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">Upload Brand Logo</p>
+                    </div>
+                </label>
+                <button id="btn-remove-logo" class="hidden absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full text-[10px]" onclick="removeLogo()">×</button>
+            </div>
+            <label class="text-xs font-bold block mb-1">Theme Color</label>
+            <input type="color" id="in-color" class="ctrl-in h-12 p-1" value="#00b964" oninput="sync()">
+            <label class="text-xs font-bold block mb-1">Organization Name</label>
+            <input type="text" id="in-parent" class="ctrl-in" value="SolutionsAe Youth Foundation" oninput="sync()">
+        </div>
+
+        <hr class="my-6">
+
+        <div id="team-section">
+            <span class="section-label text-purple-600"><i class="fas fa-users-cog"></i> Team Hierarchy</span>
+            <div id="admin-view" class="bg-purple-50 p-4 rounded-xl border border-purple-100 mb-6">
+                <p class="text-[10px] font-bold text-purple-700 uppercase mb-3">Invite Team Lead</p>
+                <input type="text" id="team-name-in" class="ctrl-in !mb-2" placeholder="Team Name">
+                <input type="email" id="lead-email-in" class="ctrl-in !mb-2" placeholder="Lead Email">
+                <button onclick="sendInvite()" class="w-full py-2 bg-purple-600 text-white rounded font-bold text-[10px]">SEND INVITE</button>
+            </div>
+            <div id="lead-view" class="hidden bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6">
+                <div id="lead-verify-box">
+                    <p class="text-[10px] font-bold text-blue-700 uppercase mb-3">Invitation Received</p>
+                    <button onclick="acceptInvite()" class="w-full py-2 bg-blue-600 text-white rounded font-bold text-[10px]">ACCEPT & VERIFY AS LEAD</button>
+                </div>
+                <div id="sub-mgmt-box" class="hidden">
+                    <p class="text-[10px] font-bold text-blue-700 uppercase mb-3">Recruit Team Members</p>
+                    <div class="flex gap-2 mb-4">
+                        <input type="email" id="sub-email" class="flex-1 text-xs p-2 border rounded-lg" placeholder="Supporter Email">
+                        <button onclick="inviteUser()" class="bg-blue-600 text-white text-[10px] font-bold px-3 py-2 rounded-lg">INVITE</button>
+                    </div>
+                    <div id="user-list">
+                        <div class="text-[10px] text-slate-400 italic">No sub-campaigns active.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="personal-section">
+            <span class="section-label text-blue-600"><i class="fas fa-photo-video"></i> My Campaign Content</span>
+            <div class="media-toggle">
+                <button id="btn-mode-img" class="active" onclick="setMediaMode('image')">PHOTO</button>
+                <button id="btn-mode-vid" onclick="setMediaMode('video')">VIDEO</button>
+            </div>
+            <div id="ctrl-image-group">
+                <input type="file" id="in-file" class="hidden" accept="image/*" onchange="handleHeroUpload(this)">
+                <label for="in-file" class="block w-full border border-slate-200 p-3 rounded-lg text-center text-xs font-bold text-slate-500 mb-3 cursor-pointer hover:bg-slate-50">
+                    <i class="fas fa-upload mr-2"></i> Change My Photo
+                </label>
+                <input type="text" id="in-img" class="ctrl-in" placeholder="...or Image URL" oninput="sync()">
+            </div>
+            <div id="ctrl-video-group" class="hidden">
+                <input type="text" id="in-vid" class="ctrl-in" placeholder="YouTube URL" oninput="sync()">
+            </div>
+            <label class="text-xs font-bold block mb-1">Personal Headline</label>
+            <input type="text" id="in-title" class="ctrl-in" value="Why I'm supporting this cause" oninput="sync()">
+            <label class="text-xs font-bold block mb-1">Personal Story</label>
+            <textarea id="in-story" class="ctrl-in h-28" oninput="sync()">Every contribution counts! I've seen the work this org does firsthand...</textarea>
+        </div>
+
+        <div id="goal-section">
+            <span class="section-label text-green-600"><i class="fas fa-bullseye"></i> Personal Goal</span>
+            <input type="number" id="in-goal" class="ctrl-in" value="1500" oninput="sync()">
+        </div>
+
+        <div class="p-4 bg-slate-900 rounded-xl mt-6 pb-24">
+            <span class="section-label text-slate-400">Add Test Donor</span>
+            <input type="text" id="sim-name" class="ctrl-in !bg-slate-800 !border-slate-700 text-white !mb-2" placeholder="Donor Name">
+            <input type="number" id="sim-amt" class="ctrl-in !bg-slate-800 !border-slate-700 text-white !mb-2" placeholder="Amount ($)">
+            <button onclick="addDonor()" class="w-full py-2 bg-blue-600 text-white rounded font-bold text-xs">Simulate Donation</button>
+        </div>
+
+        <div class="sticky-actions">
+            <button class="flex-1 py-3 bg-slate-100 text-slate-700 font-bold rounded-lg text-sm">SAVE DRAFT</button>
+            <button onclick="publishPage()" class="flex-[2] py-3 bg-slate-900 text-white font-bold rounded-lg text-sm shadow-lg hover:bg-black">PUBLISH PAGE</button>
+        </div>
+    </aside>
+
+    <main id="preview-area">
+        <div class="gfm-page">
+            <div class="gfm-hero" id="v-hero-container">
+                <img id="v-img" src="https://images.unsplash.com/photo-1509099836639-18ba1795216d?q=80&w=1931&auto=format&fit=crop">
+                <div class="brand-overlay-logo hidden" id="v-brand-overlay">
+                    <img id="v-brand-img" src="" alt="Brand Logo">
+                </div>
+            </div>
+            <div class="gfm-grid">
+                <div>
+                    <div id="v-team-badge" class="hidden">
+                        <div class="team-badge"><i class="fas fa-users"></i> <span id="v-team-name">Team Name</span></div>
+                    </div>
+                    <h1 id="v-title" class="text-3xl font-black text-slate-900 mb-6 leading-tight"></h1>
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center text-slate-400"><i class="fas fa-user text-xl"></i></div>
+                        <div>
+                            <p class="text-sm font-bold"><span id="v-user-name">Cedric Savery</span> <span class="font-normal text-slate-500">is fundraising for:</span></p>
+                            <p class="text-[10px] uppercase font-black tracking-widest text-blue-600" id="v-parent"></p>
+                        </div>
+                    </div>
+                    <div id="v-story" class="text-slate-600 leading-relaxed text-lg whitespace-pre-line mb-10"></div>
+                    <div id="v-donation-wrap" class="border-t pt-10 hidden">
+                        <h3 class="font-black text-slate-900 text-xl mb-6">Donations</h3>
+                        <div class="top-donor-box hidden" id="top-donor-display">
+                            <div class="flex items-center gap-4">
+                                <div class="relative">
+                                    <div class="avatar-circle bg-amber-100 text-amber-600" style="border: 2px solid #fbbf24; width: 44px; height: 44px;">
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <i class="fas fa-crown text-amber-500" style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: 14px;"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-slate-900"><span id="top-donor-name">Anonymous</span> <span class="font-black text-amber-600 ml-1 uppercase text-[10px]">Top Donor</span></p>
+                                    <p class="text-[10px] font-bold text-amber-500 uppercase mt-1">$<span id="top-donor-amount">0</span>.00 Donation</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="v-list" class="space-y-2"></div>
+                    </div>
+                </div>
+                <aside>
+                    <div class="sticky top-8 border border-slate-200 p-6 rounded-2xl shadow-sm bg-white">
+                        <div class="mb-4">
+                            <span class="text-2xl font-black text-slate-900" id="v-raised">$0</span>
+                            <span class="text-sm text-slate-500"> raised of <span id="v-goal" class="font-bold"></span></span>
+                        </div>
+                        <div class="progress-bar"><div id="v-bar" class="progress-fill" style="width: 0%"></div></div>
+                        <p class="text-xs text-slate-500 font-bold mb-6" id="v-count">0 donations</p>
+                        <button class="btn-main">Donate now</button>
+                        <button class="btn-sec"><i class="fas fa-share mr-2"></i> Share</button>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    let donorData = [];
+    let currentTopAmount = 0;
+    let mediaMode = 'image';
+    let subUsers = [];
+    let activeTeam = "";
+
+    function publishPage() {
+        let total = 0;
+        donorData.forEach(d => total += d.amt);
+
+        const campaignData = {
+            color: document.getElementById('in-color').value,
+            parent: document.getElementById('in-parent').value,
+            title: document.getElementById('in-title').value,
+            story: document.getElementById('in-story').value,
+            goal: document.getElementById('in-goal').value,
+            mediaMode: mediaMode,
+            imgUrl: document.getElementById('in-img').value,
+            vidUrl: document.getElementById('in-vid').value,
+            logo: document.getElementById('v-brand-img').src,
+            heroData: document.getElementById('v-img').src,
+            teamName: activeTeam,
+            isTeamActive: activeTeam !== "",
+            donors: donorData,
+            totalRaised: total,
+            donationCount: donorData.length,
+            activeRole: document.getElementById('role-selector').value
+        };
+        localStorage.setItem('gfm_campaign_data', JSON.stringify(campaignData));
+        alert("Campaign data synced to live page!");
+    }
+
+    function switchRole(role) {
+        document.getElementById('brand-section').className = role === 'supporter' ? 'role-locked' : '';
+        document.getElementById('admin-view').classList.toggle('hidden', role !== 'admin');
+        document.getElementById('lead-view').classList.toggle('hidden', role !== 'lead');
+        document.getElementById('v-user-name').innerText = role === 'supporter' ? 'Supporter Name' : (role === 'lead' ? 'Team Lead' : 'Cedric Savery');
+    }
+
+    function sendInvite() {
+        activeTeam = document.getElementById('team-name-in').value;
+        const email = document.getElementById('lead-email-in').value;
+        if(!activeTeam || !email) return alert("Enter team name and email");
+        alert("Invitation email sent to " + email);
+    }
+
+    function acceptInvite() {
+        document.getElementById('lead-verify-box').classList.add('hidden');
+        document.getElementById('sub-mgmt-box').classList.remove('hidden');
+        document.getElementById('v-team-badge').classList.remove('hidden');
+        document.getElementById('v-team-name').innerText = activeTeam || "Verified Team";
+    }
+
+    function inviteUser() {
+        const email = document.getElementById('sub-email').value;
+        if(!email.includes('@')) return alert("Valid email required");
+        subUsers.push(email);
+        const list = document.getElementById('user-list');
+        list.innerHTML = subUsers.map(u => `
+            <div class="user-pill">
+                <i class="fas fa-user-circle text-purple-400"></i>
+                <span class="text-[10px] font-bold flex-1 truncate">${u}</span>
+                <span class="text-[8px] font-black text-green-500">ACTIVE</span>
+            </div>
+        `).join('');
+        document.getElementById('sub-email').value = "";
+    }
+
+    function handleLogoUpload(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('logo-preview-ui').src = e.target.result;
+                document.getElementById('logo-preview-ui').style.display = 'block';
+                document.getElementById('logo-upload-prompt').style.display = 'none';
+                document.getElementById('btn-remove-logo').classList.remove('hidden');
+                document.getElementById('v-brand-img').src = e.target.result;
+                document.getElementById('v-brand-overlay').classList.remove('hidden');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function removeLogo() {
+        document.getElementById('logo-preview-ui').style.display = 'none';
+        document.getElementById('logo-upload-prompt').style.display = 'block';
+        document.getElementById('btn-remove-logo').classList.add('hidden');
+        document.getElementById('v-brand-overlay').classList.add('hidden');
+    }
+
+    function handleHeroUpload(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('v-img').src = e.target.result;
+                document.getElementById('in-img').value = ""; 
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function setMediaMode(mode) {
+        mediaMode = mode;
+        document.getElementById('btn-mode-img').className = mode === 'image' ? 'active' : '';
+        document.getElementById('btn-mode-vid').className = mode === 'video' ? 'active' : '';
+        document.getElementById('ctrl-image-group').classList.toggle('hidden', mode !== 'image');
+        document.getElementById('ctrl-video-group').classList.toggle('hidden', mode !== 'video');
+        sync();
+    }
+
+    function sync() {
+        const color = document.getElementById('in-color').value;
+        const parent = document.getElementById('in-parent').value;
+        const title = document.getElementById('in-title').value;
+        const story = document.getElementById('in-story').value;
+        const goal = document.getElementById('in-goal').value;
+        const urlImg = document.getElementById('in-img').value;
+        const vidUrl = document.getElementById('in-vid').value;
+
+        document.documentElement.style.setProperty('--accent', color);
+        document.getElementById('v-parent').innerText = parent;
+        document.getElementById('v-title').innerText = title;
+        document.getElementById('v-story').innerText = story;
+        document.getElementById('v-goal').innerText = "$" + Number(goal).toLocaleString();
+        const hero = document.getElementById('v-hero-container');
+        const overlay = document.getElementById('v-brand-overlay');
+
+        if (mediaMode === 'video' && vidUrl.length > 5) {
+            let embedUrl = vidUrl;
+            if(vidUrl.includes('v=')) embedUrl = "https://www.youtube.com/embed/" + vidUrl.split('v=')[1].split('&')[0];
+            hero.innerHTML = `<iframe src="${embedUrl}" allowfullscreen></iframe>`;
+            hero.appendChild(overlay);
+        } else if (mediaMode === 'image') {
+            if(!hero.querySelector('img#v-img')) hero.innerHTML = `<img id="v-img" src="">`;
+            if(urlImg.length > 5) document.getElementById('v-img').src = urlImg;
+            hero.appendChild(overlay);
+        }
+
+        let total = 0;
+        donorData.forEach(d => total += d.amt);
+        document.getElementById('v-raised').innerText = "$" + total.toLocaleString();
+        document.getElementById('v-bar').style.width = Math.min((total/goal)*100, 100) + "%";
+        document.getElementById('v-count').innerText = donorData.length + " donations";
+        if(donorData.length > 0) document.getElementById('v-donation-wrap').classList.remove('hidden');
+    }
+
+    function addDonor() {
+        const nameInput = document.getElementById('sim-name');
+        const amtInput = document.getElementById('sim-amt');
+        const amt = parseFloat(amtInput.value) || 0;
+        if(amt <= 0) return;
+        if (amt >= currentTopAmount) {
+            currentTopAmount = amt;
+            document.getElementById('top-donor-name').innerText = nameInput.value || "Supporter";
+            document.getElementById('top-donor-amount').innerText = amt.toLocaleString();
+            document.getElementById('top-donor-display').classList.remove('hidden');
+        }
+        donorData.unshift({ name: (nameInput.value || "Supporter"), amt: amt });
+        renderList();
+        sync();
+        nameInput.value = ""; amtInput.value = "";
+    }
+
+    function renderList() {
+        const list = document.getElementById('v-list');
+        list.innerHTML = donorData.map(d => `
+            <div class="donor-row">
+                <div class="avatar-circle"><i class="fas fa-user"></i></div>
+                <div><p class="text-sm font-bold">${d.name} <span class="font-normal text-slate-500">donated $${d.amt}</span></p></div>
+            </div>`).join('');
+    }
+    window.onload = sync;
+</script>
+
+</body>
+</html>

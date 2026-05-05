@@ -1,0 +1,1163 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoodForUs OS | Master Admin Sandbox</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --brand: #00b964; --dark: #0f172a; --muted:#64748b; --bg:#f8fafc; }
+        body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #f8fafc; color: var(--dark); overflow: hidden; }
+        .sidebar-item.active { background: #1e293b; border-left: 4px solid var(--brand); color: white; }
+        .glass-card { background: rgba(255,255,255,0.96); border: 1px solid #e2e8f0; transition: all 0.2s; box-shadow: 0 10px 30px rgba(15,23,42,0.04); }
+        .glass-card:hover { box-shadow: 0 14px 38px rgba(15,23,42,0.07); }
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .slide-enter-active, .slide-leave-active { transition: all 0.3s ease; }
+        .slide-enter-from, .slide-leave-to { transform: translateX(100%); opacity: 0; }
+        .fade-enter-active, .fade-leave-active { transition: all 0.2s ease; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+        .aml-alert { border-left: 5px solid #ef4444; background: #fff1f2; }
+        .animate-fade-in { animation: fadeIn 0.2s ease-out; }
+        .soft-green { background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%); }
+        .soft-blue { background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%); }
+        .soft-amber { background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%); }
+        .soft-rose { background: linear-gradient(180deg, #fff1f2 0%, #ffffff 100%); }
+        .tab-active { color: #0f172a; border-color: #00b964; }
+        .metric-strip { background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 100%); }
+        .code-chip { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+        .status-pill { font-size: 10px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; border-radius: 9999px; padding: .35rem .6rem; display:inline-flex; align-items:center; gap:.35rem; }
+        .status-active { background: #dcfce7; color: #166534; }
+        .status-review { background: #fef3c7; color: #92400e; }
+        .status-risk { background: #ffe4e6; color: #be123c; }
+        .status-muted { background: #e2e8f0; color: #475569; }
+        .small-heading { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .22em; color: #94a3b8; }
+        .mini-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; }
+        .bar-track { background:#e2e8f0; border-radius:9999px; height:10px; overflow:hidden; }
+        .bar-fill { background:linear-gradient(90deg, #00b964 0%, #10b981 100%); height:100%; border-radius:9999px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 1280px) {
+            .desktop-grid-3 { grid-template-columns:1fr !important; }
+            .desktop-grid-4 { grid-template-columns:repeat(2, minmax(0,1fr)) !important; }
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="flex h-screen overflow-hidden">
+
+    <aside class="w-72 bg-slate-900 text-slate-400 flex flex-shrink-0 flex-col border-r border-slate-800">
+        <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+            <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-black italic shadow-lg shadow-emerald-500/20">G</div>
+            <div>
+                <span class="font-black text-white tracking-tighter text-xl uppercase leading-none block">GoodForUs</span>
+                <span class="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">Forensic Finance OS</span>
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4">
+            <div class="px-6 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">Executive Snapshot</div>
+            <div @click="currentTab = 'analytics'" :class="['sidebar-item px-6 py-3 cursor-pointer flex items-center gap-3 text-xs font-bold transition-all', currentTab === 'analytics' ? 'active' : '']"><i class="fas fa-chart-pie"></i> Performance</div>
+            <div @click="currentTab = 'financials'" :class="['sidebar-item px-6 py-3 cursor-pointer flex items-center gap-3 text-xs font-bold transition-all', currentTab === 'financials' ? 'active' : '']"><i class="fas fa-money-bill-transfer"></i> Payouts & Ledger</div>
+            <div @click="currentTab = 'settlements'" :class="['sidebar-item px-6 py-3 cursor-pointer flex items-center gap-3 text-xs font-bold transition-all', currentTab === 'settlements' ? 'active' : '']"><i class="fas fa-building-columns"></i> Settlements</div>
+            <div @click="currentTab = 'audit'" :class="['sidebar-item px-6 py-3 cursor-pointer flex items-center gap-3 text-xs font-bold transition-all', currentTab === 'audit' ? 'active' : '']"><i class="fas fa-clipboard-check"></i> Audit Trail</div>
+
+            <div class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">Operations</div>
+            <div @click="currentTab = 'organizations'" :class="['sidebar-item px-6 py-3 cursor-pointer flex items-center gap-3 text-xs font-bold transition-all', currentTab === 'organizations' ? 'active' : '']"><i class="fas fa-landmark"></i> Organizations</div>
+            <div @click="currentTab = 'campaigns'" :class="['sidebar-item px-6 py-3 cursor-pointer flex items-center gap-3 text-xs font-bold transition-all', currentTab === 'campaigns' ? 'active' : '']"><i class="fas fa-bullhorn"></i> Campaign Intelligence</div>
+            <div @click="currentTab = 'donors'" :class="['sidebar-item px-6 py-3 cursor-pointer flex items-center gap-3 text-xs font-bold transition-all', currentTab === 'donors' ? 'active' : '']"><i class="fas fa-users"></i> Donors CRM</div>
+            <div @click="currentTab = 'kyc'" :class="['sidebar-item px-6 py-3 cursor-pointer flex items-center gap-3 text-xs font-bold transition-all', currentTab === 'kyc' ? 'active' : '']"><i class="fas fa-shield-check"></i> KYC Compliance</div>
+            <div @click="currentTab = 'exports'" :class="['sidebar-item px-6 py-3 cursor-pointer flex items-center gap-3 text-xs font-bold transition-all', currentTab === 'exports' ? 'active' : '']"><i class="fas fa-file-export"></i> Exports & Receipts</div>
+        </nav>
+
+        <div class="p-5 border-t border-slate-800">
+            <div class="rounded-2xl bg-slate-800/80 p-4 border border-slate-700">
+                <div class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Controls</div>
+                <div class="mt-3 space-y-2 text-[11px] font-bold">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-400">Period Lock</span>
+                        <span class="status-pill status-active"><i class="fas fa-lock"></i> Mar 2026</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-400">Webhook Replay Guard</span>
+                        <span class="status-pill status-active"><i class="fas fa-shield"></i> Active</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-400">Segregated Access</span>
+                        <span class="status-pill status-review"><i class="fas fa-user-lock"></i> Enforced</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 relative">
+        <header class="h-24 bg-white border-b border-slate-200 flex items-center px-8 z-10 gap-8 shadow-sm metric-strip">
+            <div v-for="m in snapshot" :key="m.label" class="border-r border-slate-100 pr-8 last:border-none min-w-[120px]">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">{{ m.label }}</p>
+                <p :class="['text-xl font-black mt-1', m.tone === 'risk' ? 'text-rose-600' : m.tone === 'warning' ? 'text-amber-500' : m.tone === 'success' ? 'text-emerald-600' : 'text-slate-900']">{{ m.value }}</p>
+            </div>
+            <div class="flex-1"></div>
+            <div class="w-[360px]">
+                <label class="small-heading">Global Search</label>
+                <div class="mt-2 relative">
+                    <input v-model="searchQuery" type="text" placeholder="Search donor, org, campaign, payout, receipt..." class="w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 py-3 text-sm font-medium outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 bg-slate-50/50">
+
+            <!-- ANALYTICS -->
+            <div v-if="currentTab === 'analytics'" class="space-y-6 animate-fade-in">
+                <div class="grid desktop-grid-4" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.25rem;">
+                    <div class="glass-card rounded-3xl p-6 soft-green">
+                        <p class="small-heading">Gross Donations</p>
+                        <div class="mt-3 text-3xl font-black tracking-tighter">$12,500.00</div>
+                        <div class="mt-2 text-xs font-bold text-emerald-700">+18.4% from prior cycle</div>
+                    </div>
+                    <div class="glass-card rounded-3xl p-6 soft-blue">
+                        <p class="small-heading">Net to Organizations</p>
+                        <div class="mt-3 text-3xl font-black tracking-tighter">$11,178.64</div>
+                        <div class="mt-2 text-xs font-bold text-sky-700">After fees, holds, offsets</div>
+                    </div>
+                    <div class="glass-card rounded-3xl p-6 soft-amber">
+                        <p class="small-heading">Pending Settlement</p>
+                        <div class="mt-3 text-3xl font-black tracking-tighter">$1,214.92</div>
+                        <div class="mt-2 text-xs font-bold text-amber-700">24 transactions in transit</div>
+                    </div>
+                    <div class="glass-card rounded-3xl p-6 soft-rose">
+                        <p class="small-heading">Refunds / Disputes</p>
+                        <div class="mt-3 text-3xl font-black tracking-tighter">$303.18</div>
+                        <div class="mt-2 text-xs font-bold text-rose-700">5 exceptions open</div>
+                    </div>
+                </div>
+
+                <div class="grid desktop-grid-3" style="display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:1.25rem;">
+                    <div class="glass-card rounded-3xl p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="small-heading">Campaign Performance</p>
+                                <h3 class="mt-1 text-xl font-black tracking-tight">Fundraising Mix Across Platform</h3>
+                            </div>
+                            <button class="text-[10px] font-black uppercase px-4 py-2 rounded-xl bg-slate-900 text-white">Export Summary</button>
+                        </div>
+                        <div class="mt-6 space-y-5">
+                            <div v-for="camp in campaignAnalytics" :key="camp.name">
+                                <div class="flex justify-between items-center text-sm font-bold mb-2">
+                                    <div>
+                                        <div class="text-slate-900">{{ camp.name }}</div>
+                                        <div class="text-[11px] uppercase tracking-widest text-slate-400">{{ camp.type }}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-black text-slate-900">${{ camp.raised }}</div>
+                                        <div class="text-[11px] text-slate-400">{{ camp.donors }} donors</div>
+                                    </div>
+                                </div>
+                                <div class="bar-track"><div class="bar-fill" :style="{ width: camp.progress + '%' }"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-3xl p-6">
+                        <p class="small-heading">Risk Concentration</p>
+                        <h3 class="mt-1 text-xl font-black tracking-tight">Signals by Type</h3>
+                        <div class="mt-5 space-y-4">
+                            <div v-for="risk in riskOverview" :key="risk.label" class="rounded-2xl border border-slate-100 p-4 bg-slate-50">
+                                <div class="flex justify-between items-center">
+                                    <div class="text-sm font-black text-slate-900">{{ risk.label }}</div>
+                                    <div class="status-pill" :class="risk.tone">{{ risk.count }} open</div>
+                                </div>
+                                <div class="mt-2 text-xs text-slate-500 font-medium">{{ risk.note }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-3xl p-6">
+                        <p class="small-heading">Reconciliation Health</p>
+                        <h3 class="mt-1 text-xl font-black tracking-tight">Bank / Processor / Platform</h3>
+                        <div class="mt-5 space-y-4">
+                            <div v-for="rec in reconciliationHealth" :key="rec.label" class="flex items-center justify-between rounded-2xl border border-slate-100 p-4">
+                                <div>
+                                    <div class="text-sm font-black text-slate-900">{{ rec.label }}</div>
+                                    <div class="text-xs text-slate-400 font-bold uppercase">{{ rec.sub }}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-black" :class="rec.good ? 'text-emerald-600' : 'text-rose-600'">{{ rec.value }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-3xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="small-heading">Forensic Data Coverage</p>
+                            <h3 class="mt-1 text-xl font-black tracking-tight">Required Evidence Stored Per Donation</h3>
+                        </div>
+                        <div class="status-pill status-active"><i class="fas fa-database"></i> 100% coverage model</div>
+                    </div>
+                    <div class="mt-6 mini-grid">
+                        <div v-for="coverage in forensicCoverage" :key="coverage.label" class="rounded-2xl border border-slate-100 p-4 bg-white">
+                            <div class="text-sm font-black text-slate-900">{{ coverage.label }}</div>
+                            <div class="mt-1 text-xs text-slate-500 leading-relaxed">{{ coverage.note }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FINANCIALS -->
+            <div v-if="currentTab === 'financials'" class="space-y-6 animate-fade-in">
+                <div class="grid desktop-grid-3" style="display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:1.25rem;">
+                    <div class="glass-card rounded-3xl p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="small-heading">Subledger Design</p>
+                                <h3 class="mt-1 text-xl font-black tracking-tight">Immutable Journal Event Model</h3>
+                            </div>
+                            <button class="text-[10px] font-black uppercase px-4 py-2 rounded-xl bg-emerald-600 text-white">Lock Period</button>
+                        </div>
+                        <div class="mt-5 space-y-3">
+                            <div v-for="entry in ledgerEntries" :key="entry.id" class="rounded-2xl border border-slate-100 p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-sm font-black text-slate-900">{{ entry.description }}</div>
+                                        <div class="text-[11px] code-chip text-slate-400 mt-1">{{ entry.id }} • {{ entry.effectiveDate }} • {{ entry.source }}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-black text-slate-900">${{ entry.amount }}</div>
+                                        <div class="text-[11px] font-bold uppercase" :class="entry.status === 'Posted' ? 'text-emerald-600' : 'text-amber-600'">{{ entry.status }}</div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 grid grid-cols-2 gap-3 text-xs font-bold">
+                                    <div class="rounded-xl bg-slate-50 p-3">
+                                        <div class="small-heading mb-1">Debit</div>
+                                        <div class="text-slate-800">{{ entry.debit }}</div>
+                                    </div>
+                                    <div class="rounded-xl bg-slate-50 p-3">
+                                        <div class="small-heading mb-1">Credit</div>
+                                        <div class="text-slate-800">{{ entry.credit }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-3xl p-6">
+                        <p class="small-heading">Payout Batches</p>
+                        <h3 class="mt-1 text-xl font-black tracking-tight">Organization Disbursement Queue</h3>
+                        <div class="mt-5 space-y-3">
+                            <div v-for="p in payoutBatches" :key="p.id" class="rounded-2xl border border-slate-100 p-4 bg-slate-50">
+                                <div class="flex justify-between gap-4">
+                                    <div>
+                                        <div class="text-sm font-black text-slate-900">{{ p.org }}</div>
+                                        <div class="text-[11px] code-chip text-slate-400 mt-1">{{ p.id }} • {{ p.date }}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-black text-slate-900">${{ p.net }}</div>
+                                        <div class="status-pill" :class="p.statusClass">{{ p.status }}</div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 grid grid-cols-2 gap-3 text-xs font-bold">
+                                    <div class="rounded-xl bg-white p-3 border border-slate-200">
+                                        <div class="small-heading mb-1">Included Donations</div>
+                                        <div>{{ p.items }}</div>
+                                    </div>
+                                    <div class="rounded-xl bg-white p-3 border border-slate-200">
+                                        <div class="small-heading mb-1">Reserve / Offset</div>
+                                        <div>${{ p.reserve }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-3xl p-6">
+                        <p class="small-heading">Chart of Accounts</p>
+                        <h3 class="mt-1 text-xl font-black tracking-tight">Financial Control Map</h3>
+                        <div class="mt-5 space-y-2">
+                            <div v-for="acct in chartOfAccounts" :key="acct.code" class="flex items-center justify-between rounded-xl border border-slate-100 p-3">
+                                <div>
+                                    <div class="text-sm font-black text-slate-900">{{ acct.name }}</div>
+                                    <div class="text-[11px] code-chip text-slate-400">{{ acct.code }}</div>
+                                </div>
+                                <div class="text-[11px] font-bold uppercase text-slate-500">{{ acct.type }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-3xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="small-heading">Donation-to-Payout Reconciliation</p>
+                            <h3 class="mt-1 text-xl font-black tracking-tight">Every Dollar from Intent to Bank Deposit</h3>
+                        </div>
+                        <button class="text-[10px] font-black uppercase px-4 py-2 rounded-xl bg-slate-900 text-white">Export GL CSV</button>
+                    </div>
+                    <div class="mt-5 overflow-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                <tr>
+                                    <th class="px-4 py-3">Donation</th>
+                                    <th class="px-4 py-3">Gross</th>
+                                    <th class="px-4 py-3">Processor Fee</th>
+                                    <th class="px-4 py-3">Platform Fee</th>
+                                    <th class="px-4 py-3">Reserve</th>
+                                    <th class="px-4 py-3">Net Payable</th>
+                                    <th class="px-4 py-3">Settlement</th>
+                                    <th class="px-4 py-3">Payout Batch</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr v-for="row in reconciliationTable" :key="row.id" class="hover:bg-slate-50">
+                                    <td class="px-4 py-3">
+                                        <div class="font-black text-slate-900">{{ row.id }}</div>
+                                        <div class="text-[11px] text-slate-400 font-bold">{{ row.campaign }}</div>
+                                    </td>
+                                    <td class="px-4 py-3 font-black">${{ row.gross }}</td>
+                                    <td class="px-4 py-3">${{ row.processorFee }}</td>
+                                    <td class="px-4 py-3">${{ row.platformFee }}</td>
+                                    <td class="px-4 py-3">${{ row.reserve }}</td>
+                                    <td class="px-4 py-3 font-black text-emerald-600">${{ row.net }}</td>
+                                    <td class="px-4 py-3 code-chip text-slate-500">{{ row.settlement }}</td>
+                                    <td class="px-4 py-3 code-chip text-slate-500">{{ row.payout }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SETTLEMENTS -->
+            <div v-if="currentTab === 'settlements'" class="space-y-6 animate-fade-in">
+                <div class="grid desktop-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem;">
+                    <div class="glass-card rounded-3xl p-6">
+                        <p class="small-heading">Processor Batches</p>
+                        <h3 class="mt-1 text-xl font-black tracking-tight">Settlement Runs</h3>
+                        <div class="mt-5 space-y-3">
+                            <div v-for="s in settlements" :key="s.id" class="rounded-2xl border border-slate-100 p-4">
+                                <div class="flex justify-between items-start gap-4">
+                                    <div>
+                                        <div class="text-sm font-black text-slate-900">{{ s.id }}</div>
+                                        <div class="text-[11px] text-slate-400 font-bold uppercase">{{ s.processor }} • {{ s.date }}</div>
+                                    </div>
+                                    <div class="status-pill" :class="s.statusClass">{{ s.status }}</div>
+                                </div>
+                                <div class="mt-3 text-xs font-bold text-slate-500">Gross ${{ s.gross }} • Net ${{ s.net }} • {{ s.count }} transactions</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-3xl p-6">
+                        <p class="small-heading">Exception Queue</p>
+                        <h3 class="mt-1 text-xl font-black tracking-tight">Mismatch Detection</h3>
+                        <div class="mt-5 space-y-3">
+                            <div v-for="ex in settlementExceptions" :key="ex.id" class="rounded-2xl border border-rose-100 p-4 bg-rose-50">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div>
+                                        <div class="text-sm font-black text-rose-700">{{ ex.id }}</div>
+                                        <div class="text-[11px] text-rose-500 font-bold uppercase">{{ ex.type }}</div>
+                                    </div>
+                                    <div class="status-pill status-risk">{{ ex.status }}</div>
+                                </div>
+                                <div class="mt-2 text-xs text-rose-700 font-medium">{{ ex.note }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-3xl p-6">
+                        <p class="small-heading">Bank Confirmation</p>
+                        <h3 class="mt-1 text-xl font-black tracking-tight">Deposit Matching</h3>
+                        <div class="mt-5 space-y-3">
+                            <div v-for="dep in depositMatches" :key="dep.id" class="rounded-2xl border border-slate-100 p-4 bg-slate-50">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-sm font-black text-slate-900">{{ dep.id }}</div>
+                                        <div class="text-[11px] text-slate-400 font-bold uppercase">{{ dep.bankDate }}</div>
+                                    </div>
+                                    <div class="status-pill" :class="dep.matched ? 'status-active' : 'status-risk'">{{ dep.matched ? 'Matched' : 'Unmatched' }}</div>
+                                </div>
+                                <div class="mt-2 text-xs text-slate-500 font-medium">${{ dep.amount }} to {{ dep.account }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AUDIT -->
+            <div v-if="currentTab === 'audit'" class="space-y-6 animate-fade-in">
+                <div class="glass-card rounded-3xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="small-heading">System Evidence Log</p>
+                            <h3 class="mt-1 text-xl font-black tracking-tight">Who Changed What, When, and From Where</h3>
+                        </div>
+                        <button class="text-[10px] font-black uppercase px-4 py-2 rounded-xl bg-slate-900 text-white">Export Audit JSON</button>
+                    </div>
+                    <div class="mt-5 space-y-3">
+                        <div v-for="log in auditLogs" :key="log.id" class="rounded-2xl border border-slate-100 p-5 bg-white">
+                            <div class="flex items-start justify-between gap-6">
+                                <div>
+                                    <div class="text-sm font-black text-slate-900">{{ log.action }}</div>
+                                    <div class="text-[11px] code-chip text-slate-400 mt-1">{{ log.id }} • {{ log.when }} • {{ log.actor }}</div>
+                                    <div class="mt-3 text-xs text-slate-500 font-medium">Before: <span class="code-chip">{{ log.before }}</span></div>
+                                    <div class="mt-1 text-xs text-slate-500 font-medium">After: <span class="code-chip">{{ log.after }}</span></div>
+                                </div>
+                                <div class="text-right min-w-[180px]">
+                                    <div class="status-pill status-muted"><i class="fas fa-network-wired"></i> {{ log.ip }}</div>
+                                    <div class="mt-2 text-xs font-bold text-slate-400 uppercase">{{ log.surface }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KYC -->
+            <div v-if="currentTab === 'kyc'" class="glass-card rounded-2xl overflow-hidden shadow-xl animate-fade-in">
+                <div class="p-6 border-b bg-white flex justify-between items-center">
+                    <div>
+                        <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest">Global KYC Triage</h3>
+                        <p class="mt-1 text-xs text-slate-500 font-medium">Enhanced ownership, source-of-funds, adverse media, sanctions, and payout eligibility review.</p>
+                    </div>
+                    <button class="text-[10px] font-black uppercase px-4 py-2 rounded-xl bg-slate-900 text-white">Open Review Queue</button>
+                </div>
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 text-[10px] font-black uppercase text-slate-400">
+                        <tr><th class="px-8 py-4">Applicant</th><th class="px-6 py-4">Risk Score</th><th class="px-6 py-4">Risk Level</th><th class="px-6 py-4">Status</th><th class="px-8 py-4 text-right">Actions</th></tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr v-for="app in applications" :key="app.id" class="hover:bg-slate-50 transition">
+                            <td class="px-8 py-6">
+                                <div class="font-black text-slate-900">{{ app.name }}</div>
+                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Applied: {{ app.applied }}</div>
+                            </td>
+                            <td class="px-6 py-6 font-bold text-slate-600">{{ app.riskScore }}/100</td>
+                            <td class="px-6 py-6">
+                                <span class="status-pill" :class="app.riskScore >= 80 ? 'status-risk' : app.riskScore >= 50 ? 'status-review' : 'status-active'">{{ app.riskLabel }}</span>
+                            </td>
+                            <td class="px-6 py-6">
+                                <span class="status-pill" :class="app.status === 'Pending Review' ? 'status-review' : 'status-active'">{{ app.status }}</span>
+                            </td>
+                            <td class="px-8 py-6 text-right">
+                                <button @click="selectedApp = app" class="text-[10px] font-black uppercase text-emerald-600 hover:underline">Analyze KYC Factors <i class="fas fa-chevron-right ml-1"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ORGANIZATIONS -->
+            <div v-if="currentTab === 'organizations'" class="space-y-4 animate-fade-in">
+                <div v-for="org in filteredOrganizations" :key="org.id" class="glass-card p-6 rounded-2xl flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-emerald-500 text-white rounded-xl flex items-center justify-center font-black uppercase">{{ org.name[0] }}</div>
+                        <div>
+                            <p class="font-black text-slate-900 uppercase">{{ org.name }}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                Balance: <span class="text-emerald-600 font-black">${{ org.balance }}</span> •
+                                Payout Schedule: <span class="text-slate-700">{{ org.payoutSchedule }}</span>
+                            </p>
+                            <p class="mt-1 text-xs text-slate-500 font-medium">{{ org.legalName }} • {{ org.taxIdMasked }} • {{ org.kybStatus }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div v-if="org.amlAlerts > 0" class="flex items-center gap-1 text-rose-500 font-black text-[10px] uppercase">
+                            <i class="fas fa-exclamation-triangle animate-pulse"></i> {{ org.amlAlerts }} Risk Alerts
+                        </div>
+                        <span :class="org.status === 'Active' ? 'status-pill status-active' : org.status === 'Blocked' ? 'status-pill status-risk' : 'status-pill status-review'">{{ org.status }}</span>
+                        <button @click="openOrgDossier(org)" class="text-[10px] font-black uppercase bg-slate-900 text-white px-5 py-2.5 rounded-lg hover:bg-black transition cursor-pointer">View File</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CAMPAIGNS -->
+            <div v-if="currentTab === 'campaigns'" class="space-y-4 animate-fade-in">
+                <div class="grid desktop-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem;">
+                    <div v-for="camp in allCampaigns" :key="camp.id" class="glass-card rounded-3xl p-6">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{{ camp.type }}</div>
+                                <h3 class="mt-1 text-lg font-black tracking-tight text-slate-900">{{ camp.name }}</h3>
+                                <div class="mt-1 text-xs font-bold text-slate-500">{{ camp.organization }}</div>
+                            </div>
+                            <span :class="camp.status === 'Live' ? 'status-pill status-active' : 'status-pill status-review'">{{ camp.status }}</span>
+                        </div>
+                        <div class="mt-5 mini-grid">
+                            <div class="rounded-2xl bg-slate-50 p-4">
+                                <div class="small-heading mb-1">Gross Raised</div>
+                                <div class="font-black text-slate-900">${{ camp.raised }}</div>
+                            </div>
+                            <div class="rounded-2xl bg-slate-50 p-4">
+                                <div class="small-heading mb-1">Net Raised</div>
+                                <div class="font-black text-emerald-600">${{ camp.netRaised }}</div>
+                            </div>
+                            <div class="rounded-2xl bg-slate-50 p-4">
+                                <div class="small-heading mb-1">Donors</div>
+                                <div class="font-black text-slate-900">{{ camp.donors }}</div>
+                            </div>
+                            <div class="rounded-2xl bg-slate-50 p-4">
+                                <div class="small-heading mb-1">Avg Gift</div>
+                                <div class="font-black text-slate-900">${{ camp.avgGift }}</div>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-xs text-slate-500 font-medium">Attribution: {{ camp.attribution }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DONORS -->
+            <div v-if="currentTab === 'donors'" class="space-y-4 animate-fade-in">
+                <div class="grid desktop-grid-3" style="display:grid;grid-template-columns:1.15fr .85fr 1fr;gap:1.25rem;">
+                    <div class="glass-card rounded-3xl p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="small-heading">Donor Master Profiles</p>
+                                <h3 class="mt-1 text-xl font-black tracking-tight">Cross-Campaign Donor 360</h3>
+                            </div>
+                            <button class="text-[10px] font-black uppercase px-4 py-2 rounded-xl bg-slate-900 text-white">Merge Aliases</button>
+                        </div>
+                        <div class="mt-5 space-y-3">
+                            <div v-for="d in filteredDonors" :key="d.id" @click="openDonorDetail(d)" class="rounded-2xl border border-slate-100 p-4 hover:bg-slate-50 cursor-pointer">
+                                <div class="flex items-center justify-between gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-[10px]">{{ d.name[0] }}</div>
+                                        <div>
+                                            <div class="font-black text-slate-900">{{ d.name }}</div>
+                                            <div class="text-[11px] text-slate-400 font-bold">{{ d.email }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-black text-emerald-600">${{ d.ltv }}</div>
+                                        <div class="text-[11px] text-slate-400 font-bold uppercase">{{ d.totalDonations }} gifts</div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 text-xs text-slate-500 font-medium">First gift {{ d.firstDonation }} • Last gift {{ d.lastDonation }} • Regions {{ d.regions.join(', ') }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-3xl p-6">
+                        <p class="small-heading">Donor Evidence Fields</p>
+                        <h3 class="mt-1 text-xl font-black tracking-tight">Per Donation Profile Coverage</h3>
+                        <div class="mt-5 space-y-2">
+                            <div v-for="field in donorEvidenceFields" :key="field" class="rounded-xl border border-slate-100 p-3 text-sm font-bold text-slate-700 bg-slate-50">{{ field }}</div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-3xl p-6">
+                        <p class="small-heading">Receipt Controls</p>
+                        <h3 class="mt-1 text-xl font-black tracking-tight">Substantiation & Delivery</h3>
+                        <div class="mt-5 space-y-3">
+                            <div v-for="r in receiptRules" :key="r.label" class="rounded-2xl border border-slate-100 p-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="font-black text-slate-900">{{ r.label }}</div>
+                                    <div class="status-pill" :class="r.active ? 'status-active' : 'status-muted'">{{ r.active ? 'Enabled' : 'Off' }}</div>
+                                </div>
+                                <div class="mt-2 text-xs text-slate-500 font-medium">{{ r.note }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="selectedDonor" class="glass-card rounded-3xl p-6">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="small-heading">Selected Donor</p>
+                            <h3 class="mt-1 text-xl font-black tracking-tight">{{ selectedDonor.name }}</h3>
+                            <p class="mt-1 text-xs font-bold text-slate-500">{{ selectedDonor.email }} • {{ selectedDonor.phone }}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="text-[10px] font-black uppercase px-4 py-2 rounded-xl bg-slate-900 text-white">Export Donor PDF</button>
+                            <button class="text-[10px] font-black uppercase px-4 py-2 rounded-xl bg-emerald-600 text-white">Download All Receipts</button>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 overflow-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                <tr>
+                                    <th class="px-4 py-3">Donation</th>
+                                    <th class="px-4 py-3">Campaign</th>
+                                    <th class="px-4 py-3">Date</th>
+                                    <th class="px-4 py-3">Amount</th>
+                                    <th class="px-4 py-3">Donor</th>
+                                    <th class="px-4 py-3">IP / Region</th>
+                                    <th class="px-4 py-3">Card</th>
+                                    <th class="px-4 py-3">Receipt</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr v-for="tx in selectedDonor.history" :key="tx.id" class="hover:bg-slate-50">
+                                    <td class="px-4 py-3">
+                                        <div class="font-black text-slate-900">{{ tx.id }}</div>
+                                        <div class="text-[11px] text-slate-400 font-bold">{{ tx.processorRef }}</div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="font-black text-slate-800">{{ tx.campaign }}</div>
+                                        <div class="text-[11px] text-slate-400 font-bold">{{ tx.organization }}</div>
+                                    </td>
+                                    <td class="px-4 py-3">{{ tx.date }}</td>
+                                    <td class="px-4 py-3 font-black text-slate-900">${{ tx.amt }}</td>
+                                    <td class="px-4 py-3">
+                                        <div class="font-black text-slate-800">{{ selectedDonor.name }}</div>
+                                        <div class="text-[11px] text-slate-400 font-bold">{{ selectedDonor.email }}</div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="font-black text-slate-800">{{ tx.ip }}</div>
+                                        <div class="text-[11px] text-slate-400 font-bold">{{ tx.region }}</div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="font-black text-slate-800">{{ tx.cardBrand }} •••• {{ tx.last4 }}</div>
+                                        <div class="text-[11px] text-slate-400 font-bold">{{ tx.cardFingerprint }}</div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <button @click="openReceipt(tx)" class="text-[10px] font-black uppercase text-emerald-600">Download Receipt</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EXPORTS -->
+            <div v-if="currentTab === 'exports'" class="space-y-6 animate-fade-in">
+                <div class="glass-card rounded-3xl p-6">
+                    <p class="small-heading">Download Center</p>
+                    <h3 class="mt-1 text-xl font-black tracking-tight">Forensic Exports, Statements, and Receipts</h3>
+                    <div class="mt-6 grid desktop-grid-4" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;">
+                        <div v-for="exp in exportsCatalog" :key="exp.name" class="rounded-2xl border border-slate-100 p-5 bg-white">
+                            <div class="font-black text-slate-900">{{ exp.name }}</div>
+                            <div class="mt-2 text-xs text-slate-500 font-medium">{{ exp.note }}</div>
+                            <button class="mt-4 text-[10px] font-black uppercase px-4 py-2 rounded-xl bg-slate-900 text-white">Generate</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- KYC Drawer -->
+        <transition name="slide">
+            <div v-if="selectedApp" class="absolute inset-y-0 right-0 w-[590px] bg-white shadow-2xl border-l border-slate-200 z-[60] flex flex-col">
+                <div class="p-8 border-b bg-slate-900 text-white flex justify-between items-center">
+                    <div><h3 class="text-lg font-black uppercase tracking-widest">Compliance Audit</h3><p class="text-[10px] font-bold text-slate-400 uppercase">{{ selectedApp.name }}</p></div>
+                    <button @click="selectedApp = null" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <div class="flex-1 p-8 space-y-6 overflow-y-auto">
+                    <div class="text-center p-8 bg-slate-50 rounded-3xl">
+                        <div class="text-6xl font-black mb-1" :class="selectedApp.riskScore >= 80 ? 'text-rose-500' : 'text-amber-500'">{{ selectedApp.riskScore }}</div>
+                        <p class="text-[10px] font-black uppercase text-slate-400">Risk Index</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div v-for="f in selectedApp.kycFactors" :key="f.name" class="p-5 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-2">
+                            <div class="flex justify-between items-center"><span class="text-xs font-black text-slate-900 uppercase">{{ f.name }}</span><span class="text-[9px] font-black px-2 py-0.5 rounded uppercase" :class="f.level === 'High' ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'">{{ f.level }} Risk</span></div>
+                            <p class="text-[10px] text-slate-500 leading-relaxed font-medium">Log: {{ f.auditNote }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-8 bg-slate-50 border-t flex gap-4"><button @click="approveOrg(selectedApp)" class="flex-1 bg-emerald-600 text-white py-4 rounded-xl font-black uppercase text-[10px]">Approve KYC</button></div>
+            </div>
+        </transition>
+
+        <!-- Organization Drawer -->
+        <transition name="slide">
+            <div v-if="viewingOrg" class="absolute inset-y-0 right-0 w-[1100px] bg-white shadow-2xl border-l border-slate-200 z-[60] flex flex-col">
+                <div class="p-8 border-b bg-slate-900 text-white flex justify-between items-center">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-2xl font-black tracking-tighter">{{ viewingOrg.name }}</h3>
+                            <span :class="viewingOrg.status === 'Active' ? 'bg-emerald-500' : viewingOrg.status === 'Blocked' ? 'bg-rose-500' : 'bg-amber-500'" class="px-2 py-1 rounded text-[9px] uppercase font-black">{{ viewingOrg.status }}</span>
+                        </div>
+                        <p class="text-[10px] font-black text-rose-400 uppercase tracking-widest">Forensic Accounting Audit Mode • ID: {{ viewingOrg.id }}</p>
+                    </div>
+                    <button @click="viewingOrg = null" class="text-slate-400 hover:text-white transition"><i class="fas fa-times text-2xl"></i></button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8 space-y-10">
+                    <div v-if="viewingOrg.amlAlerts > 0" class="aml-alert p-6 rounded-2xl shadow-lg border border-rose-100">
+                        <h4 class="text-[10px] font-black text-rose-600 uppercase mb-4 tracking-[0.2em] flex items-center gap-2"><i class="fas fa-shield-virus"></i> High Priority Risk Alert</h4>
+                        <div v-for="alert in viewingOrg.alerts" :key="alert.id" class="flex justify-between items-center">
+                            <div><p class="text-[10px] font-black uppercase text-slate-400">Flagged Donor</p><p class="text-xl font-black text-rose-600">{{ alert.donor }}</p><p class="text-[10px] font-bold text-rose-500 mt-1 uppercase">Risk Volume: ${{ alert.flaggedTotal }}</p></div>
+                            <div class="flex gap-3">
+                                <button @click="toggleBlock(alert)" class="bg-rose-600 text-white text-[9px] font-black px-6 py-2.5 rounded-lg uppercase shadow-lg">Block Globally</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-6">
+                        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                            <p class="text-[10px] font-black text-slate-400 uppercase">Settled Financials</p>
+                            <p class="text-2xl font-black text-slate-900 tracking-tighter">${{ viewingOrg.balance }}</p>
+                            <p class="mt-2 text-xs text-slate-500 font-medium">Reserve withheld ${{ viewingOrg.reserveHeld }} • Rolling payout {{ viewingOrg.payoutSchedule }}</p>
+                        </div>
+                        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                            <p class="text-[10px] font-black text-slate-400 uppercase">Entity Controls</p>
+                            <p class="text-sm font-black text-slate-900 mt-2">{{ viewingOrg.legalName }}</p>
+                            <p class="mt-2 text-xs text-slate-500 font-medium">Tax ID {{ viewingOrg.taxIdMasked }} • Bank {{ viewingOrg.bankLast4 }} • KYB {{ viewingOrg.kybStatus }}</p>
+                        </div>
+                        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                            <p class="text-[10px] font-black text-slate-400 uppercase">Governance</p>
+                            <p class="text-sm font-black text-slate-900 mt-2">{{ viewingOrg.users.length }} platform users</p>
+                            <p class="mt-2 text-xs text-slate-500 font-medium">Fee plan {{ viewingOrg.feePlan }} • Descriptor {{ viewingOrg.descriptor }}</p>
+                        </div>
+                    </div>
+
+                    <div class="p-6 bg-white rounded-3xl border border-slate-100">
+                        <p class="small-heading mb-4">Campaign Governance</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div v-for="camp in viewingOrg.campaigns" :key="camp.name" class="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+                                <div>
+                                    <span class="text-[10px] font-black text-slate-900 uppercase">{{ camp.name }}</span>
+                                    <p class="text-sm font-black text-emerald-600">${{ camp.raised }}</p>
+                                    <p class="text-[11px] text-slate-400 font-bold uppercase">{{ camp.type }} • {{ camp.attribution }}</p>
+                                </div>
+                                <button @click="toggleCampaignFunds(camp)" :class="camp.frozen ? 'text-emerald-600' : 'text-rose-600'" class="text-[8px] font-black uppercase underline decoration-dotted">
+                                    {{ camp.frozen ? 'Release' : 'Freeze' }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="border-b flex gap-8">
+                            <button @click="forensicTab = 'donors'" :class="forensicTab === 'donors' ? 'tab-active' : 'border-transparent text-slate-400'" class="pb-4 border-b-2 text-xs font-black uppercase transition-all">Transactional Ledger</button>
+                            <button @click="forensicTab = 'profiles'" :class="forensicTab === 'profiles' ? 'tab-active' : 'border-transparent text-slate-400'" class="pb-4 border-b-2 text-xs font-black uppercase transition-all">Donor Profiles</button>
+                            <button @click="forensicTab = 'settlement'" :class="forensicTab === 'settlement' ? 'tab-active' : 'border-transparent text-slate-400'" class="pb-4 border-b-2 text-xs font-black uppercase transition-all">Settlement Mapping</button>
+                            <button @click="forensicTab = 'users'" :class="forensicTab === 'users' ? 'tab-active' : 'border-transparent text-slate-400'" class="pb-4 border-b-2 text-xs font-black uppercase transition-all">Platform Users</button>
+                        </div>
+
+                        <div v-if="forensicTab === 'donors'" class="animate-fade-in space-y-4">
+                            <div v-for="d in donors" :key="d.id" class="border border-slate-100 rounded-xl overflow-hidden">
+                                <div class="p-4 bg-slate-50 flex justify-between items-center">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-[10px]">{{ d.name[0] }}</div>
+                                        <div>
+                                            <p class="text-xs font-black text-slate-900 uppercase">{{ d.name }}</p>
+                                            <p class="text-[11px] text-slate-400 font-bold">{{ d.email }}</p>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs font-black text-emerald-600 tracking-tighter">${{ d.ltv }} LTV</p>
+                                </div>
+                                <table class="w-full text-left text-[10px] p-4">
+                                    <thead class="bg-slate-50 text-slate-400 font-black uppercase tracking-widest border-b">
+                                        <tr><th class="px-4 py-2">Tx ID</th><th class="px-4 py-2">Campaign</th><th class="px-4 py-2">Date</th><th class="px-4 py-2">IP / Region</th><th class="px-4 py-2">Card</th><th class="px-4 py-2 text-right">Amt</th><th class="px-4 py-2 text-right">Forensic Action</th></tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-50">
+                                        <tr v-for="tx in d.history" :key="tx.id" class="hover:bg-slate-50/50">
+                                            <td class="px-4 py-3 font-mono text-slate-400">{{ tx.id }}</td>
+                                            <td class="px-4 py-3 font-bold text-slate-600 uppercase">{{ tx.campaign }}</td>
+                                            <td class="px-4 py-3">{{ tx.date }}</td>
+                                            <td class="px-4 py-3">
+                                                <div class="font-bold text-slate-700">{{ tx.ip }}</div>
+                                                <div class="text-slate-400">{{ tx.region }}</div>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <div class="font-bold text-slate-700">{{ tx.cardBrand }} •••• {{ tx.last4 }}</div>
+                                                <div class="text-slate-400">{{ tx.cardFingerprint }}</div>
+                                            </td>
+                                            <td class="px-4 py-3 text-right font-black text-slate-900">${{ tx.amt }}</td>
+                                            <td class="px-4 py-3 text-right">
+                                                <button @click="freezeDonation(tx)" :class="tx.frozen ? 'text-emerald-600' : 'text-rose-600'" class="text-[9px] font-black uppercase">
+                                                    {{ tx.frozen ? 'Unfreeze' : 'Freeze Tx' }}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div v-if="forensicTab === 'profiles'" class="animate-fade-in space-y-3">
+                            <div v-for="d in donors" :key="d.id + '-profile'" class="rounded-2xl border border-slate-100 p-5 bg-slate-50">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <div class="text-sm font-black text-slate-900">{{ d.name }}</div>
+                                        <div class="text-[11px] text-slate-400 font-bold">{{ d.email }} • {{ d.phone }}</div>
+                                    </div>
+                                    <div class="status-pill" :class="d.riskSignals.length ? 'status-review' : 'status-active'">{{ d.riskSignals.length ? d.riskSignals.length + ' signals' : 'clear' }}</div>
+                                </div>
+                                <div class="mt-4 grid grid-cols-3 gap-3 text-xs">
+                                    <div class="rounded-xl bg-white p-3 border border-slate-200"><div class="small-heading mb-1">Lifetime</div><div class="font-black text-slate-900">${{ d.ltv }}</div></div>
+                                    <div class="rounded-xl bg-white p-3 border border-slate-200"><div class="small-heading mb-1">Payment Methods</div><div class="font-black text-slate-900">{{ d.paymentMethods.join(', ') }}</div></div>
+                                    <div class="rounded-xl bg-white p-3 border border-slate-200"><div class="small-heading mb-1">Receipts</div><div class="font-black text-slate-900">{{ d.totalDonations }} available</div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="forensicTab === 'settlement'" class="animate-fade-in space-y-3">
+                            <div v-for="line in orgSettlementLines(viewingOrg)" :key="line.donationId" class="rounded-2xl border border-slate-100 p-4 bg-slate-50">
+                                <div class="grid grid-cols-6 gap-3 items-center text-xs font-bold">
+                                    <div><div class="small-heading">Donation</div><div class="mt-1 text-slate-900">{{ line.donationId }}</div></div>
+                                    <div><div class="small-heading">Gross</div><div class="mt-1 text-slate-900">${{ line.gross }}</div></div>
+                                    <div><div class="small-heading">Fees</div><div class="mt-1 text-slate-900">${{ line.fees }}</div></div>
+                                    <div><div class="small-heading">Reserve</div><div class="mt-1 text-slate-900">${{ line.reserve }}</div></div>
+                                    <div><div class="small-heading">Settlement</div><div class="mt-1 code-chip text-slate-500">{{ line.settlement }}</div></div>
+                                    <div><div class="small-heading">Payout</div><div class="mt-1 code-chip text-slate-500">{{ line.payout }}</div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="forensicTab === 'users'" class="animate-fade-in space-y-2">
+                            <div v-for="user in viewingOrg.users" :key="user.email" class="p-4 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-slate-200 rounded flex items-center justify-center text-slate-500"><i class="fas fa-user-shield"></i></div>
+                                    <div><p class="text-xs font-black text-slate-900 uppercase">{{ user.name }}</p><p class="text-[9px] text-slate-400 font-bold uppercase">{{ user.email }}</p></div>
+                                </div>
+                                <span class="text-[9px] font-black uppercase bg-white px-3 py-1 rounded-full border shadow-sm">{{ user.role }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-8 bg-slate-50 border-t flex gap-4">
+                    <button @click="suspendAccount(viewingOrg)" class="flex-1 bg-slate-200 text-slate-700 py-4 rounded-xl font-black uppercase text-[10px] hover:bg-slate-300">Suspend Account</button>
+                    <button @click="blockOrganization(viewingOrg)" class="flex-1 bg-rose-600 text-white py-4 rounded-xl font-black uppercase text-[10px] shadow-xl shadow-rose-100 hover:bg-rose-700">Block Globally</button>
+                </div>
+            </div>
+        </transition>
+
+        <!-- Receipt Drawer -->
+        <transition name="slide">
+            <div v-if="selectedReceipt" class="absolute inset-y-0 right-0 w-[560px] bg-white shadow-2xl border-l border-slate-200 z-[65] flex flex-col">
+                <div class="p-8 border-b bg-slate-900 text-white flex justify-between items-center">
+                    <div>
+                        <h3 class="text-lg font-black uppercase tracking-widest">Donation Receipt</h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">{{ selectedReceipt.receiptId }}</p>
+                    </div>
+                    <button @click="selectedReceipt = null" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <div class="flex-1 p-8 overflow-y-auto">
+                    <div class="rounded-3xl border border-slate-100 p-6 bg-slate-50">
+                        <div class="small-heading">Issued To</div>
+                        <div class="mt-1 text-lg font-black text-slate-900">{{ selectedReceipt.donor }}</div>
+                        <div class="mt-1 text-xs font-bold text-slate-500">{{ selectedReceipt.email }}</div>
+                        <div class="mt-5 small-heading">Campaign</div>
+                        <div class="mt-1 font-black text-slate-900">{{ selectedReceipt.campaign }}</div>
+                        <div class="mt-5 grid grid-cols-2 gap-3 text-sm">
+                            <div class="rounded-2xl bg-white p-4 border border-slate-200">
+                                <div class="small-heading mb-1">Gross Donation</div>
+                                <div class="font-black text-slate-900">${{ selectedReceipt.amount }}</div>
+                            </div>
+                            <div class="rounded-2xl bg-white p-4 border border-slate-200">
+                                <div class="small-heading mb-1">Receipt Date</div>
+                                <div class="font-black text-slate-900">{{ selectedReceipt.date }}</div>
+                            </div>
+                        </div>
+                        <div class="mt-5 small-heading">Tax Language</div>
+                        <div class="mt-2 text-sm text-slate-600 leading-relaxed font-medium">{{ selectedReceipt.taxLanguage }}</div>
+                        <div class="mt-5 small-heading">Evidence</div>
+                        <div class="mt-2 text-sm text-slate-600 font-medium">
+                            PDF Hash {{ selectedReceipt.hash }} • Delivered {{ selectedReceipt.delivered }} • Download Count {{ selectedReceipt.downloads }}
+                        </div>
+                    </div>
+                </div>
+                <div class="p-8 bg-slate-50 border-t flex gap-4">
+                    <button class="flex-1 bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-[10px]">Download PDF</button>
+                    <button class="flex-1 bg-emerald-600 text-white py-4 rounded-xl font-black uppercase text-[10px]">Resend Email</button>
+                </div>
+            </div>
+        </transition>
+    </main>
+</div>
+
+<script>
+const { createApp } = Vue;
+createApp({
+    data() {
+        return {
+            currentTab: 'financials',
+            forensicTab: 'donors',
+            viewingOrg: null,
+            selectedApp: null,
+            selectedDonor: null,
+            selectedReceipt: null,
+            searchQuery: '',
+            snapshot: [
+                { label: 'Network GTV', value: '$12,500.00', tone: 'default' },
+                { label: 'Net to Orgs', value: '$11,178.64', tone: 'success' },
+                { label: 'Requested Payouts', value: '$11,875.00', tone: 'warning' },
+                { label: 'Total in Risk', value: '$10,000.00', tone: 'risk' },
+                { label: 'Open Exceptions', value: '7', tone: 'risk' }
+            ],
+            campaignAnalytics: [
+                { name: 'Manifold Ministry', type: 'Crowdfunding', raised: '8,500.00', donors: 18, progress: 82 },
+                { name: 'Youth Outreach', type: 'P2P', raised: '3,375.00', donors: 11, progress: 41 },
+                { name: 'Operational Fund', type: 'Full Page', raised: '625.00', donors: 5, progress: 12 },
+                { name: 'Church Expansion', type: 'Multi-Step', raised: '2,150.00', donors: 9, progress: 28 }
+            ],
+            riskOverview: [
+                { label: 'Shared Card Fingerprints', count: 2, tone: 'status-review', note: 'Potential donor aliasing or mule activity across multiple donor identities.' },
+                { label: 'Refund Velocity', count: 1, tone: 'status-risk', note: 'Post-payout refund activity detected within 48 hours.' },
+                { label: 'IP / Region Mismatch', count: 4, tone: 'status-review', note: 'Billing geography differed from connection region on flagged donations.' }
+            ],
+            reconciliationHealth: [
+                { label: 'Platform vs Processor', sub: 'matched transactions', value: '99.4%', good: true },
+                { label: 'Processor vs Bank', sub: 'matched deposits', value: '98.8%', good: true },
+                { label: 'Unmapped Exceptions', sub: 'requires review', value: '7', good: false }
+            ],
+            forensicCoverage: [
+                { label: 'Donation Intent', note: 'Stores checkout session, campaign path, fee-cover election, donor note, UTM, referrer, and accepted consent evidence.' },
+                { label: 'Payment Evidence', note: 'Stores token reference, masked card details, card fingerprint, AVS/CVC/3DS outcomes, wallet type, and processor references.' },
+                { label: 'Settlement Trail', note: 'Links every donation to settlement batch, payout batch, reserve hold or release, and bank deposit confirmation.' },
+                { label: 'Receipt Archive', note: 'Stores receipt number, issue date, tax language version, PDF hash, email delivery status, and download count.' },
+                { label: 'Audit Log', note: 'Stores actor, action, before/after values, source IP, role, and interface used.' },
+                { label: 'Alias Resolution', note: 'Links donor identities across email, device, phone, address, and card fingerprint evidence.' }
+            ],
+            ledgerEntries: [
+                { id: 'LE-10084', description: 'Donation gross posted', effectiveDate: '2026-03-30', source: 'Donation TX-9901', amount: '1,000.00', debit: 'Processor Clearing', credit: 'Gross Donations', status: 'Posted' },
+                { id: 'LE-10085', description: 'Processor fee posted', effectiveDate: '2026-03-30', source: 'Balance Tx BAL-2004', amount: '29.30', debit: 'Processor Fees', credit: 'Processor Clearing', status: 'Posted' },
+                { id: 'LE-10086', description: 'Organization payable accrued', effectiveDate: '2026-03-30', source: 'Donation TX-9901', amount: '955.70', debit: 'Gross Donations', credit: 'Organization Payable', status: 'Posted' },
+                { id: 'LE-10087', description: 'Reserve withheld', effectiveDate: '2026-03-31', source: 'Reserve RH-002', amount: '50.00', debit: 'Organization Payable', credit: 'Reserve Liability', status: 'Posted' }
+            ],
+            payoutBatches: [
+                { id: 'PO-3001', org: 'St. James HOFS', date: '2026-03-31', net: '11,875.00', reserve: '300.00', items: 19, status: 'Queued', statusClass: 'status-review' },
+                { id: 'PO-3002', org: 'GoodForUs Community', date: '2026-03-31', net: '0.00', reserve: '0.00', items: 0, status: 'Released', statusClass: 'status-active' }
+            ],
+            chartOfAccounts: [
+                { code: '4000', name: 'Gross Donations', type: 'Revenue' },
+                { code: '1100', name: 'Processor Clearing', type: 'Asset' },
+                { code: '5100', name: 'Processor Fees', type: 'Expense' },
+                { code: '2200', name: 'Organization Payable', type: 'Liability' },
+                { code: '2210', name: 'Reserve Liability', type: 'Liability' },
+                { code: '5220', name: 'Chargeback Fees', type: 'Expense' },
+                { code: '2250', name: 'Refunds Payable', type: 'Liability' },
+                { code: '1205', name: 'Cash Clearing', type: 'Asset' }
+            ],
+            reconciliationTable: [
+                { id: 'TX-9901', campaign: 'Manifold Ministry', gross: '1,000.00', processorFee: '29.30', platformFee: '15.00', reserve: '50.00', net: '905.70', settlement: 'SET-2101', payout: 'PO-3001' },
+                { id: 'TX-9902', campaign: 'Manifold Ministry', gross: '1,000.00', processorFee: '29.30', platformFee: '15.00', reserve: '0.00', net: '955.70', settlement: 'SET-2101', payout: 'PO-3001' },
+                { id: 'TX-4401', campaign: 'Youth Outreach', gross: '500.00', processorFee: '14.80', platformFee: '7.50', reserve: '0.00', net: '477.70', settlement: 'SET-2102', payout: 'PO-3001' }
+            ],
+            settlements: [
+                { id: 'SET-2101', processor: 'Primary PSP', date: '2026-03-31', status: 'Matched', statusClass: 'status-active', gross: '2,000.00', net: '1,911.40', count: 2 },
+                { id: 'SET-2102', processor: 'Primary PSP', date: '2026-03-31', status: 'Pending', statusClass: 'status-review', gross: '500.00', net: '477.70', count: 1 }
+            ],
+            settlementExceptions: [
+                { id: 'EX-88', type: 'Orphan refund', status: 'Open', note: 'Refund event received before donation settlement map resolved.' },
+                { id: 'EX-89', type: 'Deposit variance', status: 'Open', note: 'Bank deposit lower than processor net by $14.15 pending reserve release explanation.' }
+            ],
+            depositMatches: [
+                { id: 'DEP-5501', bankDate: '2026-04-01', amount: '1,911.40', account: 'Bank •••• 8411', matched: true },
+                { id: 'DEP-5502', bankDate: '2026-04-01', amount: '477.70', account: 'Bank •••• 8411', matched: false }
+            ],
+            auditLogs: [
+                { id: 'AUD-9001', action: 'Payout destination updated', actor: 'Sarah Miller', when: '2026-03-31 08:12 UTC', before: 'Bank •••• 1104', after: 'Bank •••• 8411', ip: '73.94.18.201', surface: 'Organization Console' },
+                { id: 'AUD-9002', action: 'Manual reserve applied', actor: 'Finance Admin', when: '2026-03-31 09:26 UTC', before: 'Reserve $0.00', after: 'Reserve $50.00', ip: '10.1.0.44', surface: 'Master Admin' },
+                { id: 'AUD-9003', action: 'Receipt reissued', actor: 'Support Admin', when: '2026-03-31 11:01 UTC', before: 'Receipt downloads 0', after: 'Receipt downloads 1', ip: '10.1.0.29', surface: 'Support Tools' }
+            ],
+            organizations: [
+                {
+                    id: 8001,
+                    name: 'St. James HOFS',
+                    legalName: 'St. James House of Faith Services',
+                    taxIdMasked: 'XX-XXX7812',
+                    balance: '11,875.00',
+                    reserveHeld: '300.00',
+                    payoutSchedule: 'Weekly',
+                    kybStatus: 'Verified',
+                    bankLast4: '8411',
+                    feePlan: '2.9% + $0.30 / custom platform fee',
+                    descriptor: 'GOODFORUS*STJAMES',
+                    status: 'Active',
+                    amlAlerts: 1,
+                    campaigns: [
+                        { id:'C-1001', name: 'Manifold Ministry', type:'Crowdfunding', attribution:'Campaign + Peer Page', raised: '8,500.00', frozen: false },
+                        { id:'C-1002', name: 'Youth Outreach', type:'P2P', attribution:'Team + Individual Fundraiser', raised: '3,375.00', frozen: false }
+                    ],
+                    users: [
+                        { name: 'Reverend James', email: 'lead@stjames.org', role: 'Super Admin' },
+                        { name: 'Sarah Miller', email: 'sarah@stjames.org', role: 'Treasurer' }
+                    ],
+                    alerts: [{ id: 1, donorId: 77, donor: 'Paul Witfield', flaggedTotal: '10,000.00' }]
+                },
+                {
+                    id: 8002,
+                    name: 'GoodForUs Community',
+                    legalName: 'GoodForUs Community Foundation',
+                    taxIdMasked: 'XX-XXX4509',
+                    balance: '0.00',
+                    reserveHeld: '0.00',
+                    payoutSchedule: 'Daily',
+                    kybStatus: 'Verified',
+                    bankLast4: '6522',
+                    feePlan: 'Standard',
+                    descriptor: 'GOODFORUS*COMMUNITY',
+                    status: 'Active',
+                    amlAlerts: 0,
+                    campaigns: [
+                        { id:'C-1003', name: 'Operational Fund', type:'Full Page', attribution:'Campaign Direct', raised: '0.00', frozen: false }
+                    ],
+                    users: [
+                        { name: 'SysAdmin', email: 'root@goodforus.org', role: 'Dev' }
+                    ],
+                    alerts: []
+                }
+            ],
+            donors: [
+                {
+                    id: 42,
+                    name: 'Dr. Ana Everett',
+                    email: 'ana@example.org',
+                    phone: '(555) 222-0109',
+                    firstDonation: '2026-02-11',
+                    lastDonation: '2026-03-30',
+                    regions: ['Ohio, USA'],
+                    paymentMethods: ['Visa'],
+                    riskSignals: [],
+                    totalDonations: 1,
+                    ltv: '2500.00',
+                    history: [
+                        { id: 'TX-4401', processorRef:'PI-77311', campaign: 'Manifold Ministry', organization:'St. James HOFS', date:'2026-03-30', amt: '500.00', frozen: false, ip: '192.168.1.1', region: 'Ohio, USA', cardBrand:'Visa', last4:'4242', cardFingerprint:'FPR-ANA-01', receiptId:'RCT-4001', taxLanguage:'No goods or services were provided in exchange for this contribution.' }
+                    ]
+                },
+                {
+                    id: 77,
+                    name: 'Paul Witfield',
+                    email: 'paul@example.org',
+                    phone: '(555) 888-1011',
+                    firstDonation: '2026-03-22',
+                    lastDonation: '2026-03-31',
+                    regions: ['Ohio, USA', 'Kentucky, USA'],
+                    paymentMethods: ['Visa', 'Apple Pay'],
+                    riskSignals: ['Shared device', 'Payout proximity'],
+                    totalDonations: 2,
+                    ltv: '10000.00',
+                    history: [
+                        { id: 'TX-9901', processorRef:'PI-99441', campaign: 'Manifold Ministry', organization:'St. James HOFS', date:'2026-03-30', amt: '1000.00', frozen: false, ip: '172.16.2.14', region: 'Ohio, USA', cardBrand:'Visa', last4:'1881', cardFingerprint:'FPR-PLW-02', receiptId:'RCT-4002', taxLanguage:'No goods or services were provided in exchange for this contribution.' },
+                        { id: 'TX-9902', processorRef:'PI-99442', campaign: 'Manifold Ministry', organization:'St. James HOFS', date:'2026-03-31', amt: '1000.00', frozen: false, ip: '172.16.2.14', region: 'Kentucky, USA', cardBrand:'Apple Pay / Visa', last4:'1881', cardFingerprint:'FPR-PLW-02', receiptId:'RCT-4003', taxLanguage:'No goods or services were provided in exchange for this contribution.' }
+                    ]
+                }
+            ],
+            donorEvidenceFields: [
+                'Donation ID / checkout session / receipt number',
+                'Donation date and local + UTC timestamps',
+                'Organization / campaign / peer page / team attribution',
+                'Donor name / email / phone / billing address',
+                'Gross / fees / net / reserve / refund / dispute status',
+                'Masked payment method / BIN metadata / last4 / fingerprint',
+                'IP address / region / user agent / device session',
+                'Settlement ID / payout batch / bank deposit reference',
+                'Receipt archive / PDF hash / download history'
+            ],
+            receiptRules: [
+                { label: 'Auto-issue receipt PDFs', active: true, note: 'Generate a receipt artifact immediately after successful capture.' },
+                { label: 'Store legal tax language version', active: true, note: 'Tie every receipt to the exact tax and goods/services statement used.' },
+                { label: 'Track resend and download evidence', active: true, note: 'Maintain proof of receipt generation, email delivery, and download events.' }
+            ],
+            exportsCatalog: [
+                { name:'Donation Transaction Export', note:'One row per donation with donor, campaign, card metadata, IP, settlement, payout, and receipt link.' },
+                { name:'Donor 360 Export', note:'Lifetime giving, campaigns supported, payment methods, aliases, receipts, and risk signals.' },
+                { name:'Campaign Financial Export', note:'Gross, net, fees, refunds, disputes, reserves, donors, and payout attribution.' },
+                { name:'Organization Payout Statement', note:'Included donations, offsets, reserve changes, opening and closing payable balance.' },
+                { name:'GL Journal Export', note:'Double-entry lines for all postings, reversals, and adjustments.' },
+                { name:'Settlement Reconciliation Export', note:'Processor, platform, and bank comparison with mismatch flags.' },
+                { name:'Refund / Dispute Report', note:'Reason codes, evidence status, liability owner, and payout offset treatment.' },
+                { name:'Receipt Archive ZIP', note:'Bulk downloadable receipts with issue dates, hashes, and reissue history.' }
+            ],
+            applications: [
+                {
+                    id: 501,
+                    name: "Misty's Crazy Creations",
+                    applied: 'Mar 30, 2026',
+                    riskScore: 80,
+                    riskLabel: 'High',
+                    status: 'Pending Review',
+                    kycFactors: [
+                        { name: 'UBO Chain', auditNote: 'Incomplete ownership data.', level: 'High' },
+                        { name: 'Source of Funds', auditNote: 'Unverified initial capital.', level: 'High' },
+                        { name: 'Adverse Media', auditNote: 'Related to 2021 litigation.', level: 'High' },
+                        { name: 'Shell Indicators', auditNote: 'Virtual address used.', level: 'High' }
+                    ]
+                }
+            ]
+        };
+    },
+    computed: {
+        filteredOrganizations() {
+            if (!this.searchQuery) return this.organizations;
+            const q = this.searchQuery.toLowerCase();
+            return this.organizations.filter(o =>
+                o.name.toLowerCase().includes(q) ||
+                o.legalName.toLowerCase().includes(q) ||
+                String(o.id).includes(q)
+            );
+        },
+        filteredDonors() {
+            if (!this.searchQuery) return this.donors;
+            const q = this.searchQuery.toLowerCase();
+            return this.donors.filter(d =>
+                d.name.toLowerCase().includes(q) ||
+                d.email.toLowerCase().includes(q) ||
+                d.history.some(h => h.id.toLowerCase().includes(q) || h.campaign.toLowerCase().includes(q))
+            );
+        },
+        allCampaigns() {
+            return this.organizations.flatMap(org =>
+                org.campaigns.map(c => ({
+                    id: c.id,
+                    name: c.name,
+                    type: c.type,
+                    attribution: c.attribution,
+                    raised: c.raised,
+                    netRaised: (parseFloat(c.raised || 0) * 0.93).toFixed(2),
+                    donors: c.name === 'Manifold Ministry' ? 18 : c.name === 'Youth Outreach' ? 11 : 5,
+                    avgGift: c.name === 'Manifold Ministry' ? '472.22' : c.name === 'Youth Outreach' ? '306.82' : '125.00',
+                    status: c.frozen ? 'Frozen' : 'Live',
+                    organization: org.name
+                }))
+            );
+        }
+    },
+    mounted() {
+        this.selectedDonor = this.donors[0];
+    },
+    methods: {
+        openOrgDossier(org) { this.viewingOrg = org; this.forensicTab = 'donors'; },
+        openDonorDetail(donor) { this.selectedDonor = donor; this.currentTab = 'donors'; },
+        openReceipt(tx) {
+            this.selectedReceipt = {
+                receiptId: tx.receiptId,
+                donor: this.selectedDonor.name,
+                email: this.selectedDonor.email,
+                campaign: tx.campaign,
+                amount: tx.amt,
+                date: tx.date,
+                taxLanguage: tx.taxLanguage,
+                hash: 'SHA256-29F991B8A6C1',
+                delivered: 'Email + In-platform',
+                downloads: 1
+            };
+        },
+        orgSettlementLines(org) {
+            return this.reconciliationTable.filter(r =>
+                org.campaigns.some(c => c.name === r.campaign)
+            ).map(r => ({
+                donationId: r.id,
+                gross: r.gross,
+                fees: (parseFloat(r.processorFee) + parseFloat(r.platformFee)).toFixed(2),
+                reserve: r.reserve,
+                settlement: r.settlement,
+                payout: r.payout
+            }));
+        },
+        toggleCampaignFunds(camp) {
+            camp.frozen = !camp.frozen;
+            alert(`Forensic Action: Campaign "${camp.name}" funds are now ${camp.frozen ? 'FROZEN' : 'RELEASED'}.`);
+        },
+        freezeDonation(tx) {
+            tx.frozen = !tx.frozen;
+            alert(`Forensic Action: Transaction ${tx.id} is now ${tx.frozen ? 'FROZEN' : 'RELEASED'}.`);
+        },
+        toggleBlock(u) { alert(`Security: Block Protocol initiated for ${u.donor}.`); },
+        approveOrg(app) { alert(`KYC for ${app.name} Approved.`); this.selectedApp = null; },
+        suspendAccount(org) { org.status = 'Suspended'; alert(`Organization ${org.name} SUSPENDED.`); },
+        blockOrganization(org) { org.status = 'Blocked'; alert(`Organization ${org.name} BLOCKED.`); }
+    }
+}).mount('#app');
+</script>
+</body>
+</html>

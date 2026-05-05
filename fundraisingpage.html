@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enterprise Campaign Builder | Live View</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Montserrat:wght@400;700;900&family=Poppins:wght@400;700;900&family=Playfair+Display:wght@400;700;900&family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --admin-sidebar: #1d2327;
+            --accent: #2271b1;
+            --border: #e2e8f0;
+            --header-h: 80px;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; margin: 0; height: 100vh; overflow: hidden; }
+        
+        .builder-shell { display: grid; grid-template-columns: 420px 1fr; height: 100vh; }
+        
+        /* Sidebar Customizer */
+        .customizer-panel { background: white; border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 10px 0 30px rgba(0,0,0,0.03); z-index: 20; }
+        .customizer-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .customizer-body { flex: 1; overflow-y: auto; padding: 24px; }
+        
+        /* Step Navigation */
+        .step-pill { flex: 1; text-align: center; padding: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8; border-bottom: 3px solid #f1f5f9; cursor: pointer; transition: 0.2s; }
+        .step-pill.active { color: var(--accent); border-color: var(--accent); }
+
+        /* Form Controls */
+        .control-group { margin-bottom: 30px; }
+        label { font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: block; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 13px; transition: border-color 0.2s; background: #fff; }
+        input:focus { border-color: var(--accent); outline: none; }
+
+        .upload-trigger { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; border: 2px dashed var(--border); border-radius: 10px; background: #f8fafc; color: #64748b; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .upload-trigger:hover { border-color: var(--accent); color: var(--accent); background: #f0f9ff; }
+
+        /* Designer Icon Toggles */
+        .icon-toggle-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .icon-toggle-item { display: flex; align-items: center; gap: 10px; padding: 12px; background: #f8fafc; border: 1.5px solid #f1f5f9; border-radius: 10px; cursor: pointer; transition: 0.2s; font-size: 12px; font-weight: 700; color: #64748b; position: relative; }
+        .icon-toggle-item.active { border-color: var(--accent); background: #f0f9ff; color: var(--accent); }
+        .icon-toggle-item input { position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0; }
+
+        /* Preview Screen */
+        .preview-screen { flex: 1; background: #f1f5f9; padding: 30px; display: flex; justify-content: center; overflow-y: auto; align-items: start; }
+        .live-page { background: white; width: 100%; height: 100%; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        .live-header { width: 100%; padding: 0 60px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); z-index: 50; min-height: var(--header-h); flex-shrink: 0; transition: background 0.3s, color 0.3s; }
+        .live-content-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+
+        /* Recurring UI */
+        .frequency-tabs { display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 10px; margin-bottom: 20px; width: fit-content; }
+        .freq-tab { padding: 6px 16px; font-size: 11px; font-weight: 800; text-transform: uppercase; border-radius: 7px; cursor: pointer; transition: 0.2s; color: #64748b; }
+        .freq-tab.active { background: white; color: var(--accent); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        .progress-container { height: 10px; margin: 15px 0; background: #f1f5f9; border-radius: 99px; overflow: hidden; }
+        .progress-fill { height: 100%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .donation-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; margin: 20px 0; }
+        .amt-btn { padding: 14px; border: 2px solid #f1f5f9; border-radius: 12px; font-weight: 800; text-align: center; cursor: pointer; transition: 0.2s; font-size: 14px; color: #475569; }
+        .amt-btn:hover, .amt-btn.active { border-color: var(--accent); color: var(--accent); }
+        .amt-btn.active { background-color: #f0f9ff; }
+        
+        .manual-input-wrapper { position: relative; margin-top: 10px; }
+        .manual-input { width: 100%; padding: 14px 14px 14px 35px; border: 2px solid #f1f5f9; border-radius: 12px; font-weight: 800; transition: 0.2s; font-size: 14px; outline: none; }
+        .manual-input:focus { border-color: var(--accent); }
+        .currency-symbol { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-weight: 800; color: #94a3b8; }
+
+        .main-cta { width: 100%; padding: 20px; border-radius: 14px; color: white; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15); transition: transform 0.2s; border: none; }
+        
+        .share-icon { width: 38px; height: 38px; border-radius: 50%; background: rgba(128,128,128,0.1); display: flex; align-items: center; justify-content: center; font-size: 14px; color: inherit; transition: 0.2s; cursor: pointer; border: 1px solid rgba(0,0,0,0.05); }
+
+        /* Toggles & Checkboxes */
+        .toggle-switch { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f8fafc; border-radius: 10px; cursor: pointer; border: 1px solid transparent; transition: 0.2s; margin-bottom: 10px; }
+        .toggle-switch.active { border-color: var(--accent); background: #f0f9ff; }
+        .toggle-dot { width: 36px; height: 20px; background: #cbd5e1; border-radius: 99px; position: relative; }
+        .toggle-dot::after { content: ''; position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; background: white; border-radius: 50%; transition: 0.3s; }
+        .active .toggle-dot { background: var(--accent); }
+        .active .toggle-dot::after { left: 18px; }
+
+        .hero-media { transition: all 0.4s ease; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+
+        /* Payment Pop-up Overlay */
+        .payment-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            padding: 30px 40px; 
+            animation: slideUp 0.3s ease-out;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .payment-option-card {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px; 
+            border: 2px solid #f1f5f9;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .payment-option-card:hover { border-color: var(--accent); background: #f0f9ff; }
+        .payment-option-card i { font-size: 20px; margin-right: 16px; color: #64748b; }
+        .payment-option-card.active { border-color: var(--accent); background: #f0f9ff; color: var(--accent); }
+        .payment-option-card.active i { color: var(--accent); }
+
+        /* Crypto Specific Styles */
+        .crypto-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .crypto-chip { padding: 10px; border: 2px solid #f1f5f9; border-radius: 12px; text-align: center; font-weight: 800; cursor: pointer; font-size: 12px; }
+        .crypto-chip.active { border-color: var(--accent); color: var(--accent); background: #f0f9ff; }
+        .qr-placeholder { width: 140px; height: 140px; background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 15px auto; }
+        .wallet-address { background: #f1f5f9; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 11px; word-break: break-all; display: flex; justify-content: space-between; align-items: center; }
+
+        /* Donor Board Styles */
+        .donor-board { padding: 40px 0; border-top: 2px solid #f1f5f9; position: relative; }
+        .donor-card { background: white; padding: 20px; border-radius: 16px; border: 1px solid #f1f5f9; margin-bottom: 15px; position: relative; overflow: visible; }
+        .donor-card.pinned { border: 2px solid #fbbf24; background: #fffcf0; }
+        .pinned-badge { position: absolute; top: -12px; right: 20px; background: #fbbf24; color: white; padding: 2px 10px; border-radius: 100px; font-size: 9px; font-weight: 900; text-transform: uppercase; z-index: 10; }
+        
+        .payment-details-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #f1f5f9;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+            transition: 0.2s;
+        }
+        .payment-details-input:focus { border-color: var(--accent); background: #f0f9ff; }
+
+        /* New Side Column Items */
+        .campaign-item-card { background: white; border: 1.5px solid #f1f5f9; border-radius: 16px; overflow: hidden; margin-bottom: 16px; transition: 0.2s; cursor: pointer; }
+        .campaign-item-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .extra-media-card { border-radius: 16px; overflow: hidden; margin-bottom: 16px; background: #000; height: 200px; position: relative; }
+        .extra-media-card img, .extra-media-card video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Item Management UI */
+        .item-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; background: #f8fafc; padding: 8px; border-radius: 8px; border: 1px solid #f1f5f9; }
+        .item-row span { font-size: 12px; font-weight: 700; color: #475569; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .btn-remove { color: #ef4444; padding: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="app" class="builder-shell">
+    
+    <!-- LEFT PANEL -->
+    <div class="customizer-panel">
+        <div class="customizer-header">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-magic text-blue-500"></i>
+                <h1 class="font-black text-sm uppercase tracking-tighter">Campaign Designer</h1>
+            </div>
+            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase">Publish</button>
+        </div>
+        
+        <div class="flex bg-slate-50">
+            <div v-for="s in steps" :key="s.id" @click="step = s.id" class="step-pill" :class="{active: step === s.id}">Step {{s.id}}</div>
+        </div>
+
+        <div class="customizer-body">
+            
+            <div v-if="step === 1">
+                <div class="control-group">
+                    <label>Logo Asset</label>
+                    <input v-model="form.logoUrl" placeholder="Logo URL" class="mb-2">
+                    <input type="file" ref="logoInput" class="hidden" accept="image/*" @change="handleFileUpload($event, 'logoUrl')">
+                    <button class="upload-trigger mb-3" @click="$refs.logoInput.click()"><i class="fas fa-upload"></i> Upload Logo</button>
+                    
+                    <div>
+                        <label>Logo Size (px)</label>
+                        <input type="number" v-model="form.logoHeight">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Organization Name</label>
+                    <input v-model="form.orgName" placeholder="Enter Org Name" class="mb-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label>Font Size</label>
+                            <input type="number" v-model="form.orgNameSize">
+                        </div>
+                        <div>
+                            <label>Font Family</label>
+                            <select v-model="form.orgNameFont">
+                                <option value="Inter">Inter</option>
+                                <option value="Montserrat">Montserrat</option>
+                                <option value="Poppins">Poppins</option>
+                                <option value="Playfair Display">Serif</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Campaign Title</label>
+                    <input v-model="form.campaignName">
+                </div>
+                <div class="control-group">
+                    <label>Mission Text</label>
+                    <textarea v-model="form.mission" rows="4"></textarea>
+                </div>
+            </div>
+
+            <div v-if="step === 2">
+                <div class="control-group">
+                    <label>Layout Style</label>
+                    <select v-model="form.layout">
+                        <option value="side-left">Split (Image Left)</option>
+                        <option value="side-right">Split (Image Right)</option>
+                        <option value="stacked-top">Stacked (Hero Top)</option>
+                        <option value="stacked-below">Stacked (Hero Below Text)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>Hero Media Source</label>
+                    <div class="flex gap-2 bg-slate-50 p-1 rounded-lg mb-3">
+                        <button v-for="mode in ['image', 'video']" :key="mode" 
+                            @click="form.heroType = mode"
+                            class="flex-1 py-2 text-[10px] font-black uppercase rounded-md transition"
+                            :class="form.heroType === mode ? 'bg-white shadow-sm text-blue-600' : 'text-slate-400'">
+                            {{ mode }}
+                        </button>
+                    </div>
+                    
+                    <div v-if="form.heroType === 'image'" class="space-y-2">
+                        <input v-model="form.heroUrl" placeholder="Image URL">
+                        <input type="file" ref="heroInput" class="hidden" accept="image/*" @change="handleFileUpload($event, 'heroUrl')">
+                        <button class="upload-trigger" @click="$refs.heroInput.click()">
+                            <i class="fas fa-camera"></i> Upload Hero Image
+                        </button>
+                    </div>
+                    <div v-else class="space-y-2">
+                        <input v-model="form.heroUrl" placeholder="Video URL (YouTube/MP4)">
+                        <input type="file" ref="videoInput" class="hidden" accept="video/*" @change="handleFileUpload($event, 'heroUrl')">
+                        <button class="upload-trigger" @click="$refs.videoInput.click()">
+                            <i class="fas fa-video"></i> Upload Hero Video
+                        </button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Media Sizing (Crop / Fit)</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button v-for="fit in fitOptions" :key="fit.value"
+                            @click="form.heroFit = fit.value"
+                            class="py-2 text-[10px] font-bold uppercase rounded-lg border-2 transition"
+                            :class="form.heroFit === fit.value ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-100 text-slate-400'">
+                            {{ fit.label }}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="toggle-switch mb-6" :class="{active: form.heroFullHeight}" @click="form.heroFullHeight = !form.heroFullHeight">
+                    <label>Full Screen (100vh)</label>
+                    <div class="toggle-dot"></div>
+                </div>
+
+                <!-- Brand & Header Styling -->
+                <div class="control-group">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label>Accent Color</label>
+                            <input type="color" v-model="form.accentColor" class="h-10 cursor-pointer p-1">
+                        </div>
+                        <div>
+                            <label>Header Bg</label>
+                            <input type="color" v-model="form.headerBg" class="h-10 cursor-pointer p-1">
+                        </div>
+                    </div>
+
+                    <div class="toggle-switch" :class="{active: form.headerDarkText}" @click="form.headerDarkText = !form.headerDarkText">
+                        <label>Header Text: {{ form.headerDarkText ? 'Dark' : 'Light' }}</label>
+                        <div class="toggle-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="step === 3">
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6">
+                    <label class="text-blue-600 mb-4 block">Fundraising Target</label>
+                    <div class="toggle-switch" :class="{active: form.showProgress}" @click="form.showProgress = !form.showProgress">
+                        <label>Show Progress Bar</label>
+                        <div class="toggle-dot"></div>
+                    </div>
+                    
+                    <div v-if="form.showProgress" class="space-y-3 mt-4">
+                        <div>
+                            <label>Campaign Goal ($)</label>
+                            <input type="number" v-model="form.goalAmount" placeholder="30000">
+                        </div>
+                        <div>
+                            <label>Amount Raised ($)</label>
+                            <input type="number" v-model="form.raisedAmount" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6">
+                    <label class="text-slate-600 mb-4 block">Recurring Settings</label>
+                    <div v-if="form.allowRecurring" class="mt-4 space-y-2">
+                        <div v-for="f in ['One-time', 'Weekly', 'Monthly', 'Annually']" class="icon-toggle-item" :class="{active: form.frequencies.includes(f)}" @click="toggleFrequency(f)">
+                             <i class="fas fa-check-circle" :class="form.frequencies.includes(f) ? 'opacity-100' : 'opacity-20'"></i>
+                             {{f}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Suggested Amounts</label>
+                    <input v-model="form.presets">
+                </div>
+            </div>
+
+            <div v-if="step === 4">
+                <div class="control-group">
+                    <label>Bottom Sidebar Content Type</label>
+                    <div class="flex gap-2 bg-slate-50 p-1 rounded-lg mb-3">
+                        <button v-for="type in ['campaigns', 'media']" :key="type" 
+                            @click="form.bottomSidebarType = type"
+                            class="flex-1 py-2 text-[10px] font-black uppercase rounded-md transition"
+                            :class="form.bottomSidebarType === type ? 'bg-white shadow-sm text-blue-600' : 'text-slate-400'">
+                            {{ type }}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Add Supported Campaign -->
+                <div v-if="form.bottomSidebarType === 'campaigns'" class="control-group">
+                    <label>Manage Supported Campaigns</label>
+                    <div v-for="(c, idx) in form.supportedCampaigns" :key="idx" class="item-row">
+                        <span>{{ c.title }}</span>
+                        <i @click="form.supportedCampaigns.splice(idx, 1)" class="fas fa-trash btn-remove"></i>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 mt-4 space-y-3">
+                        <input v-model="newItem.title" placeholder="Campaign Title" class="!py-2 text-xs">
+                        <textarea v-model="newItem.desc" placeholder="Brief description..." class="!py-2 text-xs" rows="2"></textarea>
+                        <input v-model="newItem.img" placeholder="Image Link" class="!py-2 text-xs">
+                        <input type="file" class="hidden" ref="campImgUpload" @change="handleItemUpload($event, 'campaign')">
+                        <button @click="$refs.campImgUpload.click()" class="upload-trigger !py-2 !text-[10px]"><i class="fas fa-upload"></i> Or Upload Image</button>
+                        <button @click="addCampaign" class="w-full bg-blue-600 text-white py-2 rounded-lg text-[10px] font-black uppercase">Add Campaign</button>
+                    </div>
+                </div>
+
+                <!-- Add Extra Media -->
+                <div v-if="form.bottomSidebarType === 'media'" class="control-group">
+                    <label>Manage Media Stories</label>
+                    <div v-for="(m, idx) in form.extraMedia" :key="idx" class="item-row">
+                        <span>{{ m.type === 'video' ? 'Video' : 'Image' }}: {{ m.url }}</span>
+                        <i @click="form.extraMedia.splice(idx, 1)" class="fas fa-trash btn-remove"></i>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 mt-4 space-y-3">
+                        <select v-model="newMedia.type" class="!py-2 text-xs">
+                            <option value="image">Image</option>
+                            <option value="video">Video Placeholder</option>
+                        </select>
+                        <input v-model="newMedia.url" placeholder="Media Link (URL)" class="!py-2 text-xs">
+                        <input type="file" class="hidden" ref="mediaUpload" @change="handleItemUpload($event, 'media')">
+                        <button @click="$refs.mediaUpload.click()" class="upload-trigger !py-2 !text-[10px]"><i class="fas fa-upload"></i> Or Upload Media</button>
+                        <button @click="addMedia" class="w-full bg-blue-600 text-white py-2 rounded-lg text-[10px] font-black uppercase">Add Story Media</button>
+                    </div>
+                </div>
+
+                <!-- Featured Donor Settings -->
+                <div class="control-group bg-amber-50 p-4 rounded-xl border border-amber-100">
+                    <label class="text-amber-800 flex items-center gap-2 mb-4">
+                        <i class="fas fa-crown"></i> Featured Sample Donor
+                    </label>
+                    <div class="space-y-3">
+                        <div class="field">
+                            <label>Donor Name</label>
+                            <input v-model="form.sampleDonorName" placeholder="e.g. Michael Chen">
+                        </div>
+                        <div class="field">
+                            <label>Donation Amount ($)</label>
+                            <input type="number" v-model="form.sampleDonorAmount" placeholder="500">
+                        </div>
+                        <div class="field">
+                            <label>Donor Message</label>
+                            <textarea v-model="form.sampleDonorMessage" rows="2" placeholder="e.g. So proud of this initiative!"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL: PREVIEW -->
+    <div class="preview-screen">
+        <div class="live-page" :style="{ '--accent': form.accentColor }">
+            
+            <header class="live-header" :style="{ backgroundColor: form.headerBg, color: form.headerDarkText ? '#1e293b' : '#ffffff' }">
+                <div class="flex items-center gap-4">
+                    <img v-if="form.logoUrl" :src="form.logoUrl" :style="{ height: form.logoHeight + 'px' }" class="object-contain">
+                    <div v-if="form.orgName" 
+                        :style="{ 
+                            fontFamily: form.orgNameFont, 
+                            fontSize: form.orgNameSize + 'px', 
+                            fontWeight: 900,
+                            letterSpacing: '-0.02em'
+                        }">
+                        {{form.orgName}}
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <div v-for="iconId in form.headerSocialIcons" :key="iconId" class="share-icon" :style="{ borderColor: form.headerDarkText ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)' }">
+                        <i :class="getIconClass(iconId)"></i>
+                    </div>
+                </div>
+            </header>
+
+            <div class="live-content-scroll">
+                
+                <!-- Top-level Overlay for clean coverage -->
+                <div v-if="showPaymentOverlay" class="payment-overlay">
+                    <div v-if="paymentFlowStep === 'selection'" class="flex flex-col h-full">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="font-black text-2xl uppercase tracking-tighter">Payment Method</h2>
+                            <button @click="showPaymentOverlay = false" class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <p class="text-slate-500 mb-6 text-sm">Giving <span class="font-black text-slate-800">${{ currentGiftAmount }}</span> to this project.</p>
+                        
+                        <div class="space-y-3">
+                            <div class="payment-option-card" :class="{active: paymentMethod === 'card'}" @click="paymentMethod = 'card'">
+                                <i class="fas fa-credit-card"></i>
+                                <div><div class="font-black text-xs uppercase">Credit / Debit Card</div><div class="text-[10px] text-slate-400">Secure checkout via card</div></div>
+                            </div>
+                            <div class="payment-option-card" :class="{active: paymentMethod === 'ach'}" @click="paymentMethod = 'ach'">
+                                <i class="fas fa-university"></i>
+                                <div><div class="font-black text-xs uppercase">Bank Transfer (ACH)</div><div class="text-[10px] text-slate-400">Directly from bank account</div></div>
+                            </div>
+                            <div class="payment-option-card" :class="{active: paymentMethod === 'installments'}" @click="paymentMethod = 'installments'">
+                                <i class="fas fa-calendar-alt"></i>
+                                <div><div class="font-black text-xs uppercase">Installments</div><div class="text-[10px] text-slate-400">Flexible giving schedule</div></div>
+                            </div>
+                            <div class="payment-option-card" :class="{active: paymentMethod === 'crypto'}" @click="paymentMethod = 'crypto'">
+                                <i class="fab fa-bitcoin"></i>
+                                <div><div class="font-black text-xs uppercase">Cryptocurrency</div><div class="text-[10px] text-slate-400">BTC, ETH, and USDC</div></div>
+                            </div>
+                        </div>
+                        <button @click="paymentFlowStep = 'details'" class="main-cta mt-auto" :style="{ backgroundColor: form.accentColor }">Continue</button>
+                    </div>
+
+                    <div v-else-if="paymentFlowStep === 'details'" class="flex flex-col h-full">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="font-black text-2xl uppercase tracking-tighter">Enter Details</h2>
+                            <button @click="paymentFlowStep = 'selection'" class="text-xs font-bold text-slate-400">Back</button>
+                        </div>
+
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6 text-center">
+                            <div class="text-[10px] font-black uppercase text-blue-600 tracking-widest mb-1">Commitment Summary</div>
+                            <div class="text-xl font-black text-slate-800">${{ currentGiftAmount }} <span class="text-sm text-slate-500 font-bold">/ {{ activeFreq }}</span></div>
+                            <div class="text-xs text-slate-500 mt-1">Your total annual contribution: <span class="font-black text-blue-600">${{ totalAnnualAmount.toLocaleString() }}</span></div>
+                            <div class="text-[9px] text-slate-400 italic mt-2">Payments will be collected as per your chosen frequency.</div>
+                        </div>
+
+                        <form v-if="paymentMethod === 'card'" @submit.prevent class="space-y-4">
+                            <input type="text" name="ccname" autocomplete="cc-name" placeholder="Name on Card" class="payment-details-input">
+                            <input type="text" name="cardnumber" autocomplete="cc-number" placeholder="Card Number" class="payment-details-input">
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="text" name="cc-exp" autocomplete="cc-exp" placeholder="Expiry (MM/YY)" class="payment-details-input">
+                                <input type="text" name="cvc" autocomplete="cc-csc" placeholder="CVV" class="payment-details-input">
+                            </div>
+                        </form>
+
+                        <div v-else-if="paymentMethod === 'crypto'">
+                            <div class="crypto-grid">
+                                <div v-for="c in ['BTC', 'ETH', 'USDC']" :key="c" @click="selectedCoin = c" class="crypto-chip" :class="{active: selectedCoin === c}">{{c}}</div>
+                            </div>
+                            <div class="qr-placeholder">
+                                <i class="fas fa-qrcode text-4xl text-slate-300"></i>
+                            </div>
+                            <div class="wallet-address">
+                                <span>{{ cryptoAddresses[selectedCoin] }}</span>
+                                <i class="fas fa-copy cursor-pointer text-slate-400 hover:text-slate-800" @click="copyAddress"></i>
+                            </div>
+                        </div>
+
+                        <button @click="confirmPayment" class="main-cta mt-auto" :style="{ backgroundColor: form.accentColor }">
+                            Confirm & Send {{ activeFreq }} Gift
+                        </button>
+                    </div>
+
+                    <div v-else-if="paymentFlowStep === 'success'" class="flex flex-col h-full">
+                        <div class="text-center py-2">
+                            <div class="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-check text-xl"></i>
+                            </div>
+                            <h2 class="font-black text-2xl uppercase tracking-tighter mb-1">Thank You!</h2>
+                            <p class="text-slate-500 text-xs mb-4">Your receipt has been generated.</p>
+
+                            <div class="text-left bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-4 space-y-3">
+                                <div>
+                                    <label class="text-[10px] font-bold uppercase text-slate-400">Your Name</label>
+                                    <input v-model="donorName" class="mt-1 text-xs p-2 border rounded-lg w-full" placeholder="Enter your name...">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold uppercase text-slate-400">Leave a message?</label>
+                                    <textarea v-model="donorMessage" maxlength="250" rows="3" class="mt-1 text-xs p-2 border rounded-lg w-full" placeholder="Write something inspiring..."></textarea>
+                                </div>
+                                <div class="flex items-center gap-2 mt-3 cursor-pointer" @click="isAnonymous = !isAnonymous">
+                                    <div class="w-4 h-4 rounded border-2 flex items-center justify-center transition" :style="{borderColor: isAnonymous ? form.accentColor : '#e2e8f0', background: isAnonymous ? form.accentColor : 'transparent'}">
+                                        <i v-if="isAnonymous" class="fas fa-check text-[8px] text-white"></i>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-slate-600">Post anonymously</span>
+                                </div>
+                            </div>
+
+                            <button @click="postMessage" class="main-cta" :style="{ backgroundColor: form.accentColor }">Post & Finish</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="!showPaymentOverlay" :class="{
+                    'flex flex-col': form.layout.includes('stacked'),
+                    'flex flex-row flex-1': form.layout === 'side-left',
+                    'flex flex-row-reverse flex-1': form.layout === 'side-right'
+                }">
+                    
+                    <!-- Hero Media -->
+                    <div v-if="form.layout !== 'stacked-below'" class="hero-media" 
+                        :style="{ 
+                            height: form.heroFullHeight ? 'calc(100vh - 80px)' : (form.layout.includes('side') ? 'auto' : '450px'),
+                            width: form.layout.includes('side') ? '50%' : '100%',
+                            minHeight: form.layout.includes('side') ? 'calc(100vh - 80px)' : '0',
+                            backgroundColor: '#000'
+                        }">
+                        <img v-if="form.heroType === 'image'" :src="form.heroUrl" class="w-full h-full" :style="{ objectFit: form.heroFit }" onerror="this.src='https://placehold.co/1200x600?text=Hero+Image'">
+                        <video v-else-if="form.heroType === 'video'" :src="form.heroUrl" class="w-full h-full" :style="{ objectFit: form.heroFit }" controls loop muted></video>
+                    </div>
+
+                    <div class="flex-1 flex flex-col justify-center bg-white relative" :class="form.layout.includes('stacked') ? 'py-16' : 'p-[60px]'">
+                        
+                        <!-- Content Block 1 -->
+                        <div class="w-full" :class="form.layout.includes('stacked') ? 'px-[60px]' : ''">
+                            <div class="max-w-[540px] w-full" :class="{'mx-auto': form.layout.includes('stacked')}">
+                                <h1 class="font-black text-[42px] leading-[1.1] mb-6" :style="{color: form.nameColor}">{{form.campaignName}}</h1>
+                                <p class="text-slate-500 leading-relaxed mb-8">{{form.mission}}</p>
+                            </div>
+                        </div>
+
+                        <!-- Full Width Hero (Stacked Below) -->
+                        <div v-if="form.layout === 'stacked-below'" class="hero-media mb-10" 
+                            :style="{ 
+                                height: form.heroFullHeight ? 'calc(100vh - 80px)' : '450px', 
+                                width: '100%', 
+                                backgroundColor: '#000' 
+                            }">
+                            <img v-if="form.heroType === 'image'" :src="form.heroUrl" class="w-full h-full" :style="{ objectFit: form.heroFit }" onerror="this.src='https://placehold.co/1200x600?text=Hero+Image'">
+                            <video v-else-if="form.heroType === 'video'" :src="form.heroUrl" class="w-full h-full" :style="{ objectFit: form.heroFit }" controls loop muted></video>
+                        </div>
+
+                        <!-- Content Block 2 (Donation Panel + Community Support for Stacked Layouts) -->
+                        <div class="w-full" :class="form.layout.includes('stacked') ? 'px-[60px]' : ''">
+                            <div :class="form.layout.includes('stacked') ? 'max-w-[1140px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-[60px]' : 'max-w-[540px] w-full mx-auto'">
+                                <!-- Donation Controls -->
+                                <div>
+                                    <div v-if="form.showProgress" class="mb-8">
+                                        <div class="flex justify-between text-[11px] font-black uppercase mb-2">
+                                            <span class="text-slate-800">${{ Number(form.raisedAmount + totalSessionDonations).toLocaleString() }} Raised</span>
+                                            <span class="text-slate-400">Goal: ${{ Number(form.goalAmount).toLocaleString() }}</span>
+                                        </div>
+                                        <div class="progress-container">
+                                            <div class="progress-fill" :style="{ 
+                                                width: Math.min(((form.raisedAmount + totalSessionDonations) / (form.goalAmount || 1)) * 100, 100) + '%', 
+                                                backgroundColor: form.accentColor 
+                                            }"></div>
+                                        </div>
+                                    </div>
+
+                                    <div v-if="form.allowRecurring && form.frequencies.length > 1" class="mb-6">
+                                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Choose giving frequency:</div>
+                                        <div class="frequency-tabs">
+                                            <div v-for="freq in form.frequencies" :key="freq" @click="activeFreq = freq" class="freq-tab" :class="{active: activeFreq === freq}">{{freq}}</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="donation-options">
+                                        <div v-for="amt in form.presets.split(',')" :key="amt"
+                                            @click="selectedPreset = amt.trim(); isCustom = false"
+                                            class="amt-btn"
+                                            :class="{ active: selectedPreset === amt.trim() && !isCustom }">
+                                            ${{amt.trim()}}
+                                        </div>
+                                    </div>
+
+                                    <div class="manual-input-wrapper">
+                                        <span class="currency-symbol">$</span>
+                                        <input type="number" 
+                                            v-model="customAmount" 
+                                            @focus="isCustom = true; selectedPreset = null"
+                                            placeholder="Other Amount" 
+                                            class="manual-input">
+                                    </div>
+
+                                    <button @click="openPaymentOverlay" class="main-cta mt-6" :style="{ backgroundColor: form.accentColor }">
+                                        {{form.btnText}} <span v-if="activeFreq !== 'One-time'">({{activeFreq}})</span>
+                                    </button>
+                                </div>
+
+                                <!-- Community Support (Moved here for Stacked layouts) -->
+                                <div v-if="form.layout.includes('stacked')" class="donor-board mt-0 border-t-0 pt-0">
+                                    <h3 class="font-black text-2xl uppercase tracking-tighter mb-8">Community Support</h3>
+                                    <div v-if="sortedDonations.length === 0" class="text-slate-400 text-left py-10 border-2 border-dashed border-slate-100 rounded-2xl px-8">No messages yet. Be the first to share!</div>
+                                    <div class="space-y-6">
+                                        <div v-for="(d, idx) in sortedDonations" :key="idx" class="donor-card" :class="{ pinned: idx === 0 && d.amount > 0 }">
+                                            <div v-if="idx === 0 && d.amount > 0" class="pinned-badge"><i class="fas fa-crown mr-1"></i> Top Donor</div>
+                                            <div class="flex justify-between items-start mb-2">
+                                                <div class="font-black text-sm uppercase">{{ d.anonymous ? 'Anonymous Supporter' : (d.name || 'Kind Donor') }}</div>
+                                                <div class="font-black text-lg" :style="{color: form.accentColor}">${{ Number(d.amount).toLocaleString() }}</div>
+                                            </div>
+                                            <p class="text-sm text-slate-600 italic">"{{ d.message || 'Support sent to this great cause!' }}"</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Sidebar Content Section -->
+                <div v-if="!showPaymentOverlay" class="px-[60px] pb-20">
+                    <div class="max-w-[1140px] mx-auto">
+                        
+                        <!-- Layout Logic for Bottom Content -->
+                        <!-- If Stacked: Support/Media is Full Width -->
+                        <div v-if="form.layout.includes('stacked')" class="donor-board border-t-2 pt-10">
+                            <h3 class="font-black text-2xl uppercase tracking-tighter mb-8 text-center">
+                                {{ form.bottomSidebarType === 'campaigns' ? 'Support More Campaigns' : 'Recent Campaign Stories' }}
+                            </h3>
+                            
+                            <!-- Full Width Supported Campaigns -->
+                            <div v-if="form.bottomSidebarType === 'campaigns'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div v-for="(c, idx) in form.supportedCampaigns" :key="idx" class="campaign-item-card">
+                                    <img :src="c.img" class="w-full h-48 object-cover" onerror="this.src='https://placehold.co/400x300?text=Campaign'">
+                                    <div class="p-6">
+                                        <div class="font-black text-sm uppercase mb-2">{{ c.title }}</div>
+                                        <p class="text-xs text-slate-500 leading-relaxed">{{ c.desc }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Full Width Media Gallery -->
+                            <div v-if="form.bottomSidebarType === 'media'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div v-for="(m, midx) in form.extraMedia" :key="midx" class="extra-media-card h-[300px]">
+                                    <img v-if="m.type === 'image'" :src="m.url" onerror="this.src='https://placehold.co/800x600?text=Story+Photo'">
+                                    <div v-else class="w-full h-full bg-slate-900 flex items-center justify-center">
+                                        <i class="fas fa-play-circle text-white text-6xl opacity-50"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- If Side Split: Keep original 2-column layout -->
+                        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-[60px]">
+                            <!-- Left: Donor Wall -->
+                            <div class="donor-board mt-0">
+                                <h3 class="font-black text-2xl uppercase tracking-tighter mb-8">Community Support</h3>
+                                <div v-if="sortedDonations.length === 0" class="text-slate-400 text-left py-10 border-2 border-dashed border-slate-100 rounded-2xl px-8">No messages yet. Be the first to share!</div>
+                                <div class="space-y-6">
+                                    <div v-for="(d, idx) in sortedDonations" :key="idx" class="donor-card" :class="{ pinned: idx === 0 && d.amount > 0 }">
+                                        <div v-if="idx === 0 && d.amount > 0" class="pinned-badge"><i class="fas fa-crown mr-1"></i> Top Donor</div>
+                                        <div class="flex justify-between items-start mb-2">
+                                            <div class="font-black text-sm uppercase">{{ d.anonymous ? 'Anonymous Supporter' : (d.name || 'Kind Donor') }}</div>
+                                            <div class="font-black text-lg" :style="{color: form.accentColor}">${{ Number(d.amount).toLocaleString() }}</div>
+                                        </div>
+                                        <p class="text-sm text-slate-600 italic">"{{ d.message || 'Support sent to this great cause!' }}"</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Right: Creator Option Section -->
+                            <div class="donor-board mt-0">
+                                <h3 class="font-black text-2xl uppercase tracking-tighter mb-8">{{ form.bottomSidebarType === 'campaigns' ? 'Support More' : 'Campaign Stories' }}</h3>
+                                <div v-if="form.bottomSidebarType === 'campaigns'" class="space-y-4">
+                                    <div v-for="(c, idx) in form.supportedCampaigns" :key="idx" class="campaign-item-card">
+                                        <img :src="c.img" class="w-full h-32 object-cover" onerror="this.src='https://placehold.co/400x300?text=Campaign'">
+                                        <div class="p-4"><div class="font-black text-xs uppercase mb-1">{{ c.title }}</div><p class="text-[10px] text-slate-500 line-clamp-2">{{ c.desc }}</p></div>
+                                    </div>
+                                </div>
+                                <div v-if="form.bottomSidebarType === 'media'" class="space-y-4">
+                                    <div v-for="(m, midx) in form.extraMedia" :key="midx" class="extra-media-card">
+                                        <img v-if="m.type === 'image'" :src="m.url" onerror="this.src='https://placehold.co/600x400?text=Story'">
+                                        <div v-else class="w-full h-full bg-slate-900 flex items-center justify-center"><i class="fas fa-play-circle text-white text-4xl opacity-50"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <footer v-if="!showPaymentOverlay" class="py-10 bg-slate-50 text-center border-t border-slate-100 mt-auto">
+                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">&copy; 2026 {{form.orgName || 'Your Organization'}}</div>
+                </footer>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const { createApp } = Vue;
+createApp({
+    data() {
+        return {
+            step: 1,
+            steps: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }],
+            activeFreq: 'One-time',
+            selectedPreset: '100',
+            customAmount: null,
+            isCustom: false,
+            showPaymentOverlay: false,
+            paymentMethod: 'card',
+            paymentFlowStep: 'selection',
+            selectedCoin: 'BTC',
+            donorName: '',
+            donorMessage: '',
+            isAnonymous: false,
+            donations: [],
+            totalSessionDonations: 0,
+            cryptoAddresses: {
+                BTC: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+                ETH: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
+                USDC: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+            },
+            newItem: { title: '', desc: '', img: '' },
+            newMedia: { type: 'image', url: '' },
+            fitOptions: [
+                { label: 'Fill / Crop', value: 'cover' },
+                { label: 'Fit / Contain', value: 'contain' },
+                { label: 'Stretch', value: 'fill' },
+                { label: 'Original', value: 'none' }
+            ],
+            availableIcons: [
+                { id: 'fb', label: 'Facebook', icon: 'fab fa-facebook-f' },
+                { id: 'tw', label: 'Twitter / X', icon: 'fab fa-twitter' },
+                { id: 'li', label: 'LinkedIn', icon: 'fab fa-linkedin-in' },
+                { id: 'wa', label: 'WhatsApp', icon: 'fab fa-whatsapp' }
+            ],
+            form: {
+                logoUrl: '',
+                logoHeight: 32,
+                orgName: 'GOODFORUS',
+                orgNameSize: 20,
+                orgNameFont: 'Inter',
+                campaignName: 'Clean Water Initiative',
+                nameColor: '#1e293b',
+                mission: 'Every human being deserves access to safe, clean drinking water. Your contribution directly funds the construction of sustainable wells.',
+                layout: 'side-left',
+                heroType: 'image',
+                heroUrl: 'https://images.unsplash.com/photo-1541252260730-0412e8e2108e?auto=format&fit=crop&q=80&w=1200',
+                heroFit: 'cover',
+                heroFullHeight: false,
+                presets: '25, 50, 100, 250',
+                showProgress: true,
+                raisedAmount: 600,
+                goalAmount: 30000,
+                headerSocialIcons: ['fb', 'tw', 'li'],
+                btnText: 'Make a Difference',
+                accentColor: '#2563eb',
+                headerBg: '#ffffff',
+                headerDarkText: true,
+                allowRecurring: true,
+                frequencies: ['One-time', 'Weekly', 'Monthly', 'Annually'],
+                bottomSidebarType: 'campaigns', 
+                supportedCampaigns: [
+                    { title: 'Earthquake Relief Fund', desc: 'Providing immediate shelter and medical aid to survivors globally.', img: 'https://images.unsplash.com/photo-1547619292-24040a15ce14?auto=format&fit=crop&q=80&w=400' },
+                    { title: 'Sustainable Farming', desc: 'Helping rural communities build self-sufficient food sources for long term health.', img: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=400' }
+                ],
+                extraMedia: [
+                    { type: 'image', url: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=600' },
+                    { type: 'image', url: 'https://images.unsplash.com/photo-1541976535033-44737bb68046?auto=format&fit=crop&q=80&w=600' }
+                ],
+                sampleDonorName: 'Michael Chen',
+                sampleDonorAmount: 500,
+                sampleDonorMessage: 'So proud of this initiative!'
+            }
+        }
+    },
+    computed: {
+        currentGiftAmount() {
+            return this.isCustom ? (this.customAmount || 0) : Number(this.selectedPreset);
+        },
+        totalAnnualAmount() {
+            const base = this.currentGiftAmount;
+            const multipliers = { 'One-time': 1, 'Weekly': 52, 'Monthly': 12, 'Annually': 1 };
+            return base * (multipliers[this.activeFreq] || 1);
+        },
+        sortedDonations() {
+            let list = [...this.donations];
+            if (this.form.sampleDonorName && this.form.sampleDonorAmount > 0) {
+                list.push({
+                    name: this.form.sampleDonorName,
+                    amount: Number(this.form.sampleDonorAmount),
+                    message: this.form.sampleDonorMessage,
+                    anonymous: false,
+                    isSample: true
+                });
+            }
+            return list.sort((a, b) => b.amount - a.amount);
+        }
+    },
+    methods: {
+        getIconClass(id) {
+            const icon = this.availableIcons.find(i => i.id === id);
+            return icon ? icon.icon : '';
+        },
+        toggleFrequency(f) {
+            if (this.form.frequencies.includes(f)) {
+                this.form.frequencies = this.form.frequencies.filter(item => item !== f);
+            } else {
+                this.form.frequencies.push(f);
+            }
+        },
+        addCampaign() {
+            if (!this.newItem.title) return;
+            this.form.supportedCampaigns.push({ ...this.newItem });
+            this.newItem = { title: '', desc: '', img: '' };
+        },
+        addMedia() {
+            if (!this.newMedia.url) return;
+            this.form.extraMedia.push({ ...this.newMedia });
+            this.newMedia = { type: 'image', url: '' };
+        },
+        handleItemUpload(event, target) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                if (target === 'campaign') this.newItem.img = e.target.result;
+                if (target === 'media') this.newMedia.url = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        },
+        openPaymentOverlay() {
+            this.showPaymentOverlay = true;
+            this.paymentFlowStep = 'selection';
+        },
+        copyAddress() {
+            const text = this.cryptoAddresses[this.selectedCoin];
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+        },
+        confirmPayment() {
+            this.paymentFlowStep = 'success';
+            this.downloadReceipt();
+        },
+        downloadReceipt() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const orgName = this.form.orgName || 'GIVEBACK';
+            const donorName = this.donorName || 'Kind Donor';
+            const amount = this.currentGiftAmount;
+            const annualAmount = this.totalAnnualAmount;
+            const frequency = this.activeFreq;
+            const campaign = this.form.campaignName;
+            const receiptId = `GIVE-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+            const date = new Date().toLocaleDateString();
+
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(22);
+            doc.text(orgName, 20, 30);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            doc.text("Supporting God's Work Together", 20, 38);
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text(`DONOR: ${donorName.toUpperCase()}`, 20, 55);
+            let paymentDetail = this.paymentMethod.toUpperCase();
+            if (this.paymentMethod === 'card') paymentDetail = 'Card ending in ****';
+            doc.text(`PAYMENT METHOD: ${paymentDetail}`, 20, 62);
+
+            doc.autoTable({
+                startY: 75,
+                head: [['Category', 'Amount']],
+                body: [[campaign, `$${amount.toLocaleString()} (${frequency})`], ['Annual Commitment Total', `$${annualAmount.toLocaleString()}`]],
+                theme: 'grid',
+                headStyles: { fillColor: [40, 40, 40] },
+                margin: { left: 20, right: 20 }
+            });
+
+            const finalY = doc.lastAutoTable.finalY || 100;
+            doc.setFont('helvetica', 'bold');
+            doc.text(`RECEIPT ID: ${receiptId}`, 20, finalY + 20);
+            doc.text(`DATE: ${date}`, 20, finalY + 28);
+            doc.text(`STATUS: PAID`, 20, finalY + 36);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            const policyText = `Refund Policy: All donations to ${orgName} are non-refundable and will be used to support our mission.`;
+            doc.text(doc.splitTextToSize(policyText, 170), 20, finalY + 50);
+
+            if (frequency !== 'One-time') {
+                const agreementText = `FRIENDLY CONTRACTUAL AGREEMENT: By confirming this ${frequency} gift, you are entering into a friendly contractual agreement with ${orgName}. We will collect $${amount} from you each period for a total annual contribution of $${annualAmount.toLocaleString()}. Thank you for this commitment!`;
+                doc.text(doc.splitTextToSize(agreementText, 170), 20, finalY + 65);
+            }
+            doc.save(`Receipt_${receiptId}.pdf`);
+        },
+        postMessage() {
+            const annualTotal = this.totalAnnualAmount;
+            this.donations.push({
+                amount: annualTotal,
+                message: this.donorMessage,
+                anonymous: this.isAnonymous,
+                name: this.donorName || 'Kind Donor'
+            });
+            this.totalSessionDonations += annualTotal;
+            this.showPaymentOverlay = false;
+            this.donorName = '';
+            this.donorMessage = '';
+            this.paymentFlowStep = 'selection';
+        },
+        handleFileUpload(event, field) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => { this.form[field] = e.target.result; };
+            reader.readAsDataURL(file);
+        }
+    }
+}).mount('#app');
+</script>
+</body>
+</html>
