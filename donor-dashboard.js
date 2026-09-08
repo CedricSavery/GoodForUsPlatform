@@ -2,153 +2,13 @@
   const STORAGE_KEY = "goodforus_donor_dashboard_data";
 
   const defaultData = {
-    donor: {
-      id: "DNR-1001",
-      name: "Cedric Savery",
-      email: "cedric@example.com",
-      phone: "(555) 555-0147",
-      address: "123 Supporter Lane, Springfield, OH 45502",
-      notes: "Primary donor profile for dashboard testing."
-    },
-    organization: {
-      name: "GoodForUs",
-      supportEmail: "support@goodforus.com",
-      receiptFooter: "Thank you for supporting this organization. Funds may be held pending risk review or settlement policy.",
-      taxLanguage: "No goods or services were provided in exchange for this contribution."
-    },
-    preferences: {
-      emailReceipts: true,
-      campaignUpdates: true,
-      recurringReminders: false,
-      smsAlerts: false
-    },
-    paymentMethods: [
-      {
-        id: "pm_001",
-        type: "card",
-        brand: "Visa",
-        last4: "4242",
-        exp: "08/28",
-        billingName: "Cedric Savery",
-        isDefault: true
-      },
-      {
-        id: "pm_002",
-        type: "card",
-        brand: "Mastercard",
-        last4: "8888",
-        exp: "11/27",
-        billingName: "Cedric Savery",
-        isDefault: false
-      },
-      {
-        id: "pm_003",
-        type: "bank",
-        bankName: "Chase Bank",
-        accountType: "Checking",
-        last4: "9012",
-        routingLast4: "0021",
-        billingName: "Cedric Savery",
-        isDefault: false
-      },
-      {
-        id: "pm_004",
-        type: "paypal",
-        paypalEmail: "cedric-paypal@example.com",
-        isDefault: false
-      }
-    ],
-    recurringGifts: [
-      {
-        id: "rg_001",
-        campaign: "Community Health Initiative",
-        amount: 50,
-        frequency: "Monthly",
-        nextCharge: "2026-05-01",
-        status: "Active"
-      },
-      {
-        id: "rg_002",
-        campaign: "Scholarship Access Fund",
-        amount: 25,
-        frequency: "Monthly",
-        nextCharge: "2026-05-10",
-        status: "Active"
-      }
-    ],
-    donations: [
-      {
-        id: "don_1001",
-        date: "2026-04-12",
-        campaign: "Community Health Initiative",
-        campaignSlug: "community-health-initiative",
-        campaignDescription: "Improving access to care, resources, and wellness support for underserved families.",
-        amount: 100,
-        status: "Completed",
-        method: "Visa •••• 4242",
-        receiptNumber: "GFU-RCPT-1001",
-        frequency: "One-time"
-      },
-      {
-        id: "don_1002",
-        date: "2026-03-28",
-        campaign: "Scholarship Access Fund",
-        campaignSlug: "scholarship-access-fund",
-        campaignDescription: "Helping students access education, books, tuition support, and career readiness resources.",
-        amount: 250,
-        status: "Completed",
-        method: "Mastercard •••• 8888",
-        receiptNumber: "GFU-RCPT-1002",
-        frequency: "One-time"
-      },
-      {
-        id: "don_1003",
-        date: "2026-02-17",
-        campaign: "Family Housing Drive",
-        campaignSlug: "family-housing-drive",
-        campaignDescription: "Providing practical support and stability for families facing housing insecurity.",
-        amount: 75,
-        status: "Completed",
-        method: "Visa •••• 4242",
-        receiptNumber: "GFU-RCPT-1003",
-        frequency: "One-time"
-      },
-      {
-        id: "don_1004",
-        date: "2026-01-09",
-        campaign: "Community Health Initiative",
-        campaignSlug: "community-health-initiative",
-        campaignDescription: "Improving access to care, resources, and wellness support for underserved families.",
-        amount: 50,
-        status: "Completed",
-        method: "ACH •••• 9012",
-        receiptNumber: "GFU-RCPT-1004",
-        frequency: "Monthly"
-      }
-    ],
-    campaigns: [
-      {
-        id: "cmp_001",
-        name: "Community Health Initiative",
-        slug: "community-health-initiative",
-        description: "Improving access to care, resources, and wellness support for underserved families.",
-        goal: 25000
-      },
-      {
-        id: "cmp_002",
-        name: "Scholarship Access Fund",
-        slug: "scholarship-access-fund",
-        description: "Helping students access education, books, tuition support, and career readiness resources.",
-        goal: 15000
-      },
-      {
-        id: "cmp_003",
-        name: "Family Housing Drive",
-        slug: "family-housing-drive",
-        description: "Providing practical support and stability for families facing housing insecurity.",
-        goal: 18000
-      }
-    ]
+    donor: { id: '', name: '', email: '', phone: '', address: '', notes: '' },
+    organization: { name: 'GoodForUs', supportEmail: '', receiptFooter: '', taxLanguage: '' },
+    preferences: { emailReceipts: true, campaignUpdates: true, recurringReminders: false, smsAlerts: false },
+    paymentMethods: [],
+    recurringGifts: [],
+    donations: [],
+    campaigns: []
   };
 
   const state = loadState();
@@ -216,6 +76,14 @@
   init();
 
   function init() {
+    if (window.GFUData) {
+      window.GFUData.loadDonorDashboard(state).then(remoteState => {
+        Object.assign(state, remoteState);
+        saveState(false);
+        hydrateProfile();
+        renderAll();
+      }).catch(() => {});
+    }
     hydrateProfile();
     renderAll();
     wireNav();
@@ -246,8 +114,9 @@
     }
   }
 
-  function saveState() {
+  function saveState(pushRemote = true) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    if (pushRemote && window.GFUData) window.GFUData.saveDonorDashboard(state).catch(() => {});
   }
 
   function clone(obj) {

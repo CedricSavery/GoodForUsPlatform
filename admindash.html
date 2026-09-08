@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoodForUs OS | Master Admin Sandbox</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/js/gfu-data-sync.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -26,9 +27,7 @@
         
         <aside class="w-64 bg-slate-900 text-slate-400 flex flex-shrink-0 flex-col border-r border-slate-800">
             <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-                <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-black italic shadow-lg shadow-emerald-500/20">G</div>
-                <span class="font-black text-white tracking-tighter text-xl uppercase">GoodForUs</span>
-            </div>
+            <img src="public/assets/images/logo-white.png" width="2776" height="569" alt=""/> </div>
             
             <nav class="flex-1 overflow-y-auto py-4">
                 <div class="px-6 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">Executive Snapshot</div>
@@ -225,30 +224,18 @@
                         { label: 'Requested Payouts', value: '$11,875.00' },
                         { label: 'Total in Risk', value: '$10,000.00' }
                     ],
-                    organizations: [
-                        { 
-                            id: 8001, 
-                            name: 'St. James HOFS', 
-                            balance: '11,875.00', 
-                            status: 'Active',
-                            amlAlerts: 1, 
-                            campaigns: [
-                                { name: 'Manifold Ministry', raised: '8,500.00', frozen: false }, 
-                                { name: 'Youth Outreach', raised: '3,375.00', frozen: false }
-                            ],
-                            users: [
-                                { name: 'Reverend James', email: 'lead@stjames.org', role: 'Super Admin' },
-                                { name: 'Sarah Miller', email: 'sarah@stjames.org', role: 'Treasurer' }
-                            ],
-                            alerts: [{ id: 1, donorId: 77, donor: 'Paul Witfield', flaggedTotal: '10,000.00' }]
-                        },
-                        { id: 8002, name: 'GoodForUs Community', balance: '0.00', status: 'Active', amlAlerts: 0, campaigns: [{ name: 'Operational Fund', raised: '0.00', frozen: false }], users: [{ name: 'SysAdmin', email: 'root@goodforus.org', role: 'Dev' }] }
-                    ],
-                    donors: [
-                        { id: 42, name: 'Dr. Ana Everett', ip: '192.168.1.1', region: 'USA', ltv: 2500, history: [{ id: 'TX-4401', campaign: 'Manifold Ministry', amt: '500.00', frozen: false }] },
-                        { id: 77, name: 'Paul Witfield', ip: '172.16.2.14', region: 'USA', ltv: 10000, history: [{ id: 'TX-9901', campaign: 'Manifold Ministry', amt: '1000.00', frozen: false }, { id: 'TX-9902', campaign: 'Manifold Ministry', amt: '1000.00', frozen: false }] }
-                    ],
-                    applications: [{ id: 501, name: "Misty's Crazy Creations", riskScore: 80, kycFactors: [{ name: 'UBO Chain', auditNote: 'Incomplete ownership data.' }, { name: 'Source of Funds', auditNote: 'Unverified initial capital.' }, { name: 'Adverse Media', auditNote: 'Related to 2021 litigation.' }, { name: 'Shell Indicators', auditNote: 'Virtual address used.' }] }]
+                    organizations: [],
+                    donors: [],
+                    applications: []
+                }
+            },
+            mounted() {
+                if (window.GFUData) {
+                    window.GFUData.bootstrap().then(db => {
+                        if (db?.applications) this.applications = db.applications;
+                        if (db?.orgdash?.campaigns?.length) this.organizations = [{ id: 1, name: db.orgdash.settings?.orgName || 'Organization', balance: '0.00', status: 'Active', amlAlerts: db.orgdash.riskCases?.length || 0, campaigns: db.orgdash.campaigns.map(c => ({ name: c.name, raised: String(c.raised || '0.00'), frozen: !!c.held })), users: db.orgdash.users || [], alerts: [] }];
+                        if (db?.orgdash?.donors) this.donors = db.orgdash.donors.map(d => ({ id: d.id, name: d.name, ip: '', region: d.region || '', ltv: d.totalGiven || 0, history: [] }));
+                    }).catch(() => {});
                 }
             },
             methods: {

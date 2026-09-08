@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoodForUs OS | Master Admin Sandbox</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/js/gfu-data-sync.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -49,10 +50,9 @@
 
     <aside class="w-72 bg-slate-900 text-slate-400 flex flex-shrink-0 flex-col border-r border-slate-800">
         <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-            <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-black italic shadow-lg shadow-emerald-500/20">G</div>
+            
             <div>
-                <span class="font-black text-white tracking-tighter text-xl uppercase leading-none block">GoodForUs</span>
-                <span class="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">Forensic Finance OS</span>
+               <img src="public/assets/images/logo-white.png" width="2776" height="569" alt=""/> <span class="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">Forensic Finance OS</span>
             </div>
         </div>
 
@@ -1114,6 +1114,15 @@ createApp({
     },
     mounted() {
         this.selectedDonor = this.donors[0];
+        if (window.GFUData) {
+            window.GFUData.bootstrap().then(db => {
+                if (db?.applications) this.applications = db.applications;
+                if (db?.orgdash?.campaigns?.length) {
+                    this.organizations = [{ id: 1, name: db.orgdash.settings?.orgName || 'Organization', legalName: db.orgdash.settings?.orgName || 'Organization', balance: '0.00', status: 'Active', amlAlerts: db.orgdash.riskCases?.length || 0, campaigns: db.orgdash.campaigns.map(c => ({ id: c.id, name: c.name, type: c.builder || 'Campaign', raised: String(c.raised || 0), frozen: !!c.held, attribution: c.owner || '' })), users: db.orgdash.users || [] }];
+                }
+                if (db?.orgdash?.donors) this.donors = db.orgdash.donors.map(d => ({ id: d.id, name: d.name, email: d.email || '', ip: '', region: d.region || '', ltv: d.totalGiven || 0, history: [] }));
+            }).catch(() => {});
+        }
     },
     methods: {
         openOrgDossier(org) { this.viewingOrg = org; this.forensicTab = 'donors'; },

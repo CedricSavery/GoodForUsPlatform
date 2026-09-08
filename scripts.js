@@ -63,13 +63,18 @@ function sync() {
     document.getElementById('v-count').innerText = donorData.length + " donations";
 
     // Push to LocalStorage for the live site
-    localStorage.setItem('gfm_campaign_data', JSON.stringify({
+    const campaignPayload = {
         color, parent, title, story, goal, 
         imgUrl: document.getElementById('v-img')?.src || "", 
         vidUrl, mediaMode, totalRaised: total, 
         donationCount: donorData.length, donors: donorData,
-        topDonor: topDonor // Added this so P2P.html can read it easily
-    }));
+        topDonor: topDonor
+    };
+    localStorage.setItem('gfm_campaign_data', JSON.stringify(campaignPayload));
+    if (window.GFUData) window.GFUData.saveCampaign({
+        name: title, title, builder: 'Fundraising Page', status: 'Live', owner: parent,
+        goal: Number(goal || 0), raised: Number(total || 0), donors: donorData.length, story, description: story
+    }).catch(() => {});
 }
 
 function addDonor() {

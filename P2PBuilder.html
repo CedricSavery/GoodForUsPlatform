@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoodForUs | P2P Builder Pro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/js/gfu-data-sync.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --accent: #00b964; }
@@ -227,6 +228,19 @@
             activeRole: document.getElementById('role-selector').value
         };
         localStorage.setItem('gfm_campaign_data', JSON.stringify(campaignData));
+        if (window.GFUData) window.GFUData.saveCampaign({
+            id: campaignData.id,
+            name: campaignData.title,
+            title: campaignData.title,
+            builder: 'P2P',
+            status: 'Live',
+            owner: campaignData.parent,
+            goal: Number(campaignData.goal || 0),
+            raised: Number(campaignData.totalRaised || 0),
+            donors: Number(campaignData.donationCount || 0),
+            story: campaignData.story,
+            description: campaignData.story
+        }).catch(() => {});
         alert("Campaign data synced to live page!");
     }
 

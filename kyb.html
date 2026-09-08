@@ -612,7 +612,8 @@ th {
 .mono-note { overflow-wrap:anywhere; word-break:break-word; }
  
 </style>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="/assets/js/gfu-data-sync.js"></script>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
  
   <style>
     .review-detail-grid {
@@ -735,12 +736,12 @@ th {
             <div class="field full">
               <label>Business Entity Verification</label>
               <div class="action-row">
-                <button class="secondary-btn" type="button" @click="openBusinessVerification">Verify Business with Didit</button>
+                <button class="secondary-btn" type="button" @click="openBusinessVerification">Verify Business</button>
                 <span v-if="businessVerificationHasActivity" class="doc-status" :class="{ complete: businessVerificationVerified }">
                   {{ businessVerificationLabel }}
                 </span>
               </div>
-              <small>Runs secure business KYB verification through Didit. Results are tracked against this application and can be updated by webhook.</small>
+              <small>Runs secure business KYB verification. Results are tracked against this application.</small>
             </div>
             <div class="field">
               <label>Website</label>
@@ -1729,6 +1730,14 @@ createApp({
         this.reviewQueue = Array.isArray(queue)
           ? queue.map(item => ({ showDetails: false, ...item }))
           : [];
+        if (window.GFUData) {
+          window.GFUData.loadApplications().then(result => {
+            if (result && Array.isArray(result.applications)) {
+              this.reviewQueue = result.applications.map(item => ({ showDetails: false, ...item }));
+              localStorage.setItem(QUEUE_KEY, JSON.stringify(this.reviewQueue));
+            }
+          }).catch(() => {});
+        }
       } catch (error) {
         this.form = this.defaultForm();
       }
@@ -3036,6 +3045,13 @@ createApp({
         this.reviewQueue = Array.isArray(this.reviewQueue) ? this.reviewQueue : [];
         this.reviewQueue.unshift(application);
         this.persistData();
+        if (window.GFUData) {
+          const saved = await window.GFUData.saveApplication(application).catch(() => null);
+          if (saved && Array.isArray(saved.applications)) {
+            this.reviewQueue = saved.applications.map(item => ({ showDetails: false, ...item }));
+            localStorage.setItem(QUEUE_KEY, JSON.stringify(this.reviewQueue));
+          }
+        }
  
         console.log('KYC application submitted:', application);
         console.log('Updated review queue:', this.reviewQueue);
@@ -3066,6 +3082,7 @@ createApp({
         this.reviewQueue = Array.isArray(this.reviewQueue) ? this.reviewQueue : [];
         this.reviewQueue.unshift(fallbackApplication);
         this.persistData();
+        if (window.GFUData) window.GFUData.saveApplication(fallbackApplication).catch(() => {});
  
         alert('There was an issue during submission. The application was still saved and routed to manual review.');
         if (this.isAdmin) this.activeView = 'admin';

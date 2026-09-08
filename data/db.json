@@ -1,0 +1,25 @@
+{
+  "applications": [],
+  "orgdash": {
+    "settings": {},
+    "campaigns": [],
+    "donors": [],
+    "users": [],
+    "banks": [],
+    "payouts": [],
+    "riskCases": [],
+    "ledger": [],
+    "audit": []
+  },
+  "donorDashboard": {
+    "donor": {},
+    "organization": {},
+    "preferences": {},
+    "paymentMethods": [],
+    "recurringGifts": [],
+    "donations": [],
+    "campaigns": []
+  },
+  "snapshots": [],
+  "diditEvents": []
+}

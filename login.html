@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GoodForUs | Secure Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --accent:#00b964; --enterprise:#2271b1; --dark:#0f172a; }
+    * { box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; color:var(--dark); min-height:100vh; background:radial-gradient(circle at top right,#f0fdf4,#ffffff 38%,#f8fafc); }
+    .logo-container img { display:block; max-height:45px; width:auto; }
+    .login-card { background:rgba(255,255,255,.94); border:1px solid #e2e8f0; box-shadow:0 30px 80px rgba(15,23,42,.08); }
+    .field { width:100%; border:1px solid #dbe5f0; background:#f8fafc; border-radius:1rem; padding:.95rem 1rem .95rem 2.75rem; outline:none; transition:.2s; font-size:.95rem; }
+    .field:focus { border-color:var(--accent); background:#fff; box-shadow:0 0 0 4px rgba(0,185,100,.10); }
+    .role-chip { border:1px solid #e2e8f0; background:#fff; border-radius:999px; padding:.55rem .8rem; font-size:.7rem; font-weight:900; color:#64748b; text-transform:uppercase; letter-spacing:.08em; }
+    .btn-primary { background:linear-gradient(135deg,var(--accent),#06d178); color:#fff; box-shadow:0 18px 35px rgba(0,185,100,.18); }
+    .btn-primary:hover { transform:translateY(-1px); box-shadow:0 22px 42px rgba(0,185,100,.22); }
+  </style>
+</head>
+<body>
+  <nav class="w-full bg-white/80 backdrop-blur-md border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3 logo-container no-underline">
+        <img src="" alt="GoodForUs" onerror="this.style.display='none'; document.getElementById('logo-text-icon').classList.remove('hidden');"><img src="public/assets/images/GoodForUs_G copy.png" width="648" height="662" alt=""/>
+       
+        <span class="text-2xl font-black tracking-tighter text-slate-900">GoodForUs</span>
+      </a>
+      <a href="index.html" class="hidden sm:inline-flex px-5 py-2.5 rounded-full border border-slate-200 text-xs font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50">Back to Site</a>
+    </div>
+  </nav>
+
+  <main class="min-h-[calc(100vh-80px)] flex items-center justify-center px-6 py-12">
+    <div class="w-full max-w-6xl grid lg:grid-cols-[1fr_480px] gap-10 items-center">
+      <section class="hidden lg:block">
+        <span class="inline-flex px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-black uppercase tracking-[.18em]">Secure Role Routing</span>
+        <h1 class="mt-6 text-6xl font-black leading-[1.04] tracking-[-.05em] text-slate-900">DO WHAT'S GOODFORUS.</h1>
+        <p class="mt-6 text-lg text-slate-500 leading-relaxed max-w-xl">Enter the email or username connected to the account</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <span class="role-chip"><i class="fas fa-shield-halved mr-2 text-emerald-500"></i>Admin</span>
+          <span class="role-chip"><i class="fas fa-money-bill-transfer mr-2 text-emerald-500"></i>Accounting</span>
+          <span class="role-chip"><i class="fas fa-landmark mr-2 text-emerald-500"></i>Organization</span>
+          <span class="role-chip"><i class="fas fa-hand-holding-heart mr-2 text-emerald-500"></i>Donor</span>
+          <span class="role-chip"><i class="fas fa-id-card mr-2 text-emerald-500"></i>Applicant</span>
+        </div>
+      </section>
+
+      <section class="login-card rounded-[2rem] overflow-hidden">
+        <div class="p-8 border-b border-slate-100 bg-slate-50/70">
+          <img src="public/assets/images/logo-white.png" width="2776" height="569"/>
+<h2 class="text-2xl font-black tracking-tight text-slate-900">Sign in to GoodForUs</h2>
+          <p class="text-sm text-slate-500 mt-2">Your email or username determines the correct dashboard.</p>
+        </div>
+
+        <form id="loginForm" class="p-8 space-y-5">
+          <div>
+            <label class="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest">Email or Username</label>
+            <div class="relative">
+              <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input id="identifier" class="field" type="text" autocomplete="username" placeholder="owner@organization.org" required />
+            </div>
+          </div>
+
+          <div>
+            <label class="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest">Password</label>
+            <div class="relative">
+              <i class="fas fa-key absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input id="password" class="field" type="password" autocomplete="current-password" placeholder="Sandbox password" />
+            </div>
+            <p class="text-[11px] text-slate-400 mt-2">For sandbox testing, the role route is based on the account email/username or saved user role.</p>
+          </div>
+
+          <div id="message" class="hidden rounded-2xl px-4 py-3 text-sm font-bold"></div>
+
+          <button id="loginBtn" type="submit" class="btn-primary w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all">Continue to Dashboard</button>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const roleRoutes = {
+      admin: 'admindash.html', master_admin: 'admindash.html', compliance: 'admindash.html', compliance_admin: 'admindash.html',
+      accounting: 'accounting.html', finance: 'accounting.html', finance_admin: 'accounting.html',
+      organization: 'orgdash.html', organization_owner: 'orgdash.html', org_admin: 'orgdash.html', campaign_manager: 'orgdash.html', campaign_editor: 'orgdash.html',
+      donor: 'donor-dashboard.html', applicant: 'kyb.html', kyb: 'kyb.html', kyc: 'kyb.html'
+    };
+    function cleanKey(value) { return String(value || '').trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_@.-]/g, ''); }
+    function routeForRole(role) { const key = cleanKey(role); return roleRoutes[key] || roleRoutes[key.replace(/-/g, '_')] || 'orgdash.html'; }
+    function inferRole(identifier) {
+      const value = String(identifier || '').trim().toLowerCase();
+      if (/^(admin|root|sysadmin|superadmin|masteradmin)|admin@|root@/.test(value)) return 'admin';
+      if (/^(accounting|finance|treasurer|ledger|payouts)|accounting@|finance@|treasurer@/.test(value)) return 'accounting';
+      if (/^(donor|giver|supporter)|donor@|giver@|supporter@/.test(value)) return 'donor';
+      if (/^(kyb|kyc|applicant|application)|kyb@|kyc@|applicant@/.test(value)) return 'applicant';
+      if (/^(org|organization|owner|manager|campaign|lead)|org@|owner@|manager@|campaign@|lead@/.test(value)) return 'organization';
+      return 'organization';
+    }
+    function setMessage(text, type) {
+      const box = document.getElementById('message');
+      box.textContent = text;
+      box.className = 'rounded-2xl px-4 py-3 text-sm font-bold ' + (type === 'error' ? 'bg-rose-50 text-rose-700 border border-rose-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-100');
+    }
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const identifier = document.getElementById('identifier').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('loginBtn');
+      if (!identifier) return setMessage('Enter an email or username.', 'error');
+      btn.disabled = true;
+      btn.textContent = 'Routing...';
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier, password })
+        });
+        if (!response.ok) throw new Error('Login route unavailable');
+        const result = await response.json();
+        if (!result.ok) throw new Error(result.error || 'Unable to route this user.');
+        localStorage.setItem('gfuCurrentUser', JSON.stringify(result.user));
+        setMessage('Role recognized. Opening dashboard...', 'success');
+        window.location.href = result.route;
+      } catch (error) {
+        const role = inferRole(identifier);
+        const route = routeForRole(role);
+        localStorage.setItem('gfuCurrentUser', JSON.stringify({ identifier, role, route, loggedInAt: new Date().toISOString(), fallback: true }));
+        setMessage('Sandbox route recognized. Opening dashboard...', 'success');
+        window.location.href = route;
+      }
+    });
+  </script>
+</body>
+</html>

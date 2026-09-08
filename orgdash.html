@@ -216,9 +216,9 @@
 <body>
   <aside class="sidebar">
     <div class="brand">
-      <div class="brand-badge">GFU</div>
-      <div>
-        <h1>Admin Control<br>Center</h1>
+    <img src="public/assets/images/GoodForUs_G copy.png" width="64" height="66" alt=""/>
+<div>
+      <h1>Admin Control<br>Center</h1>
         <small>Wired Prototype</small>
       </div>
     </div>
@@ -720,6 +720,7 @@
     </div>
   </div>
 
+<script src="/assets/js/gfu-data-sync.js"></script>
 <script>
 (() => {
   const STORAGE_KEY = 'gfu_admin_control_center_v1';
@@ -790,6 +791,14 @@
   ];
 
   let state = loadState();
+  if (window.GFUData) {
+    window.GFUData.loadOrgdash(state).then(remoteState => {
+      state = remoteState;
+      selectedCampaignId = state.campaigns[0]?.id || null;
+      saveState(false);
+      if (typeof renderAll === 'function') renderAll();
+    }).catch(() => {});
+  }
   let selectedCampaignId = state.campaigns[0]?.id || null;
   let selectedDonorId = null;
 
@@ -809,8 +818,9 @@
       return clone(DEFAULTS);
     }
   }
-  function saveState(){
+  function saveState(pushRemote = true){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    if (pushRemote && window.GFUData) window.GFUData.saveOrgdash(state).catch(() => {});
   }
   function addAudit(action, entity, user='current.user'){
     state.audit.unshift({ts:new Date().toISOString(), user, action, entity});
